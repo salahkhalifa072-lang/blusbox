@@ -1,26 +1,127 @@
 @import "tailwindcss";
 
+/*
+ * Blusbox design tokens — §6 of the brief.
+ * Reference world: Dutch/Swiss industrial signage applied to the
+ * materials of a meterkast. Red appears once per screen.
+ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Material palette */
+  --kastwit: #e8e9e6; /* enclosure polycarbonate — page ground */
+  --railstaal: #9ba1a6; /* zinc DIN rail — rules, borders ONLY (2.4:1, not text-safe) */
+  --antraciet: #16181a; /* type, dark sections */
+  --blusrood: #d2231f; /* ISO safety red — the module and primary action only (4.86:1 on kastwit, AA) */
+  --signaal: #f4c300; /* the 170 °C moment only */
+
+  /* Derived — not in the brief's palette table, but needed to hit AA */
+  --staal-tekst: #595f63; /* darkened railstaal for muted text (6.0:1 on kastwit) */
+  --kastwit-dim: #dfe0dd; /* subtle panel differentiation on kastwit */
+  --antraciet-verhoogd: #1f2225; /* raised panel on dark sections */
+
+  /* Geometry — zero radius except interactive controls */
+  --radius: 0px;
+  --radius-control: 2px;
+  --hairline: 1px solid var(--railstaal);
+
+  /* Type scale 12/14/16/20/28/40/64/96, clamp() on the top three */
+  --text-data: 0.75rem; /* 12 — Geist Mono captions, lot numbers */
+  --text-sm: 0.875rem; /* 14 */
+  --text-base: 1rem; /* 16 */
+  --text-lg: 1.25rem; /* 20 */
+  --text-xl: 1.75rem; /* 28 */
+  --text-2xl: clamp(2rem, 1.5rem + 2vw, 2.5rem); /* → 40 */
+  --text-3xl: clamp(2.5rem, 1.75rem + 3.5vw, 4rem); /* → 64 */
+  --text-4xl: clamp(3rem, 2rem + 5vw, 6rem); /* → 96 */
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-kastwit: var(--kastwit);
+  --color-kastwit-dim: var(--kastwit-dim);
+  --color-railstaal: var(--railstaal);
+  --color-antraciet: var(--antraciet);
+  --color-antraciet-verhoogd: var(--antraciet-verhoogd);
+  --color-blusrood: var(--blusrood);
+  --color-signaal: var(--signaal);
+  --color-staal-tekst: var(--staal-tekst);
+
+  --font-display: var(--font-archivo), system-ui, sans-serif;
+  --font-sans: var(--font-instrument), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --text-data: var(--text-data);
+  --text-2xl: var(--text-2xl);
+  --text-3xl: var(--text-3xl);
+  --text-4xl: var(--text-4xl);
+
+  --radius-none: var(--radius);
+  --radius-control: var(--radius-control);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    background: var(--kastwit);
+    color: var(--antraciet);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  ::selection {
+    background: var(--antraciet);
+    color: var(--kastwit);
+  }
+
+  /* Visible focus, always — §12 floor */
+  :focus-visible {
+    outline: 2px solid var(--blusrood);
+    outline-offset: 2px;
+  }
+
+  /* Display type: Archivo pushed to its expanded width */
+  .font-display {
+    font-family: var(--font-display);
+    font-stretch: 125%;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+  }
+
+  /* Every measurable value is Geist Mono — the one rule that does
+     most of the visual work. Use .data for temperatures, lot numbers,
+     dimensions, prices. */
+  .data {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
+  }
+
+  .hairline-t {
+    border-top: var(--hairline);
+  }
+  .hairline-b {
+    border-bottom: var(--hairline);
+  }
+  .hairline {
+    border: var(--hairline);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Modular grid derived from DIN pitch: 8 columns mobile, 18 desktop */
+@layer components {
+  .din-grid {
+    display: grid;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    column-gap: 1rem;
+  }
+  @media (min-width: 64rem) {
+    .din-grid {
+      grid-template-columns: repeat(18, minmax(0, 1fr));
+    }
+  }
 }
