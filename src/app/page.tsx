@@ -190,51 +190,36 @@ export default function Home() {
             </p>
           </Reveal>
           <div className="mt-12 grid gap-4 sm:grid-cols-3">
-            {[
-              {
-                src: "/media/packshot.jpg",
-                alt: "Blusbox module, matrood, met DIN-railclip en detectiekoord",
-                caption: "De module",
-                delay: 0,
-              },
-              {
-                src: "/media/meterkast-front.jpg",
-                alt: "Blusbox gemonteerd op de DIN-rail in een Nederlandse meterkast, vooraanzicht",
-                caption: "In de meterkast",
-                delay: 80,
-              },
-            ].map((img) => (
-              <Reveal key={img.src} delay={img.delay}>
-                <figure>
-                  <div className="relative aspect-square overflow-hidden rounded-2xl bg-kastwit-dim">
-                    <Image
-                      src={img.src}
-                      alt={img.alt}
-                      fill
-                      sizes="(min-width: 640px) 33vw, 100vw"
-                      className="object-cover"
-                    />
-                    <LogoBadge />
-                  </div>
-                  <figcaption className="data px-1 py-3 text-xs text-staal-tekst">
-                    {img.caption}
-                  </figcaption>
-                </figure>
-              </Reveal>
-            ))}
-            <Reveal delay={160}>
+            <Reveal>
               <figure>
                 <div className="relative aspect-square overflow-hidden rounded-2xl bg-kastwit-dim">
+                  <Image
+                    src="/media/packshot.jpg"
+                    alt="Blusbox module, matrood, met DIN-railclip en detectiekoord"
+                    fill
+                    sizes="(min-width: 640px) 33vw, 100vw"
+                    className="object-cover"
+                  />
+                  <LogoBadge />
+                </div>
+                <figcaption className="data px-1 py-3 text-xs text-staal-tekst">
+                  De module
+                </figcaption>
+              </figure>
+            </Reveal>
+            <Reveal delay={80} className="sm:col-span-2">
+              <figure>
+                <div className="relative aspect-square overflow-hidden rounded-2xl bg-kastwit-dim sm:aspect-auto sm:h-full">
                   <VideoBlock
-                    src="/media/monolith.mp4"
-                    poster="/media/monolith.jpg"
-                    label="Filmfragment: langzame beweging rond de rode module tussen grijze installatietorens"
+                    src="/media/meterkast-front.mp4"
+                    poster="/media/meterkast-front.jpg"
+                    label="Fragment: een beginnende brand in de meterkast wordt door de Blusbox-module met aerosol gedoofd"
                     className="absolute inset-0 h-full w-full object-cover"
                   />
                   <LogoBadge />
                 </div>
                 <figcaption className="data px-1 py-3 text-xs text-staal-tekst">
-                  Uit de film · beeld is een weergave
+                  In de meterkast · beeld is een weergave
                 </figcaption>
               </figure>
             </Reveal>
@@ -279,9 +264,11 @@ export default function Home() {
                   </figcaption>
                 </figure>
               </Reveal>
-              <Reveal delay={100}>
-                <figure>
-                  <div className="relative aspect-video w-full overflow-hidden rounded-2xl lg:aspect-auto lg:h-[calc(100%-2rem)]">
+              <Reveal delay={100} className="lg:h-full">
+                <figure className="flex h-full flex-col">
+                  {/* fills the column height beside the video without a
+                      calc() against an auto-height parent */}
+                  <div className="relative aspect-video w-full overflow-hidden rounded-2xl lg:aspect-auto lg:min-h-0 lg:flex-1">
                     <Image
                       src="/media/hallway.jpg"
                       alt="Gewone Nederlandse gang in ochtendlicht met gesloten meterkastdeur"

@@ -34,7 +34,8 @@ export const metadata: Metadata = {
   description:
     "Een compacte blusmodule in je meterkast die bij 170 °C vanzelf ingrijpt. Geen stroom. Geen bediening. Geen mens.",
   icons: {
-    icon: "/icon.svg",
+    icon: "/icon.png",
+    apple: "/icon.png",
   },
 };
 

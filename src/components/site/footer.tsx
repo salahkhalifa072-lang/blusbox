@@ -44,7 +44,7 @@ export function SiteFooter() {
     <footer className="bg-antraciet text-kastwit">
       <div className="mx-auto max-w-6xl px-6 py-16">
         <div className="mb-12 flex items-center gap-3">
-          <LogoMark className="h-10 w-10" />
+          <LogoMark className="h-12 w-auto" />
           <span className="font-display text-2xl tracking-tight">Blusbox</span>
         </div>
         <div className="grid grid-cols-2 gap-10 sm:grid-cols-4">

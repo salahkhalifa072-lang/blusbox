@@ -1,33 +1,28 @@
+import Image from "next/image";
+
 /**
- * Blusbox flame-S mark, traced from the supplied logo (red S-swoosh with
- * orange flame). Replace the paths with the original vector when the
- * client supplies it — keep the same viewBox and component API.
+ * Blusbox flame-S mark — the client's own artwork, cropped from the supplied
+ * lockup (public/logo-mark.png). Do not redraw it; if the brand file changes,
+ * replace the PNG (or drop in an SVG and swap the src).
  */
 export function LogoMark({
   className = "h-8 w-8",
   title = "Blusbox",
+  priority = false,
 }: {
   className?: string;
   title?: string;
+  priority?: boolean;
 }) {
   return (
-    <svg
-      viewBox="0 0 100 120"
-      className={className}
-      role="img"
-      aria-label={title}
-    >
-      {/* orange flame — top right */}
-      <path
-        d="M63 2 C 50 22, 46 30, 55 40 C 62 47, 70 52, 71 62 C 82 50, 84 36, 76 24 C 71 16, 66 10, 63 2 Z"
-        fill="#F5A653"
-      />
-      {/* red S-swoosh */}
-      <path
-        d="M52 26 C 36 34, 26 44, 24 58 C 22 70, 28 78, 40 82 C 50 85, 58 88, 57 94 C 45 96, 34 92, 26 84 C 22 96, 28 108, 42 112 C 60 117, 76 108, 78 92 C 80 78, 70 70, 56 66 C 48 63, 42 60, 43 54 C 50 50, 60 52, 68 58 C 72 48, 66 34, 52 26 Z"
-        fill="#C1272D"
-      />
-    </svg>
+    <Image
+      src="/logo-mark.png"
+      alt={title}
+      width={531}
+      height={838}
+      priority={priority}
+      className={`${className} object-contain`}
+    />
   );
 }
 
@@ -39,7 +34,7 @@ export function LogoBadge({ light = true }: { light?: boolean }) {
       } backdrop-blur-sm`}
       aria-hidden
     >
-      <LogoMark className="h-3.5 w-3.5" />
+      <LogoMark className="h-4 w-auto" title="" />
       <span className="data text-[10px] tracking-wider">BLUSBOX</span>
     </span>
   );
