@@ -38,10 +38,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="nl">
-      <body
-        className={`${archivo.variable} ${instrumentSans.variable} ${geistMono.variable} bg-kastwit text-antraciet antialiased`}
-      >
+    <html
+      lang="nl"
+      className={`${archivo.variable} ${instrumentSans.variable} ${geistMono.variable}`}
+    >
+      <body className="bg-kastwit text-antraciet antialiased">
         {children}
       </body>
     </html>
