@@ -45,8 +45,8 @@
   --color-signaal: var(--signaal);
   --color-staal-tekst: var(--staal-tekst);
 
-  --font-display: var(--font-archivo), system-ui, sans-serif;
-  --font-sans: var(--font-instrument), system-ui, sans-serif;
+  --font-display: var(--font-anton), "Arial Narrow", system-ui, sans-serif;
+  --font-sans: var(--font-manrope), system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 
   --text-data: var(--text-data);
@@ -84,12 +84,22 @@
     outline-offset: 2px;
   }
 
-  /* Display type: Archivo pushed to its expanded width */
+  /* Display type: Anton, condensed and heavy. Uppercase by default —
+     the reference look. Tight leading, slight negative tracking. */
   .font-display {
     font-family: var(--font-display);
-    font-stretch: 125%;
-    letter-spacing: -0.02em;
-    font-weight: 700;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    line-height: 0.88;
+  }
+
+  /* Second colour inside a display line (reference: two-tone headline) */
+  .accent {
+    color: var(--blusrood);
+  }
+  .accent-dim {
+    color: var(--railstaal);
   }
 
   /* Every measurable value is Geist Mono — the one rule that does

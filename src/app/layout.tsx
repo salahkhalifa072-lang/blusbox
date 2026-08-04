@@ -1,22 +1,25 @@
 import type { Metadata } from "next";
-import { Archivo, Instrument_Sans, Geist_Mono } from "next/font/google";
+import { Anton, Manrope, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-// Display face — Archivo variable, width axis loaded so .font-display
-// can push it to 125% (Archivo Expanded per the brief).
-const archivo = Archivo({
-  variable: "--font-archivo",
+/**
+ * Display face — Anton: heavy condensed uppercase grotesque, the
+ * reference look. Set tight and large; never for running text.
+ */
+const anton = Anton({
+  variable: "--font-anton",
   subsets: ["latin"],
-  axes: ["wdth"],
+  weight: "400",
+});
+
+// Body — Manrope, modern geometric sans.
+const manrope = Manrope({
+  variable: "--font-manrope",
+  subsets: ["latin"],
   weight: "variable",
 });
 
-const instrumentSans = Instrument_Sans({
-  variable: "--font-instrument",
-  subsets: ["latin"],
-  weight: "variable",
-});
-
+// Data face — every measurable value (§6).
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
@@ -30,6 +33,9 @@ export const metadata: Metadata = {
   },
   description:
     "Een compacte blusmodule in je meterkast die bij 170 °C vanzelf ingrijpt. Geen stroom. Geen bediening. Geen mens.",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
@@ -40,11 +46,9 @@ export default function RootLayout({
   return (
     <html
       lang="nl"
-      className={`${archivo.variable} ${instrumentSans.variable} ${geistMono.variable}`}
+      className={`${anton.variable} ${manrope.variable} ${geistMono.variable}`}
     >
-      <body className="bg-kastwit text-antraciet antialiased">
-        {children}
-      </body>
+      <body className="bg-kastwit text-antraciet antialiased">{children}</body>
     </html>
   );
 }

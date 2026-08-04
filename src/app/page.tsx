@@ -1,16 +1,17 @@
 import Image from "next/image";
+import Link from "next/link";
 import { ButtonLink } from "@/components/ui/button";
 import { SiteHeader } from "@/components/site/header";
 import { SiteFooter } from "@/components/site/footer";
-import { CrossSection } from "@/components/home/cross-section";
+import { ScrollScrub } from "@/components/home/scroll-scrub";
 import { VideoBlock } from "@/components/ui/video-block";
 import { Reveal } from "@/components/ui/reveal";
+import { LogoBadge } from "@/components/site/logo";
 
 /**
- * §5.1 Home, video-first variant. Order: full-bleed film hero (canyon loop)
- * → scroll cross-section → product imagery → "Er gebeurde niets." film block
- * → activation clip → waarom-de-meterkast → spec strip → split CTA.
- * All dramatised footage carries "Beeld is een weergave." (§7.9).
+ * §5.1 Home. Layout follows the client's reference: dark full-bleed hero with
+ * the product centred, two-tone condensed headline split to the corners,
+ * floating info cards, then the scroll-scrubbed meterkast sequence.
  */
 
 const panels = [
@@ -48,60 +49,148 @@ export default function Home() {
     <>
       <SiteHeader />
       <main>
-        {/* Film hero — the canyon loop under the copy */}
-        <section className="relative min-h-[88vh] overflow-hidden bg-antraciet">
+        {/* Hero — product centred, headline split to the corners */}
+        <section className="relative min-h-screen overflow-hidden bg-antraciet">
           <VideoBlock
             src="/media/hero-loop.mp4"
             poster="/media/canyon.jpg"
             label="Filmische opname door een meterkast, gefilmd als industrieel landschap"
-            className="absolute inset-0 h-full w-full object-cover opacity-70"
+            className="absolute inset-0 h-full w-full object-cover opacity-45"
             priority
           />
           <div
-            className="absolute inset-0 bg-gradient-to-t from-antraciet via-antraciet/40 to-antraciet/20"
+            className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(22,24,26,0.75)_65%,var(--antraciet)_100%)]"
             aria-hidden
           />
-          <div className="relative mx-auto flex min-h-[88vh] max-w-6xl flex-col justify-end px-6 pb-16 pt-28">
-            <p className="data mb-4 text-xs uppercase tracking-widest text-railstaal">
-              binnenin je meterkast
-            </p>
-            <h1 className="font-display max-w-4xl text-balance text-[length:var(--text-4xl)] leading-[0.95] text-kastwit">
-              Als alles al is misgegaan, grijpt Blusbox in.
-            </h1>
-            <p className="mt-6 max-w-xl text-lg text-kastwit/80">
-              Een compacte blusmodule in je meterkast die bij{" "}
-              <span className="data text-kastwit">170 °C</span> vanzelf
-              ingrijpt. Geen stroom. Geen bediening. Geen mens.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-4">
-              <ButtonLink href="/blusbox">Bekijk Blusbox</ButtonLink>
-              <ButtonLink
-                href="/installateurs"
-                variant="secondary"
-                className="border-kastwit text-kastwit hover:bg-kastwit hover:text-antraciet"
-              >
-                Voor installateurs
-              </ButtonLink>
-            </div>
-            <div className="data mt-12 flex flex-wrap gap-x-8 gap-y-2 border-t border-kastwit/20 pt-4 text-xs text-railstaal">
-              {specs.map((s) => (
-                <span key={s.label}>
-                  <span className="text-kastwit">{s.value}</span> {s.label}
+
+          <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col justify-between px-6 pb-10 pt-28 sm:pt-32">
+            {/* top line */}
+            <div>
+              {/* One sentence, split around the product. The h1 carries the
+                  whole line for assistive tech; the closing half is painted
+                  below the module and hidden from the accessibility tree. */}
+              <h1 className="font-display text-[clamp(2.75rem,9vw,7.5rem)]">
+                <span aria-hidden className="accent">
+                  Als alles
                 </span>
-              ))}
-              <span className="ml-auto">Beeld is een weergave.</span>
+                <br aria-hidden />
+                <span aria-hidden className="text-kastwit">
+                  al is misgegaan
+                </span>
+                <span className="sr-only">
+                  Als alles al is misgegaan, grijpt Blusbox in.
+                </span>
+              </h1>
+            </div>
+
+            {/* centre: the module */}
+            <div className="pointer-events-none relative mx-auto -my-6 w-[min(58vw,420px)]">
+              <div
+                className="absolute inset-0 -z-10 scale-150 bg-[radial-gradient(circle,rgba(210,35,31,0.28)_0%,transparent_65%)]"
+                aria-hidden
+              />
+              <Image
+                src="/media/packshot-cutout.png"
+                alt="De Blusbox-module: compacte rode blusmodule met DIN-railclip en detectiekoord"
+                width={1024}
+                height={1024}
+                priority
+                className="w-full drop-shadow-[0_30px_60px_rgba(0,0,0,0.6)]"
+              />
+            </div>
+
+            {/* bottom line + supporting copy */}
+            <div>
+              <p
+                aria-hidden
+                className="font-display text-right text-[clamp(2.75rem,9vw,7.5rem)]"
+              >
+                <span className="text-kastwit">grijpt </span>
+                <span className="accent">Blusbox in</span>
+              </p>
+
+              <div className="mt-10 flex flex-col gap-8 border-t border-kastwit/15 pt-6 lg:flex-row lg:items-end lg:justify-between">
+                <div className="max-w-md">
+                  <p className="text-kastwit/75">
+                    Een compacte blusmodule in je meterkast die bij{" "}
+                    <span className="data text-kastwit">170 °C</span> vanzelf
+                    ingrijpt. Geen stroom. Geen bediening. Geen mens.
+                  </p>
+                  <div className="mt-6 flex flex-wrap gap-3">
+                    <Link
+                      href="/blusbox"
+                      className="rounded-full bg-blusrood px-6 py-3 text-sm font-medium text-kastwit transition-colors hover:bg-[#b81e1b]"
+                    >
+                      Bekijk Blusbox
+                    </Link>
+                    <Link
+                      href="/installateurs"
+                      className="rounded-full border border-kastwit/40 px-6 py-3 text-sm text-kastwit transition-colors hover:bg-kastwit hover:text-antraciet"
+                    >
+                      Voor installateurs
+                    </Link>
+                  </div>
+                </div>
+
+                {/* floating spec cards, reference pattern */}
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:max-w-xl">
+                  {specs.map((s) => (
+                    <div
+                      key={s.label}
+                      className="rounded-2xl border border-kastwit/15 bg-kastwit/5 px-4 py-3 backdrop-blur-sm"
+                    >
+                      <p className="data text-lg text-kastwit">{s.value}</p>
+                      <p className="mt-0.5 text-[11px] leading-tight text-kastwit/60">
+                        {s.label}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <p className="data mt-4 text-[11px] text-railstaal">
+                Beeld is een weergave.
+              </p>
             </div>
           </div>
         </section>
 
-        {/* Signature element — scroll cross-section */}
-        <CrossSection />
+        {/* Signature element — scroll-scrubbed real footage */}
+        <ScrollScrub />
+
+        {/* Wat je ziet, uitgelegd */}
+        <section className="bg-antraciet pb-24 text-kastwit">
+          <div className="mx-auto grid max-w-6xl gap-10 px-6 lg:grid-cols-2">
+            <Reveal>
+              <p className="data text-xs uppercase tracking-widest text-railstaal">
+                wat je ziet
+              </p>
+              <h2 className="font-display mt-4 text-[clamp(2rem,5vw,3.5rem)]">
+                Van vlam tot stilte,
+                <br />
+                <span className="accent">zonder één handeling</span>
+              </h2>
+            </Reveal>
+            <Reveal delay={80}>
+              <p className="text-kastwit/70">
+                Een losse verbinding gaat gloeien. De warmte loopt op tot het
+                detectiekoord 170 °C bereikt — dan activeert de module zichzelf
+                en vult de kast met aerosol. De vlam dooft, het residu is
+                niet-geleidend en niet-corrosief, en de installatie blijft
+                intact.
+              </p>
+              <p className="data mt-6 text-xs text-railstaal">
+                Beeld is een weergave.
+              </p>
+            </Reveal>
+          </div>
+        </section>
 
         {/* Product imagery */}
         <section className="mx-auto max-w-6xl px-6 py-24">
           <Reveal>
-            <h2 className="font-display max-w-2xl text-[length:var(--text-2xl)]">
-              Eén module. Geen aansluiting.
+            <h2 className="font-display max-w-3xl text-[clamp(2rem,5vw,3.5rem)]">
+              Eén module.
+              <span className="accent-dim"> Geen aansluiting.</span>
             </h2>
             <p className="mt-4 max-w-xl text-staal-tekst">
               Blusbox klikt op de DIN-rail naast je hoofdschakelaar en
@@ -109,7 +198,7 @@ export default function Home() {
               lang, zonder stroom.
             </p>
           </Reveal>
-          <div className="mt-12 grid gap-px bg-railstaal sm:grid-cols-3">
+          <div className="mt-12 grid gap-4 sm:grid-cols-3">
             {[
               {
                 src: "/media/packshot.jpg",
@@ -118,15 +207,15 @@ export default function Home() {
                 delay: 0,
               },
               {
-                src: "/media/insitu.jpg",
-                alt: "Blusbox gemonteerd op de DIN-rail in een Nederlandse meterkast naast de automaten",
-                caption: "Op de rail, naast de automaten",
+                src: "/media/meterkast-front.jpg",
+                alt: "Blusbox gemonteerd op de DIN-rail in een Nederlandse meterkast, vooraanzicht",
+                caption: "In de meterkast",
                 delay: 80,
               },
             ].map((img) => (
-              <Reveal key={img.src} delay={img.delay} className="bg-kastwit">
+              <Reveal key={img.src} delay={img.delay}>
                 <figure>
-                  <div className="relative aspect-square overflow-hidden bg-kastwit-dim">
+                  <div className="relative aspect-square overflow-hidden rounded-2xl bg-kastwit-dim">
                     <Image
                       src={img.src}
                       alt={img.alt}
@@ -134,31 +223,35 @@ export default function Home() {
                       sizes="(min-width: 640px) 33vw, 100vw"
                       className="object-cover"
                     />
+                    <LogoBadge />
                   </div>
-                  <figcaption className="data px-4 py-3 text-xs text-staal-tekst">
+                  <figcaption className="data px-1 py-3 text-xs text-staal-tekst">
                     {img.caption}
                   </figcaption>
                 </figure>
               </Reveal>
             ))}
-            <Reveal delay={160} className="bg-kastwit">
+            <Reveal delay={160}>
               <figure>
-                <div className="relative aspect-square overflow-hidden bg-kastwit-dim">
+                <div className="relative aspect-square overflow-hidden rounded-2xl bg-kastwit-dim">
                   <VideoBlock
                     src="/media/monolith.mp4"
                     poster="/media/monolith.jpg"
                     label="Filmfragment: langzame beweging rond de rode module tussen grijze installatietorens"
                     className="absolute inset-0 h-full w-full object-cover"
                   />
+                  <LogoBadge />
                 </div>
-                <figcaption className="data px-4 py-3 text-xs text-staal-tekst">
+                <figcaption className="data px-1 py-3 text-xs text-staal-tekst">
                   Uit de film · beeld is een weergave
                 </figcaption>
               </figure>
             </Reveal>
           </div>
           <div className="mt-8">
-            <ButtonLink href="/blusbox">Bekijk Blusbox</ButtonLink>
+            <ButtonLink href="/blusbox" className="rounded-full">
+              Bekijk Blusbox
+            </ButtonLink>
           </div>
         </section>
 
@@ -169,8 +262,8 @@ export default function Home() {
               <p className="data text-xs uppercase tracking-widest text-railstaal">
                 de film
               </p>
-              <h2 className="font-display mt-4 text-[length:var(--text-3xl)]">
-                Er gebeurde niets.
+              <h2 className="font-display mt-4 text-[clamp(2.5rem,7vw,5.5rem)]">
+                Er gebeurde <span className="accent">niets</span>
               </h2>
               <p className="mt-4 max-w-xl text-kastwit/70">
                 Dertig centimeter meterkast, gefilmd als een landschap. Eén
@@ -178,15 +271,18 @@ export default function Home() {
                 &apos;s ochtends zet je gewoon koffie.
               </p>
             </Reveal>
-            <div className="mt-12 grid gap-6 lg:grid-cols-3">
+            <div className="mt-12 grid gap-4 lg:grid-cols-3">
               <Reveal className="lg:col-span-2">
                 <figure>
-                  <VideoBlock
-                    src="/media/discharge.mp4"
-                    poster="/media/discharge.jpg"
-                    label="Filmfragment: een witte aerosolfront rolt door het industriële landschap en dooft het vuurgloed"
-                    className="aspect-video w-full object-cover"
-                  />
+                  <div className="relative overflow-hidden rounded-2xl">
+                    <VideoBlock
+                      src="/media/discharge.mp4"
+                      poster="/media/discharge.jpg"
+                      label="Filmfragment: een wit aerosolfront rolt door het industriële landschap en dooft de vuurgloed"
+                      className="aspect-video w-full object-cover"
+                    />
+                    <LogoBadge />
+                  </div>
                   <figcaption className="data mt-3 text-xs text-railstaal">
                     De onderdrukking · beeld is een weergave
                   </figcaption>
@@ -194,7 +290,7 @@ export default function Home() {
               </Reveal>
               <Reveal delay={100}>
                 <figure>
-                  <div className="relative aspect-video w-full overflow-hidden lg:aspect-auto lg:h-full lg:min-h-[200px]">
+                  <div className="relative aspect-video w-full overflow-hidden rounded-2xl lg:aspect-auto lg:h-[calc(100%-2rem)]">
                     <Image
                       src="/media/hallway.jpg"
                       alt="Gewone Nederlandse gang in ochtendlicht met gesloten meterkastdeur"
@@ -202,6 +298,7 @@ export default function Home() {
                       sizes="(min-width: 1024px) 33vw, 100vw"
                       className="object-cover"
                     />
+                    <LogoBadge />
                   </div>
                   <figcaption className="data mt-3 text-xs text-railstaal">
                     07:12 · en je weet van niets
@@ -212,53 +309,22 @@ export default function Home() {
           </div>
         </section>
 
-        {/* De activering — in-cabinet clip */}
-        <section className="mx-auto max-w-6xl px-6 py-24">
-          <div className="grid items-center gap-12 lg:grid-cols-2">
-            <Reveal>
-              <p className="data text-xs uppercase tracking-widest text-staal-tekst">
-                de activering
-              </p>
-              <h2 className="font-display mt-4 text-[length:var(--text-2xl)]">
-                Van vlam tot stilte,
-                <br />
-                zonder één handeling.
-              </h2>
-              <p className="mt-4 max-w-md text-staal-tekst">
-                Een losse verbinding, een beginnende vlam. Het detectiekoord
-                bereikt 170 °C en de module vult de kast met aerosol. De vlam
-                dooft, de installatie blijft intact — en niemand hoefde iets
-                te doen.
-              </p>
-              <p className="data mt-6 text-xs text-staal-tekst">
-                Beeld is een weergave.
-              </p>
-            </Reveal>
-            <Reveal delay={100}>
-              <VideoBlock
-                src="/media/activation.mp4"
-                poster="/media/insitu.jpg"
-                label="Fragment: een beginnende vlam in de meterkast wordt door de Blusbox-module met aerosol gedoofd"
-                className="aspect-[4/3] w-full object-cover"
-              />
-            </Reveal>
-          </div>
-        </section>
-
         {/* Waarom de meterkast */}
-        <section className="hairline-t">
+        <section>
           <div className="mx-auto max-w-6xl px-6 py-24">
             <Reveal>
-              <h2 className="font-display mb-12 max-w-2xl text-[length:var(--text-2xl)]">
-                Waarom juist de meterkast?
+              <h2 className="font-display mb-12 max-w-2xl text-[clamp(2rem,5vw,3.5rem)]">
+                Waarom juist <span className="accent">de meterkast</span>
               </h2>
             </Reveal>
-            <div className="grid gap-px bg-railstaal sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2">
               {panels.map((panel, i) => (
-                <Reveal key={panel.nr} delay={i * 70} className="bg-kastwit">
-                  <article className="h-full p-8">
+                <Reveal key={panel.nr} delay={i * 70}>
+                  <article className="h-full rounded-2xl border border-railstaal/50 p-8">
                     <p className="data text-xs text-staal-tekst">{panel.nr}</p>
-                    <h3 className="font-display mt-3 text-lg">{panel.title}</h3>
+                    <h3 className="font-display mt-3 text-2xl">
+                      {panel.title}
+                    </h3>
                     <p className="mt-3 text-sm leading-relaxed text-staal-tekst">
                       {panel.body}
                     </p>
@@ -288,7 +354,7 @@ export default function Home() {
               <p className="data text-xs uppercase tracking-widest text-staal-tekst">
                 particulier
               </p>
-              <h2 className="font-display mt-4 text-[length:var(--text-xl)]">
+              <h2 className="font-display mt-4 text-3xl">
                 Eén module. Tien jaar rust.
               </h2>
               <p className="mt-3 max-w-sm text-sm text-staal-tekst">
@@ -296,14 +362,16 @@ export default function Home() {
                 hoofdschakelaar en de aardlekschakelaar.
               </p>
             </div>
-            <ButtonLink href="/blusbox">Bekijk Blusbox</ButtonLink>
+            <ButtonLink href="/blusbox" className="rounded-full">
+              Bekijk Blusbox
+            </ButtonLink>
           </div>
           <div className="flex flex-col items-start justify-between gap-8 bg-antraciet p-10 text-kastwit sm:p-16">
             <div>
               <p className="data text-xs uppercase tracking-widest text-railstaal">
                 zakelijk
               </p>
-              <h2 className="font-display mt-4 text-[length:var(--text-xl)]">
+              <h2 className="font-display mt-4 text-3xl">
                 Blusbox in uw RI&amp;E
               </h2>
               <p className="mt-3 max-w-sm text-sm text-kastwit/70">
@@ -314,7 +382,7 @@ export default function Home() {
             <ButtonLink
               href="/zakelijk"
               variant="secondary"
-              className="border-kastwit text-kastwit hover:bg-kastwit hover:text-antraciet"
+              className="rounded-full border-kastwit text-kastwit hover:bg-kastwit hover:text-antraciet"
             >
               Naar zakelijk
             </ButtonLink>

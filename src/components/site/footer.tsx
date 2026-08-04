@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LogoMark } from "@/components/site/logo";
 
 const columns = [
   {
@@ -42,6 +43,10 @@ export function SiteFooter() {
   return (
     <footer className="bg-antraciet text-kastwit">
       <div className="mx-auto max-w-6xl px-6 py-16">
+        <div className="mb-12 flex items-center gap-3">
+          <LogoMark className="h-10 w-10" />
+          <span className="font-display text-2xl tracking-tight">Blusbox</span>
+        </div>
         <div className="grid grid-cols-2 gap-10 sm:grid-cols-4">
           {columns.map((col) => (
             <nav key={col.title} aria-label={col.title}>

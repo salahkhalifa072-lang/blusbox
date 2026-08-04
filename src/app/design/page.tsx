@@ -67,7 +67,7 @@ export default function DesignPage() {
         <div className="space-y-8">
           <div>
             <p className="data mb-2 text-xs text-staal-tekst">
-              Archivo Expanded 700 · display · clamp 40–96
+              Anton · display · uppercase · clamp 40–120
             </p>
             <p className="font-display text-[length:var(--text-4xl)] leading-none">
               Er gebeurde niets.
@@ -75,7 +75,7 @@ export default function DesignPage() {
           </div>
           <div>
             <p className="data mb-2 text-xs text-staal-tekst">
-              Instrument Sans 400/500 · lopende tekst · 16/20
+              Manrope 400/500 · lopende tekst · 16/20
             </p>
             <p className="max-w-xl text-lg">
               Een compacte blusmodule in je meterkast die bij 170 °C vanzelf
