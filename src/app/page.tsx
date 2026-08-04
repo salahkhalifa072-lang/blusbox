@@ -52,14 +52,19 @@ export default function Home() {
         {/* Hero — product centred, headline split to the corners */}
         <section className="relative min-h-screen overflow-hidden bg-antraciet">
           <VideoBlock
-            src="/media/hero-loop.mp4"
-            poster="/media/canyon.jpg"
-            label="Filmische opname door een meterkast, gefilmd als industrieel landschap"
-            className="absolute inset-0 h-full w-full object-cover opacity-45"
+            src="/media/hero-banner.mp4"
+            poster="/media/hero-banner.jpg"
+            label="Bewegend beeld van de Blusbox-module"
+            className="absolute inset-0 h-full w-full object-cover"
             priority
           />
           <div
-            className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(22,24,26,0.75)_65%,var(--antraciet)_100%)]"
+            className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(22,24,26,0.35)_0%,rgba(22,24,26,0.8)_60%,var(--antraciet)_100%)]"
+            aria-hidden
+          />
+          {/* keeps the body copy and cards legible over the bright render */}
+          <div
+            className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-antraciet via-antraciet/85 to-transparent"
             aria-hidden
           />
 
@@ -83,21 +88,7 @@ export default function Home() {
               </h1>
             </div>
 
-            {/* centre: the module */}
-            <div className="pointer-events-none relative mx-auto -my-6 w-[min(58vw,420px)]">
-              <div
-                className="absolute inset-0 -z-10 scale-150 bg-[radial-gradient(circle,rgba(210,35,31,0.28)_0%,transparent_65%)]"
-                aria-hidden
-              />
-              <Image
-                src="/media/packshot-cutout.png"
-                alt="De Blusbox-module: compacte rode blusmodule met DIN-railclip en detectiekoord"
-                width={1024}
-                height={1024}
-                priority
-                className="w-full drop-shadow-[0_30px_60px_rgba(0,0,0,0.6)]"
-              />
-            </div>
+            {/* the film itself carries the centre of the frame */}
 
             {/* bottom line + supporting copy */}
             <div>
