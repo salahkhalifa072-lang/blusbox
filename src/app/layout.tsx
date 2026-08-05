@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Anton, Manrope, Geist_Mono } from "next/font/google";
+import { siteUrl } from "@/lib/site";
 import "./globals.css";
 
 /**
@@ -27,6 +28,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
     default: "Blusbox — automatische blusmodule voor de meterkast",
     template: "%s — Blusbox",

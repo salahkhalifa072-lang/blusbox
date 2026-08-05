@@ -1,0 +1,223 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { PageHeader, SectionTitle } from "@/components/site/page-header";
+import { SiteFooter } from "@/components/site/footer";
+import { SpecTable } from "@/components/ui/spec-table";
+import { ClaimSource } from "@/components/ui/claim-source";
+import { Reveal } from "@/components/ui/reveal";
+import { productFacts } from "@/lib/product-facts";
+
+export const metadata: Metadata = {
+  title: "Zakelijk",
+  description:
+    "Blusbox voor installateurs, VvE's, woningcorporaties en KAM-beheer. Een consequentiebeperkende maatregel in uw RI&E, met staffelprijzen en levering op rekening.",
+  alternates: { canonical: "/zakelijk" },
+};
+
+/** §2/§5.4 — B2B pages address the reader with "u". */
+
+const doelgroepen = [
+  {
+    t: "Installateurs",
+    b: "U levert en monteert de module bij oplevering of tijdens onderhoud. Dealerprijzen, bulkbestellingen en een eigen register van geplaatste units.",
+    href: "/installateurs",
+  },
+  {
+    t: "VvE's en woningcorporaties",
+    b: "Eén maatregel per meterkast, over een heel complex uit te rollen en per adres te registreren, inclusief vervangingstermijn.",
+  },
+  {
+    t: "KAM en facility",
+    b: "Een technische maatregel die aantoonbaar is vastgelegd: lotnummer, installatiedatum en vervangdatum per locatie.",
+  },
+];
+
+export default function ZakelijkPage() {
+  return (
+    <>
+      <PageHeader
+        eyebrow="zakelijk"
+        title="De laatste laag,"
+        accent="aantoonbaar vastgelegd."
+        lead="Blusbox is een consequentiebeperkende maatregel voor elektrische behuizingen: hij grijpt in wanneer de maatregelen daarvoor zijn gepasseerd. Voor uw dossier telt niet alleen dát u iets heeft geplaatst, maar dat u kunt laten zien wat, waar en tot wanneer."
+      />
+      <main>
+        {/* RI&E framing */}
+        <section className="mx-auto max-w-6xl px-6 py-20">
+          <div className="grid gap-12 lg:grid-cols-[1fr_1.2fr]">
+            <Reveal>
+              <SectionTitle>Blusbox in uw RI&amp;E</SectionTitle>
+            </Reveal>
+            <Reveal delay={80}>
+              <div className="space-y-4 text-staal-tekst">
+                <p>
+                  De Arbowet verplicht werkgevers zorg te dragen voor veilige
+                  arbeidsomstandigheden (art. 3) en de risico&apos;s daarvan
+                  schriftelijk te inventariseren en evalueren (art. 5). Die
+                  inventarisatie leidt tot maatregelen, en die maatregelen kent u
+                  in volgorde van voorkeur: eerst de bron wegnemen, dan
+                  collectieve maatregelen, dan individuele, en pas als laatste
+                  persoonlijke bescherming.
+                </p>
+                <p>
+                  Een brand in een groeps- of verdeelkast laat zich zelden bij de
+                  bron volledig uitsluiten: componenten verouderen, verbindingen
+                  trillen los, belastingen veranderen. Wat overblijft is het
+                  beperken van de gevolgen als het tóch misgaat. Daar zit
+                  Blusbox: een technische maatregel die zonder voeding en zonder
+                  menselijk handelen ingrijpt binnen de behuizing zelf.
+                </p>
+                <p>
+                  In uw RI&amp;E legt u die keuze vast als een beheersmaatregel
+                  bij het restrisico &apos;brand in elektrische
+                  installatie&apos;, met de plaatsingslocatie, het lotnummer en
+                  de vervangingsdatum als onderbouwing.
+                </p>
+                <ClaimSource label="[VERIFY: artikelnummer Arbobesluit voor consequentiebeperkende maatregelen]" />
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* Doelgroepen */}
+        <section className="bg-kastwit-dim py-20">
+          <div className="mx-auto max-w-6xl px-6">
+            <SectionTitle>Voor wie</SectionTitle>
+            <div className="mt-10 grid gap-4 lg:grid-cols-3">
+              {doelgroepen.map((d, i) => (
+                <Reveal key={d.t} delay={i * 70}>
+                  <article className="flex h-full flex-col rounded-2xl border border-railstaal/50 bg-kastwit p-8">
+                    <h3 className="font-display text-2xl">{d.t}</h3>
+                    <p className="mt-3 flex-1 text-sm leading-relaxed text-staal-tekst">
+                      {d.b}
+                    </p>
+                    {d.href ? (
+                      <Link
+                        href={d.href}
+                        className="data mt-5 text-xs underline underline-offset-4"
+                      >
+                        Naar het dealerprogramma
+                      </Link>
+                    ) : null}
+                  </article>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Verzekeraar + traceerbaarheid */}
+        <section className="mx-auto max-w-6xl px-6 py-20">
+          <div className="grid gap-4 lg:grid-cols-2">
+            <Reveal>
+              <div className="h-full rounded-2xl border border-railstaal/50 p-8">
+                <h3 className="font-display text-2xl">
+                  Wat uw verzekeraar wil zien
+                </h3>
+                <p className="mt-4 text-sm leading-relaxed text-staal-tekst">
+                  Bij schade gaat het om aantoonbaarheid: welke maatregel was
+                  getroffen, wanneer, en was die op dat moment nog geldig. Elke
+                  Blusbox draagt een lotnummer dat wij koppelen aan uw
+                  bestelling en aan de installatiedatum. U kunt daardoor per
+                  locatie laten zien welke module er hangt en tot wanneer die
+                  meegaat.
+                </p>
+                <p className="data mt-4 text-xs text-staal-tekst">
+                  Over dekking of premiekorting doen wij geen uitspraken.
+                  [VERIFY: afspraken met verzekeraars]
+                </p>
+              </div>
+            </Reveal>
+            <Reveal delay={80}>
+              <div className="h-full rounded-2xl border border-railstaal/50 p-8">
+                <h3 className="font-display text-2xl">
+                  Traceerbaar tot het lotnummer
+                </h3>
+                <ul className="mt-4 space-y-3 text-sm text-staal-tekst">
+                  {[
+                    "Elke unit is herleidbaar tot productiepartij en leverancier.",
+                    "Per adres of locatie legt u de installatiedatum vast.",
+                    "De vervangingsdatum volgt automatisch: installatiedatum plus tien jaar.",
+                    "Herinneringen gaan uit op twaalf, zes en één maand voor het einde.",
+                    "Bij een productterugroep is de betrokken afnemerslijst één handeling.",
+                  ].map((t) => (
+                    <li key={t} className="flex gap-3">
+                      <span className="data text-blusrood" aria-hidden>
+                        —
+                      </span>
+                      <span>{t}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* Specs + offerte */}
+        <section className="bg-antraciet py-20 text-kastwit">
+          <div className="mx-auto grid max-w-6xl gap-12 px-6 lg:grid-cols-2">
+            <div>
+              <SectionTitle>Staffelprijzen aanvragen</SectionTitle>
+              <p className="mt-4 text-kastwit/70">
+                Zakelijke prijzen zijn exclusief btw en lopen in staffels. Voor
+                afname vanaf [VERIFY: minimumaantal] stellen wij een offerte op
+                met levertijd en verzendvoorwaarden per bestemming.
+              </p>
+              <p className="mt-4 text-kastwit/70">
+                Levering gaat op rekening na goedkeuring. Voor bestellingen
+                binnen de EU buiten Nederland verwerken wij btw-verlegging op
+                basis van een geldig btw-nummer.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link
+                  href="/contact"
+                  className="rounded-full bg-blusrood px-6 py-3 text-sm font-medium text-kastwit transition-colors hover:bg-[#b81e1b]"
+                >
+                  Offerte aanvragen
+                </Link>
+                <Link
+                  href="/installateurs"
+                  className="rounded-full border border-kastwit/40 px-6 py-3 text-sm transition-colors hover:bg-kastwit hover:text-antraciet"
+                >
+                  Voor installateurs
+                </Link>
+              </div>
+            </div>
+            <div className="rounded-2xl border border-kastwit/15 p-6">
+              <p className="data mb-4 text-xs uppercase tracking-widest text-railstaal">
+                technische samenvatting
+              </p>
+              <div className="[&_th]:text-railstaal [&_tr]:border-kastwit/15">
+                <SpecTable rows={productFacts} />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Cases */}
+        <section className="mx-auto max-w-6xl px-6 py-20">
+          <SectionTitle>Toepassingen</SectionTitle>
+          <p className="mt-4 max-w-xl text-staal-tekst">
+            Zodra de eerste projecten zijn opgeleverd, staan ze hier — met
+            locatietype, aantal units en de reden waarom ervoor gekozen is.
+          </p>
+          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+            {["Woningcorporatie", "VvE", "Bedrijfspand"].map((c) => (
+              <div
+                key={c}
+                className="rounded-2xl border border-dashed border-railstaal p-8"
+              >
+                <p className="data text-xs text-staal-tekst">{c}</p>
+                <p className="mt-3 text-sm text-staal-tekst">
+                  [VERIFY: case-omschrijving en resultaat]
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </main>
+      <SiteFooter />
+    </>
+  );
+}
