@@ -51,29 +51,68 @@ export default function ZakelijkPage() {
             <Reveal delay={80}>
               <div className="space-y-4 text-staal-tekst">
                 <p>
-                  De Arbowet verplicht werkgevers zorg te dragen voor veilige
-                  arbeidsomstandigheden (art. 3) en de risico&apos;s daarvan
-                  schriftelijk te inventariseren en evalueren (art. 5). Die
-                  inventarisatie leidt tot maatregelen, en die maatregelen kent u
-                  in volgorde van voorkeur: eerst de bron wegnemen, dan
-                  collectieve maatregelen, dan individuele, en pas als laatste
-                  persoonlijke bescherming.
+                  Artikel 5 van de Arbowet verplicht u de risico&apos;s van de
+                  arbeid schriftelijk vast te leggen in een risico-inventarisatie
+                  en -evaluatie, met een plan van aanpak waarin staat binnen
+                  welke termijn de maatregelen worden genomen.
                 </p>
                 <p>
-                  Een brand in een groeps- of verdeelkast laat zich zelden bij de
-                  bron volledig uitsluiten: componenten verouderen, verbindingen
-                  trillen los, belastingen veranderen. Wat overblijft is het
-                  beperken van de gevolgen als het tóch misgaat. Daar zit
-                  Blusbox: een technische maatregel die zonder voeding en zonder
-                  menselijk handelen ingrijpt binnen de behuizing zelf.
+                  Welke maatregel u kiest, is niet vrij. Artikel 3, eerste lid,
+                  onder b van de Arbowet schrijft voor dat gevaren{" "}
+                  <q>zoveel mogelijk in eerste aanleg bij de bron</q> worden
+                  voorkomen of beperkt, en dat voor zover dat niet kan{" "}
+                  <q>
+                    andere doeltreffende maatregelen worden getroffen waarbij
+                    maatregelen gericht op collectieve bescherming voorrang
+                    hebben boven maatregelen gericht op individuele bescherming
+                  </q>
+                  . Dat is de arbeidshygiënische strategie.
                 </p>
                 <p>
-                  In uw RI&amp;E legt u die keuze vast als een beheersmaatregel
-                  bij het restrisico &apos;brand in elektrische
-                  installatie&apos;, met de plaatsingslocatie, het lotnummer en
-                  de vervangingsdatum als onderbouwing.
+                  Brand in een groeps- of verdeelkast laat zich zelden volledig
+                  bij de bron uitsluiten: componenten verouderen, verbindingen
+                  trillen los, belastingen veranderen. Wat dan overblijft is de
+                  tweede trede — een doeltreffende, collectief werkende
+                  maatregel. Blusbox is precies dat: hij beschermt niet één
+                  persoon maar de installatie en iedereen in het pand, zonder dat
+                  er iemand hoeft te handelen.
                 </p>
-                <ClaimSource label="[VERIFY: artikelnummer Arbobesluit voor consequentiebeperkende maatregelen]" />
+                <p>
+                  Voor arbeidsplaatsen is die tweede trede bovendien concreet
+                  ingevuld. Artikel 3.8, eerste lid van het Arbobesluit bepaalt
+                  dat er, afhankelijk van de aard van de arbeid en de daaraan
+                  verbonden gevaren,{" "}
+                  <q>voldoende passende brandbestrijdingsmiddelen aanwezig</q>{" "}
+                  zijn. Datzelfde artikel onderscheidt in het derde en vierde lid
+                  uitdrukkelijk <em>niet-automatische</em>{" "}
+                  brandbestrijdingsmiddelen, die bereikbaar, bedienbaar en
+                  gesignaleerd moeten zijn. Blusbox is automatisch: die eisen aan
+                  bereikbaarheid en signalering gelden er niet voor, omdat er
+                  niemand naartoe hoeft.
+                </p>
+                <p>
+                  In uw RI&amp;E legt u de module dus vast als beheersmaatregel
+                  bij het restrisico &apos;brand in de elektrische
+                  installatie&apos;, met plaatsingslocatie, lotnummer en
+                  vervangingsdatum als onderbouwing in uw plan van aanpak.
+                </p>
+                <div className="mt-6 rounded-2xl border border-railstaal/50 p-5">
+                  <p className="data text-xs uppercase tracking-widest text-staal-tekst">
+                    Reikwijdte
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed">
+                    Artikel 3.8 van het Arbobesluit geldt voor{" "}
+                    <strong>arbeidsplaatsen</strong>. Voor een meterkast in een
+                    woning die geen arbeidsplaats is, geldt die verplichting
+                    niet — daar is Blusbox een vrijwillige maatregel. Wij
+                    presenteren de module nadrukkelijk niet als wettelijk
+                    verplicht.
+                  </p>
+                </div>
+                <ClaimSource
+                  label="Arbowet art. 3 lid 1 onder b en art. 5; Arbobesluit art. 3.8 — wetten.overheid.nl"
+                  url="https://wetten.overheid.nl/BWBR0008498/2024-01-01"
+                />
               </div>
             </Reveal>
           </div>
@@ -142,7 +181,7 @@ export default function ZakelijkPage() {
                     "Bij een productterugroep is de betrokken afnemerslijst één handeling.",
                   ].map((t) => (
                     <li key={t} className="flex gap-3">
-                      <span className="data text-blusrood" aria-hidden>
+                      <span className="data text-blusrood-op-licht" aria-hidden>
                         —
                       </span>
                       <span>{t}</span>
@@ -172,7 +211,7 @@ export default function ZakelijkPage() {
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
                   href="/contact"
-                  className="rounded-full bg-blusrood px-6 py-3 text-sm font-medium text-kastwit transition-colors hover:bg-[#b81e1b]"
+                  className="rounded-full bg-blusrood-vlak px-6 py-3 text-sm font-medium text-kastwit transition-colors hover:bg-[#9e1b18]"
                 >
                   Offerte aanvragen
                 </Link>

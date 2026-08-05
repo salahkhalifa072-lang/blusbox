@@ -11,6 +11,13 @@ import { VideoBlock } from "@/components/ui/video-block";
 import { LogoBadge } from "@/components/site/logo";
 import { productFacts } from "@/lib/product-facts";
 import { faqUitgelicht } from "@/lib/faq";
+import {
+  gratisVerzending,
+  prijsExcl,
+  prijsIncl,
+  verzendwaarde,
+  PRIJS_INCL_CENTEN,
+} from "@/lib/pricing";
 
 export const metadata: Metadata = {
   // absolute: the product name is already the brand name, so the
@@ -21,11 +28,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/blusbox" },
 };
 
-/**
- * §5.2 PDP. Price is intentionally unset — the brief carries no pricing,
- * so the display renders a [VERIFY] state rather than a made-up number.
- */
-const prijsIncl: number | null = null;
+/** §5.2 PDP. Price and shipping come from lib/pricing. */
 
 const inDoos = [
   "Blusbox-module met DIN-railclip",
@@ -42,8 +45,25 @@ const jsonLd = {
     "Automatische condensed-aerosol blusmodule voor de meterkast. Zelfactiverend bij 170 °C, zonder stroom of bediening.",
   brand: { "@type": "Brand", name: "Blusbox" },
   category: "Brandbeveiliging",
-  // gtin + offers are filled once the client supplies pricing and codes
-  // [VERIFY: gtin, prijs, beschikbaarheid]
+  // [VERIFY: gtin en beschikbaarheid]
+  offers: {
+    "@type": "Offer",
+    price: (PRIJS_INCL_CENTEN / 100).toFixed(2),
+    priceCurrency: "EUR",
+    availability: "https://schema.org/InStock",
+    shippingDetails: {
+      "@type": "OfferShippingDetails",
+      shippingRate: {
+        "@type": "MonetaryAmount",
+        value: "0",
+        currency: "EUR",
+      },
+      shippingDestination: {
+        "@type": "DefinedRegion",
+        addressCountry: "NL",
+      },
+    },
+  },
 };
 
 export default function BlusboxPage() {
@@ -100,20 +120,24 @@ export default function BlusboxPage() {
 
               {/* Price block */}
               <div className="mt-8 border-t border-kastwit/15 pt-6">
-                {prijsIncl === null ? (
-                  <p className="data text-2xl text-signaal">
-                    [VERIFY: verkoopprijs incl. btw]
-                  </p>
-                ) : (
-                  <p className="data text-3xl">
-                    €{" "}
-                    {prijsIncl.toLocaleString("nl-NL", {
-                      minimumFractionDigits: 2,
-                    })}
-                  </p>
-                )}
-                <p className="mt-1 text-sm text-kastwit/60">
-                  Incl. btw · zakelijke prijzen excl. btw na inloggen
+                <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
+                  <p className="data text-4xl">{prijsIncl}</p>
+                  <span className="rounded-full bg-blusrood-vlak px-3 py-1 text-xs font-medium">
+                    {gratisVerzending.kort}
+                  </span>
+                </div>
+                <p className="mt-2 text-sm text-kastwit/60">
+                  Incl. btw ({prijsExcl} excl. btw) · zakelijke staffelprijzen
+                  na inloggen
+                </p>
+
+                {/* The saving, stated the way a webshop states it */}
+                <p className="data mt-3 text-sm text-kastwit/80">
+                  Verzendkosten{" "}
+                  <span className="text-railstaal line-through">
+                    {verzendwaarde}
+                  </span>{" "}
+                  <span className="text-kastwit">gratis</span>
                 </p>
 
                 <div className="data mt-4 flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-railstaal">
@@ -126,7 +150,7 @@ export default function BlusboxPage() {
                   <button
                     type="button"
                     disabled
-                    className="rounded-full bg-blusrood px-7 py-3.5 text-sm font-medium text-kastwit disabled:cursor-not-allowed disabled:opacity-60"
+                    className="rounded-full bg-blusrood-vlak px-7 py-3.5 text-sm font-medium text-kastwit disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     In winkelwagen
                   </button>
@@ -145,8 +169,8 @@ export default function BlusboxPage() {
               {/* Reassurance strip */}
               <ul className="mt-8 grid gap-3 sm:grid-cols-2">
                 {[
+                  gratisVerzending.kort,
                   "14 dagen herroepingsrecht",
-                  "Levering met ADR-papieren",
                   "Vervangingsherinnering na 10 jaar",
                   "Nederlandse handleiding",
                 ].map((item) => (
@@ -180,7 +204,7 @@ export default function BlusboxPage() {
               <ul className="mt-4 space-y-2 text-sm text-staal-tekst">
                 {inDoos.map((item) => (
                   <li key={item} className="flex gap-3">
-                    <span className="data text-blusrood" aria-hidden>
+                    <span className="data text-blusrood-op-donker" aria-hidden>
                       —
                     </span>
                     <span>{item}</span>
@@ -228,7 +252,7 @@ export default function BlusboxPage() {
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href="/contact"
-                className="rounded-full bg-blusrood px-6 py-3 text-sm font-medium text-kastwit transition-colors hover:bg-[#b81e1b]"
+                className="rounded-full bg-blusrood-vlak px-6 py-3 text-sm font-medium text-kastwit transition-colors hover:bg-[#9e1b18]"
               >
                 Stuur een foto van je kast
               </Link>
@@ -276,15 +300,15 @@ export default function BlusboxPage() {
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-railstaal bg-kastwit/95 px-4 py-3 backdrop-blur-md lg:hidden">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="data text-sm">
-              {prijsIncl === null ? "[VERIFY: prijs]" : `€ ${prijsIncl}`}
+            <p className="data text-sm">{prijsIncl}</p>
+            <p className="text-[11px] text-staal-tekst">
+              incl. btw · gratis verzending
             </p>
-            <p className="text-[11px] text-staal-tekst">incl. btw</p>
           </div>
           <button
             type="button"
             disabled
-            className="rounded-full bg-blusrood px-6 py-3 text-sm font-medium text-kastwit disabled:opacity-60"
+            className="rounded-full bg-blusrood-vlak px-6 py-3 text-sm font-medium text-kastwit disabled:opacity-60"
           >
             In winkelwagen
           </button>

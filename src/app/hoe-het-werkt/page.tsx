@@ -141,7 +141,7 @@ export default function HoeHetWerktPage() {
                     "Als laatste laag, ná goede installatie, inspectie en aardlekbeveiliging.",
                   ].map((t) => (
                     <li key={t} className="flex gap-3">
-                      <span className="data text-blusrood" aria-hidden>
+                      <span className="data text-blusrood-op-licht" aria-hidden>
                         —
                       </span>
                       <span>{t}</span>
@@ -196,7 +196,7 @@ export default function HoeHetWerktPage() {
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
                   href="/blusbox"
-                  className="rounded-full bg-blusrood px-6 py-3 text-sm font-medium text-kastwit transition-colors hover:bg-[#b81e1b]"
+                  className="rounded-full bg-blusrood-vlak px-6 py-3 text-sm font-medium text-kastwit transition-colors hover:bg-[#9e1b18]"
                 >
                   Bekijk Blusbox
                 </Link>

@@ -9,7 +9,7 @@ const base =
   "inline-flex items-center justify-center gap-2 rounded-[var(--radius-control)] px-6 py-3 text-sm font-medium transition-colors duration-150";
 
 const variants: Record<Variant, string> = {
-  primary: "bg-blusrood text-kastwit hover:bg-[#b81e1b]",
+  primary: "bg-blusrood-vlak text-kastwit hover:bg-[#9e1b18]",
   secondary:
     "border border-antraciet text-antraciet hover:bg-antraciet hover:text-kastwit",
   ghost: "text-antraciet underline underline-offset-4 hover:text-staal-tekst",

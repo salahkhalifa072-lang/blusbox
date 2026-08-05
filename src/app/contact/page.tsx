@@ -89,7 +89,7 @@ export default function ContactPage() {
             <button
               type="submit"
               disabled
-              className="rounded-full bg-blusrood px-7 py-3.5 text-sm font-medium text-kastwit disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-full bg-blusrood-vlak px-7 py-3.5 text-sm font-medium text-kastwit disabled:cursor-not-allowed disabled:opacity-60"
             >
               Versturen
             </button>

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PageHeader } from "@/components/site/page-header";
 import { SiteFooter } from "@/components/site/footer";
 import { Prose, DraftNotice } from "@/components/site/prose";
+import { verzendwaarde } from "@/lib/pricing";
 
 export const metadata: Metadata = {
   title: "Verzending",
@@ -21,13 +22,18 @@ export default function VerzendingPage() {
       />
       <main>
         <Prose>
-          <DraftNotice what="verzendtarieven, levertijden, UN-nummer en transportklasse, en de lijst met toegestane bestemmingen en maximale aantallen per zending." />
+          <DraftNotice what="levertijden, UN-nummer en transportklasse, en de lijst met toegestane bestemmingen en maximale aantallen per zending." />
 
-          <h2>Levertijd en kosten</h2>
+          <h2>Altijd gratis verzending</h2>
+          <p>
+            Wij rekenen geen verzendkosten. Niet vanaf een bepaald bedrag, niet
+            bij een actie — bij elke bestelling. De verzending is{" "}
+            {verzendwaarde} waard en die betaal je niet.
+          </p>
           <ul>
+            <li>Verzendkosten Nederland: gratis</li>
+            <li>Minimumbedrag: geen</li>
             <li>Levertijd: [VERIFY]</li>
-            <li>Verzendkosten Nederland: [VERIFY]</li>
-            <li>Gratis verzending vanaf: [VERIFY]</li>
             <li>Bezorging België: [VERIFY]</li>
           </ul>
 

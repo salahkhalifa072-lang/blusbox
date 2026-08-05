@@ -63,9 +63,10 @@ export const faq: FaqItem[] = [
       "Blusbox is ontworpen voor elektrische behuizingen. Voor toepassing bij een thuisaccu of omvormerkast geldt een aparte beoordeling van het volume en de plaatsing. [VERIFY: toepassingsadvies thuisaccu/omvormer]",
   },
   {
-    vraag: "Wat kost verzending en hoe snel is de levering?",
+    vraag: "Wat kost verzending?",
     antwoord:
-      "Blusbox valt onder een gevaarlijke-goederenclassificatie, waardoor niet elke vervoerder en niet elke bestemming mogelijk is. Bij het afrekenen zie je direct wat er naar jouw adres verzonden kan worden. [VERIFY: verzendtarief en levertijd]",
+      "Niets. Verzending is altijd gratis, bij elke bestelling en zonder minimumbedrag — een besparing van € 6,00 per order. Blusbox valt wel onder een gevaarlijke-goederenclassificatie, waardoor niet elke bestemming mogelijk is. Bij het afrekenen zie je direct wat er naar jouw adres verzonden kan worden. [VERIFY: levertijd]",
+    uitgelicht: true,
   },
 ];
 

@@ -11,8 +11,21 @@
   --kastwit: #e8e9e6; /* enclosure polycarbonate — page ground */
   --railstaal: #9ba1a6; /* zinc DIN rail — rules, borders ONLY (2.4:1, not text-safe) */
   --antraciet: #16181a; /* type, dark sections */
-  --blusrood: #d2231f; /* ISO safety red — the module and primary action only (4.86:1 on kastwit, AA) */
+  --blusrood: #d2231f; /* ISO safety red — the module and large display type only */
   --signaal: #f4c300; /* the 170 °C moment only */
+
+  /*
+   * Derived reds. Measured, not assumed: --blusrood is 4.31:1 on kastwit
+   * and 3.39:1 on antraciet. That clears AA for LARGE text (>=3:1) but
+   * fails the 4.5:1 body-text threshold in both directions, so anything
+   * small — button labels, captions, inline emphasis — uses these.
+   *   vlak        kastwit on it        5.32:1
+   *   op-licht    on kastwit           5.73:1
+   *   op-donker   on antraciet         5.37:1
+   */
+  --blusrood-vlak: #b81e1b; /* fills that carry small light text */
+  --blusrood-op-licht: #b01a17; /* small red text on kastwit */
+  --blusrood-op-donker: #f05b57; /* small red text on antraciet */
 
   /* Derived — not in the brief's palette table, but needed to hit AA */
   --staal-tekst: #595f63; /* darkened railstaal for muted text (6.0:1 on kastwit) */
@@ -42,6 +55,9 @@
   --color-antraciet: var(--antraciet);
   --color-antraciet-verhoogd: var(--antraciet-verhoogd);
   --color-blusrood: var(--blusrood);
+  --color-blusrood-vlak: var(--blusrood-vlak);
+  --color-blusrood-op-licht: var(--blusrood-op-licht);
+  --color-blusrood-op-donker: var(--blusrood-op-donker);
   --color-signaal: var(--signaal);
   --color-staal-tekst: var(--staal-tekst);
 
@@ -94,7 +110,9 @@
     line-height: 0.88;
   }
 
-  /* Second colour inside a display line (reference: two-tone headline) */
+  /* Second colour inside a display line (reference: two-tone headline).
+     Only for large display type — small red text uses the -op-licht /
+     -op-donker tokens, which clear 4.5:1. */
   .accent {
     color: var(--blusrood);
   }

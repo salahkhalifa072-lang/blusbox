@@ -9,7 +9,7 @@ export function Prose({ children }: { children: ReactNode }) {
     <div
       className="
         mx-auto max-w-2xl px-6 py-20
-        [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-blusrood
+        [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-blusrood-op-licht
         [&_h2]:font-display [&_h2]:mt-12 [&_h2]:text-2xl [&_h2]:first:mt-0
         [&_h3]:mt-8 [&_h3]:font-medium
         [&_li]:text-staal-tekst

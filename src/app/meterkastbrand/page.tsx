@@ -161,7 +161,7 @@ export default function MeterkastbrandPage() {
                   },
                 ].map((s, i) => (
                   <li key={s.t} className="flex gap-4">
-                    <span className="data mt-1 text-sm text-blusrood">
+                    <span className="data mt-1 text-sm text-blusrood-op-licht">
                       {String(i + 1).padStart(2, "0")}
                     </span>
                     <div>
@@ -176,7 +176,7 @@ export default function MeterkastbrandPage() {
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
                   href="/blusbox"
-                  className="rounded-full bg-blusrood px-6 py-3 text-sm font-medium text-kastwit transition-colors hover:bg-[#b81e1b]"
+                  className="rounded-full bg-blusrood-vlak px-6 py-3 text-sm font-medium text-kastwit transition-colors hover:bg-[#9e1b18]"
                 >
                   Bekijk Blusbox
                 </Link>

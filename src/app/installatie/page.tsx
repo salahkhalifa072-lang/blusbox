@@ -62,7 +62,7 @@ export default function InstallatiePage() {
               <ol className="space-y-8">
                 {stappen.map((s) => (
                   <li key={s.nr} className="flex gap-5">
-                    <span className="data mt-1 shrink-0 text-sm text-blusrood">
+                    <span className="data mt-1 shrink-0 text-sm text-blusrood-op-licht">
                       {s.nr}
                     </span>
                     <div>

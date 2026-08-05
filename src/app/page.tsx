@@ -7,6 +7,8 @@ import { ScrollScrub } from "@/components/home/scroll-scrub";
 import { VideoBlock } from "@/components/ui/video-block";
 import { Reveal } from "@/components/ui/reveal";
 import { LogoBadge } from "@/components/site/logo";
+import { UspBar } from "@/components/site/usp-bar";
+import { gratisVerzending, prijsIncl, verzendwaarde } from "@/lib/pricing";
 
 /**
  * §5.1 Home. Layout follows the client's reference: dark full-bleed hero with
@@ -107,10 +109,18 @@ export default function Home() {
                     <span className="data text-kastwit">170 °C</span> vanzelf
                     ingrijpt. Geen stroom. Geen bediening. Geen mens.
                   </p>
-                  <div className="mt-6 flex flex-wrap gap-3">
+                  <p className="data mt-5 text-sm text-kastwit">
+                    {prijsIncl}{" "}
+                    <span className="text-kastwit/50">incl. btw</span>
+                    <span className="mx-2 text-kastwit/30">·</span>
+                    <span className="text-blusrood-op-donker">
+                      {gratisVerzending.kort}
+                    </span>
+                  </p>
+                  <div className="mt-5 flex flex-wrap gap-3">
                     <Link
                       href="/blusbox"
-                      className="rounded-full bg-blusrood px-6 py-3 text-sm font-medium text-kastwit transition-colors hover:bg-[#b81e1b]"
+                      className="rounded-full bg-blusrood-vlak px-6 py-3 text-sm font-medium text-kastwit transition-colors hover:bg-[#9e1b18]"
                     >
                       Bekijk Blusbox
                     </Link>
@@ -144,6 +154,9 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* Trust row directly under the hero, webshop convention */}
+        <UspBar />
 
         {/* Signature element — scroll-scrubbed real footage */}
         <ScrollScrub />
@@ -338,6 +351,14 @@ export default function Home() {
               <p className="mt-3 max-w-sm text-sm text-staal-tekst">
                 Past in de standaard Nederlandse meterkast, naast de
                 hoofdschakelaar en de aardlekschakelaar.
+              </p>
+              <p className="data mt-5 text-lg">
+                {prijsIncl}{" "}
+                <span className="text-sm text-staal-tekst">incl. btw</span>
+              </p>
+              <p className="data mt-1 text-xs text-staal-tekst">
+                Verzendkosten <span className="line-through">{verzendwaarde}</span>{" "}
+                <span className="text-blusrood-op-licht">gratis</span>
               </p>
             </div>
             <ButtonLink href="/blusbox" className="rounded-full">

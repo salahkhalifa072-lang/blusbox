@@ -3,10 +3,12 @@ import Link from "next/link";
 import { PageHeader } from "@/components/site/page-header";
 import { SiteFooter } from "@/components/site/footer";
 import { Prose, DraftNotice } from "@/components/site/prose";
+import { prijsIncl, verzendwaarde } from "@/lib/pricing";
 
 export const metadata: Metadata = {
   title: "Algemene voorwaarden",
-  description: "De algemene voorwaarden die gelden bij bestellingen bij Blusbox.",
+  description:
+    "De algemene voorwaarden die gelden bij bestellingen bij Blusbox: bestellen, betalen, levering van gevaarlijke goederen, herroeping, conformiteit en aansprakelijkheid.",
   alternates: { canonical: "/algemene-voorwaarden" },
 };
 
@@ -16,92 +18,347 @@ export default function AlgemeneVoorwaardenPage() {
       <PageHeader
         eyebrow="juridisch"
         title="Algemene voorwaarden"
-        lead="Deze voorwaarden gelden bij elke bestelling. Je wettelijke rechten als consument blijven hoe dan ook gelden."
+        lead="Deze voorwaarden gelden bij elke bestelling. Ben je consument, dan blijven je wettelijke rechten altijd gelden — ook waar deze voorwaarden iets anders zouden suggereren."
       />
       <main>
         <Prose>
-          <DraftNotice what="de volledige tekst moet door een jurist worden opgesteld of getoetst. Onderstaande opzet geeft alleen de hoofdstukindeling en de punten die voor dit product afwijken van een standaardset." />
+          <DraftNotice what="de bedrijfsgegevens, betalings- en levertermijnen en de aansprakelijkheidsbepaling moeten worden ingevuld, en de volledige tekst moet vóór livegang door een jurist worden gecontroleerd." />
 
-          <h2>1. Wie wij zijn</h2>
           <p>
-            [VERIFY: statutaire naam, handelsnaam, vestigingsadres, KvK-nummer,
-            btw-identificatienummer en contactgegevens]
+            <em>Versie 1 · laatst bijgewerkt op 5 augustus 2026</em>
           </p>
 
-          <h2>2. Toepasselijkheid</h2>
+          <h2>Artikel 1 — Definities</h2>
+          <ul>
+            <li>
+              <strong>Blusbox</strong>: de verkoper, hierna ook &apos;wij&apos;
+              of &apos;ons&apos;. [VERIFY: statutaire naam en rechtsvorm]
+            </li>
+            <li>
+              <strong>Consument</strong>: een natuurlijk persoon die niet handelt
+              in de uitoefening van beroep of bedrijf.
+            </li>
+            <li>
+              <strong>Zakelijke afnemer</strong>: iedere andere afnemer, waaronder
+              installateurs, VvE&apos;s, woningcorporaties en bedrijven.
+            </li>
+            <li>
+              <strong>Product</strong>: de Blusbox-blusmodule en de daarbij
+              behorende artikelen zoals montagesets en vervangmodules.
+            </li>
+            <li>
+              <strong>Overeenkomst</strong>: de koop op afstand die tot stand komt
+              via deze website.
+            </li>
+          </ul>
+
+          <h2>Artikel 2 — Wie wij zijn</h2>
           <p>
-            Deze voorwaarden zijn van toepassing op elk aanbod en elke
-            overeenkomst tussen ons en jou. Wijken wij ergens van af, dan
-            leggen wij dat schriftelijk vast.
+            [VERIFY: statutaire naam, handelsnaam, vestigings- en bezoekadres,
+            KvK-nummer, btw-identificatienummer, telefoonnummer en e-mailadres]
+          </p>
+          <p>
+            Je kunt ons op werkdagen bereiken via de gegevens op de pagina{" "}
+            <Link href="/contact">contact</Link>. Wij beantwoorden vragen en
+            klachten binnen [VERIFY: termijn] werkdagen.
           </p>
 
-          <h2>3. Aanbod en overeenkomst</h2>
-          <p>
-            Prijzen op de site zijn voor consumenten inclusief btw en voor
-            zakelijke accounts exclusief btw. Kennelijke vergissingen of fouten
-            binden ons niet. [VERIFY: geldigheidsduur van aanbiedingen]
-          </p>
+          <h2>Artikel 3 — Toepasselijkheid</h2>
+          <ol>
+            <li>
+              Deze voorwaarden zijn van toepassing op elk aanbod van Blusbox en
+              op elke overeenkomst die tussen ons en jou tot stand komt.
+            </li>
+            <li>
+              Voordat de overeenkomst wordt gesloten, stellen wij deze
+              voorwaarden langs elektronische weg beschikbaar, zodat je ze kunt
+              opslaan. Ze zijn ook op deze pagina te raadplegen.
+            </li>
+            <li>
+              Afwijkingen van deze voorwaarden gelden alleen als wij die
+              schriftelijk hebben bevestigd.
+            </li>
+            <li>
+              Is een bepaling nietig of vernietigbaar, dan blijven de overige
+              bepalingen gelden en vervangen wij de betreffende bepaling door een
+              bepaling die de strekking ervan zo dicht mogelijk benadert.
+            </li>
+            <li>
+              Algemene voorwaarden van een zakelijke afnemer worden uitdrukkelijk
+              van de hand gewezen.
+            </li>
+          </ol>
 
-          <h2>4. Betaling</h2>
-          <p>
-            Betaling verloopt via de betaalmethoden die bij het afrekenen worden
-            getoond. Zakelijke afnemers kunnen na goedkeuring op rekening
-            bestellen. [VERIFY: betalingstermijn en gevolgen bij te late
-            betaling]
-          </p>
+          <h2>Artikel 4 — Het aanbod</h2>
+          <ol>
+            <li>
+              Elk aanbod bevat een volledige en nauwkeurige omschrijving van het
+              product. De afbeeldingen en filmbeelden op deze website zijn een
+              weergave en kunnen op ondergeschikte punten afwijken van het
+              geleverde product.
+            </li>
+            <li>
+              Kennelijke vergissingen of fouten in het aanbod binden ons niet.
+            </li>
+            <li>
+              Een aanbod geldt zolang de voorraad strekt en zolang het op de
+              website staat.
+            </li>
+          </ol>
 
-          <h2>5. Levering en gevaarlijke goederen</h2>
-          <p>
-            Het product valt onder een classificatie voor gevaarlijke goederen.
-            Wij leveren uitsluitend naar bestemmingen en in aantallen die
-            volgens de geldende vervoersregels zijn toegestaan. Kunnen wij een
-            bestelling niet vervoeren, dan komt die niet tot stand en betalen wij
-            een eventueel reeds betaald bedrag terug. Zie{" "}
-            <Link href="/verzending">verzending</Link>.
-          </p>
+          <h2>Artikel 5 — Prijzen</h2>
+          <ol>
+            <li>
+              Prijzen voor consumenten zijn inclusief btw. De actuele
+              consumentenprijs van de Blusbox-module bedraagt {prijsIncl}.
+            </li>
+            <li>
+              Prijzen voor zakelijke afnemers zijn exclusief btw en worden in
+              staffels aangeboden. In één weergave tonen wij nooit tegelijk
+              prijzen inclusief en exclusief btw.
+            </li>
+            <li>
+              <strong>Verzendkosten brengen wij niet in rekening.</strong>{" "}
+              Verzending is gratis bij elke bestelling, zonder minimumbedrag. De
+              waarde van die verzending bedraagt {verzendwaarde} per zending.
+              Wij behouden ons het recht voor dit voor toekomstige bestellingen
+              te wijzigen; voor een reeds geplaatste bestelling geldt altijd wat
+              bij het afrekenen is getoond.
+            </li>
+            <li>
+              Voor je de bestelling definitief plaatst, tonen wij het totaalbedrag
+              inclusief btw en inclusief eventuele bijkomende kosten.
+            </li>
+            <li>
+              Prijswijzigingen als gevolg van wijzigingen in btw-tarieven mogen
+              wij doorberekenen.
+            </li>
+          </ol>
 
-          <h2>6. Herroepingsrecht</h2>
-          <p>
-            Consumenten hebben veertien dagen bedenktijd. De volledige regeling
-            staat op <Link href="/herroepingsrecht">herroepingsrecht</Link>. Dit
-            recht geldt niet voor zakelijke afnemers.
-          </p>
+          <h2>Artikel 6 — Totstandkoming van de overeenkomst</h2>
+          <ol>
+            <li>
+              De overeenkomst komt tot stand op het moment dat je het aanbod
+              aanvaardt en aan de daarbij gestelde voorwaarden voldoet.
+            </li>
+            <li>
+              Wij bevestigen de ontvangst van je bestelling onverwijld langs
+              elektronische weg. Zolang wij die bevestiging niet hebben gestuurd,
+              kun je de overeenkomst ontbinden.
+            </li>
+            <li>
+              Wij kunnen ons binnen wettelijke kaders op de hoogte stellen of je
+              aan je betalingsverplichtingen kunt voldoen, en een bestelling
+              gemotiveerd weigeren of aan bijzondere voorwaarden verbinden.
+            </li>
+            <li>
+              Kunnen wij een bestelling om vervoerstechnische redenen niet
+              uitvoeren (zie artikel 8), dan komt de overeenkomst voor dat deel
+              niet tot stand en betalen wij een reeds betaald bedrag onverwijld
+              terug.
+            </li>
+          </ol>
 
-          <h2>7. Conformiteit en garantie</h2>
-          <p>
-            Zie <Link href="/garantie">garantie en conformiteit</Link>. Een
-            eventuele commerciële garantie laat de wettelijke rechten
-            onverlet.
-          </p>
+          <h2>Artikel 7 — Betaling</h2>
+          <ol>
+            <li>
+              Betaling verloopt via de betaalmethoden die bij het afrekenen
+              worden getoond, waaronder iDEAL.
+            </li>
+            <li>
+              Zakelijke afnemers kunnen na goedkeuring op rekening bestellen. De
+              betalingstermijn bedraagt [VERIFY: aantal] dagen na factuurdatum.
+            </li>
+            <li>
+              Bij niet-tijdige betaling door een zakelijke afnemer zijn de
+              wettelijke handelsrente en buitengerechtelijke incassokosten
+              verschuldigd. Bij consumenten passen wij uitsluitend de wettelijke
+              regeling toe, nadat wij eerst een aanmaning hebben gestuurd met een
+              termijn van veertien dagen.
+            </li>
+            <li>
+              Onjuistheden in verstrekte of vermelde betaalgegevens meld je ons
+              onverwijld.
+            </li>
+          </ol>
 
-          <h2>8. Gebruik van het product</h2>
-          <p>
-            Het product is bedoeld voor toepassing in elektrische behuizingen
-            zoals beschreven in de handleiding en op{" "}
-            <Link href="/hoe-het-werkt">hoe het werkt</Link>. Toepassing buiten
-            het beschreven toepassingsgebied, of montage in afwijking van de
-            handleiding, valt buiten onze verantwoordelijkheid.
-          </p>
+          <h2>Artikel 8 — Levering en gevaarlijke goederen</h2>
+          <ol>
+            <li>
+              Als plaats van levering geldt het adres dat je aan ons hebt
+              opgegeven.
+            </li>
+            <li>
+              Wij voeren geaccepteerde bestellingen met bekwame spoed uit,
+              uiterlijk binnen dertig dagen, tenzij een andere levertermijn is
+              afgesproken. Bij vertraging melden wij dat binnen dertig dagen na
+              de bestelling, waarna je de overeenkomst kosteloos kunt ontbinden.
+            </li>
+            <li>
+              <strong>
+                Het product bevat een blusmiddel en valt onder een classificatie
+                voor gevaarlijke goederen.
+              </strong>{" "}
+              Wij leveren daarom uitsluitend naar bestemmingen en in aantallen
+              die volgens de geldende vervoersvoorschriften zijn toegestaan. Bij
+              het afrekenen zie je in het Nederlands wat naar jouw adres
+              verzonden kan worden.
+            </li>
+            <li>
+              Bij zendingen gaan de vereiste vervoersdocumenten mee. Van jou
+              wordt daarvoor niets verlangd.
+            </li>
+            <li>
+              Het risico van beschadiging of vermissing berust bij ons tot het
+              moment van bezorging bij jou of een door jou aangewezen persoon.
+            </li>
+            <li>
+              Meer hierover staat op de pagina{" "}
+              <Link href="/verzending">verzending</Link>.
+            </li>
+          </ol>
 
-          <h2>9. Aansprakelijkheid</h2>
-          <p>
-            [VERIFY: aansprakelijkheidsbepaling, af te stemmen met verzekeraar
-            en jurist. Let op dat aansprakelijkheid voor consumenten niet verder
-            beperkt mag worden dan de wet toestaat.]
-          </p>
+          <h2>Artikel 9 — Herroepingsrecht voor consumenten</h2>
+          <ol>
+            <li>
+              Als consument kun je de overeenkomst gedurende veertien dagen na
+              ontvangst van het product zonder opgave van redenen ontbinden.
+            </li>
+            <li>
+              Tijdens die termijn ga je zorgvuldig om met het product en de
+              verpakking. Je mag het product uitpakken en beoordelen zoals je dat
+              in een winkel zou doen. Ga je verder dan dat, dan kunnen wij de
+              waardevermindering in rekening brengen.
+            </li>
+            <li>
+              Je meldt de herroeping binnen de termijn via het retourformulier in
+              je account, via het wettelijk modelformulier of met een andere
+              ondubbelzinnige verklaring. Vervolgens stuur je het product binnen
+              veertien dagen na die melding terug.
+            </li>
+            <li>
+              Omdat het product onder een gevaarlijke-goederenclassificatie valt,
+              volg je bij een retourzending altijd de instructies die je bij je
+              melding ontvangt. Stuur een module nooit ongevraagd terug.
+            </li>
+            <li>
+              Wij betalen binnen veertien dagen na de melding terug, inclusief de
+              standaard verzendkosten van de heenzending, met hetzelfde
+              betaalmiddel als waarmee je hebt betaald. Wij mogen wachten tot wij
+              het product terug hebben ontvangen of tot jij hebt aangetoond dat
+              je het hebt teruggestuurd. [VERIFY: wie draagt de kosten van de
+              retourzending]
+            </li>
+            <li>
+              Zakelijke afnemers hebben geen wettelijk herroepingsrecht. De
+              volledige regeling staat op{" "}
+              <Link href="/herroepingsrecht">herroepingsrecht</Link>.
+            </li>
+          </ol>
 
-          <h2>10. Klachten en geschillen</h2>
-          <p>
-            Klachten kun je indienen via <Link href="/contact">contact</Link>. Wij
-            reageren binnen [VERIFY: termijn]. Op onze overeenkomsten is
-            Nederlands recht van toepassing. Consumenten kunnen daarnaast
-            gebruikmaken van het Europese ODR-platform.
-          </p>
+          <h2>Artikel 10 — Conformiteit en garantie</h2>
+          <ol>
+            <li>
+              Wij staan ervoor in dat het product beantwoordt aan de
+              overeenkomst, aan de in het aanbod vermelde specificaties en aan de
+              op het moment van levering bestaande wettelijke bepalingen (art.
+              7:17 BW).
+            </li>
+            <li>
+              Een eventuele door ons of de fabrikant verstrekte commerciële
+              garantie laat je wettelijke rechten onverlet en kan die nooit
+              beperken.
+            </li>
+            <li>
+              Het bereiken van de opgegeven levensduur van tien jaar is geen
+              gebrek, maar het einde van de gebruiksduur waarvoor het product is
+              ontworpen. Hetzelfde geldt voor een module die is geactiveerd en
+              daarmee verbruikt.
+            </li>
+            <li>
+              Meer hierover staat op{" "}
+              <Link href="/garantie">garantie en conformiteit</Link>.
+            </li>
+          </ol>
 
-          <h2>11. Persoonsgegevens</h2>
+          <h2>Artikel 11 — Gebruik en toepassingsgebied</h2>
+          <ol>
+            <li>
+              Het product is bestemd voor toepassing in elektrische behuizingen
+              zoals beschreven in de handleiding en op{" "}
+              <Link href="/hoe-het-werkt">hoe het werkt</Link>.
+            </li>
+            <li>
+              Het product is een aanvullende maatregel. Het vervangt geen
+              rookmelders, geen aardlekschakelaar, geen deugdelijke installatie
+              en geen periodieke inspectie.
+            </li>
+            <li>
+              Montage in afwijking van de handleiding, toepassing buiten het
+              beschreven toepassingsgebied of gebruik van een geactiveerde of
+              verlopen module valt buiten onze verantwoordelijkheid.
+            </li>
+            <li>
+              Na een activering laat je de installatie controleren voordat de
+              betreffende groep opnieuw wordt belast.
+            </li>
+          </ol>
+
+          <h2>Artikel 12 — Aansprakelijkheid</h2>
+          <ol>
+            <li>
+              Onze aansprakelijkheid jegens consumenten wordt niet verder beperkt
+              dan de wet toestaat. Aansprakelijkheid voor schade door dood,
+              lichamelijk letsel of opzet dan wel bewuste roekeloosheid sluiten
+              wij nooit uit.
+            </li>
+            <li>
+              [VERIFY: beperking van aansprakelijkheid jegens zakelijke afnemers,
+              af te stemmen met jurist en verzekeraar — denk aan een maximum ter
+              hoogte van het factuurbedrag en uitsluiting van gevolgschade]
+            </li>
+            <li>
+              Wij zijn niet aansprakelijk voor schade die het gevolg is van
+              montage of gebruik in strijd met artikel 11.
+            </li>
+          </ol>
+
+          <h2>Artikel 13 — Klachten en geschillen</h2>
+          <ol>
+            <li>
+              Klachten over de uitvoering van de overeenkomst dien je binnen
+              bekwame tijd volledig en duidelijk omschreven bij ons in, via{" "}
+              <Link href="/contact">contact</Link>.
+            </li>
+            <li>
+              Wij beantwoorden klachten binnen [VERIFY: termijn] dagen. Vraagt de
+              afhandeling meer tijd, dan bevestigen wij de ontvangst en geven wij
+              aan wanneer je een inhoudelijk antwoord kunt verwachten.
+            </li>
+            <li>
+              Op overeenkomsten waarop deze voorwaarden van toepassing zijn, is
+              uitsluitend Nederlands recht van toepassing.
+            </li>
+            <li>
+              Consumenten kunnen een geschil ook voorleggen via het Europese
+              ODR-platform van de Europese Commissie.
+            </li>
+          </ol>
+
+          <h2>Artikel 14 — Persoonsgegevens</h2>
           <p>
-            Hoe wij met je gegevens omgaan staat in de{" "}
+            Hoe wij met je gegevens omgaan — waaronder de registratie van
+            lotnummer en installatiedatum voor vervangings- en
+            terugroepberichten — staat in de{" "}
             <Link href="/privacyverklaring">privacyverklaring</Link>.
+          </p>
+
+          <h2>Artikel 15 — Wijziging van deze voorwaarden</h2>
+          <p>
+            Wijzigingen gelden pas nadat ze op deze pagina zijn gepubliceerd. Op
+            een reeds gesloten overeenkomst blijft de versie van toepassing die
+            gold op het moment van bestellen. Elke versie draagt daarom een
+            versienummer en een datum.
           </p>
         </Prose>
       </main>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LogoMark } from "@/components/site/logo";
+import { ShippingBanner } from "@/components/site/usp-bar";
 
 const nav = [
   { href: "/blusbox", label: "Product" },
@@ -14,8 +15,11 @@ const nav = [
  */
 export function SiteHeader() {
   return (
-    <header className="pointer-events-none fixed inset-x-0 top-0 z-50 px-4 pt-4 sm:px-6">
-      <div className="pointer-events-auto mx-auto flex max-w-6xl items-center justify-between gap-4 rounded-full border border-kastwit/15 bg-antraciet/70 px-4 py-2.5 backdrop-blur-md sm:px-5">
+    <header className="pointer-events-none fixed inset-x-0 top-0 z-50">
+      <div className="pointer-events-auto">
+        <ShippingBanner />
+      </div>
+      <div className="pointer-events-auto mx-4 mt-3 flex max-w-6xl items-center justify-between gap-4 rounded-full border border-kastwit/15 bg-antraciet/70 px-4 py-2.5 backdrop-blur-md sm:mx-6 lg:mx-auto lg:px-5">
         <Link
           href="/"
           className="flex items-center gap-2 text-kastwit"
@@ -49,7 +53,7 @@ export function SiteHeader() {
           </Link>
           <Link
             href="/blusbox"
-            className="rounded-full bg-blusrood px-4 py-2 text-sm font-medium text-kastwit transition-colors hover:bg-[#b81e1b]"
+            className="rounded-full bg-blusrood-vlak px-4 py-2 text-sm font-medium text-kastwit transition-colors hover:bg-[#9e1b18]"
           >
             Bestellen
           </Link>
