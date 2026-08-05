@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LogoMark } from "@/components/site/logo";
 import { ShippingBanner } from "@/components/site/usp-bar";
+import { WagenBadge } from "@/components/site/wagen-badge";
 
 const nav = [
   { href: "/blusbox", label: "Product" },
@@ -45,12 +46,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <Link
-            href="/winkelwagen"
-            className="data hidden whitespace-nowrap text-xs text-kastwit/60 transition-colors hover:text-kastwit sm:inline"
-          >
-            Winkelwagen (0)
-          </Link>
+          <WagenBadge />
           <Link
             href="/blusbox"
             className="rounded-full bg-blusrood-vlak px-4 py-2 text-sm font-medium text-kastwit transition-colors hover:bg-[#9e1b18]"

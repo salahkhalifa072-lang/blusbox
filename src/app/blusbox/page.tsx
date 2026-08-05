@@ -11,6 +11,7 @@ import { VideoBlock } from "@/components/ui/video-block";
 import { LogoBadge } from "@/components/site/logo";
 import { productFacts } from "@/lib/product-facts";
 import { faqUitgelicht } from "@/lib/faq";
+import { voegToeAanWagen } from "@/app/winkelwagen/acties";
 import {
   gratisVerzending,
   prijsExcl,
@@ -146,14 +147,28 @@ export default function BlusboxPage() {
                   <span>Lotnummer bij levering</span>
                 </div>
 
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <button
-                    type="button"
-                    disabled
-                    className="rounded-full bg-blusrood-vlak px-7 py-3.5 text-sm font-medium text-kastwit disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    In winkelwagen
-                  </button>
+                <div className="mt-6 flex flex-wrap items-center gap-3">
+                  <form action={voegToeAanWagen} className="flex gap-3">
+                    <input type="hidden" name="slug" value="blusbox" />
+                    <label htmlFor="aantal" className="sr-only">
+                      Aantal
+                    </label>
+                    <input
+                      id="aantal"
+                      name="aantal"
+                      type="number"
+                      min={1}
+                      max={10}
+                      defaultValue={1}
+                      className="data w-20 rounded-[var(--radius-control)] border border-kastwit/25 bg-transparent px-3 py-3.5 text-center text-sm"
+                    />
+                    <button
+                      type="submit"
+                      className="rounded-full bg-blusrood-vlak px-7 py-3.5 text-sm font-medium text-kastwit transition-colors hover:bg-[#9e1b18]"
+                    >
+                      In winkelwagen
+                    </button>
+                  </form>
                   <Link
                     href="/zakelijk"
                     className="rounded-full border border-kastwit/40 px-7 py-3.5 text-sm transition-colors hover:bg-kastwit hover:text-antraciet"
@@ -162,7 +177,7 @@ export default function BlusboxPage() {
                   </Link>
                 </div>
                 <p className="data mt-3 text-xs text-railstaal">
-                  Bestellen gaat live zodra prijs en voorraad zijn ingesteld.
+                  Altijd gratis verzending · 14 dagen bedenktijd
                 </p>
               </div>
 
@@ -305,13 +320,16 @@ export default function BlusboxPage() {
               incl. btw · gratis verzending
             </p>
           </div>
-          <button
-            type="button"
-            disabled
-            className="rounded-full bg-blusrood-vlak px-6 py-3 text-sm font-medium text-kastwit disabled:opacity-60"
-          >
-            In winkelwagen
-          </button>
+          <form action={voegToeAanWagen}>
+            <input type="hidden" name="slug" value="blusbox" />
+            <input type="hidden" name="aantal" value={1} />
+            <button
+              type="submit"
+              className="rounded-full bg-blusrood-vlak px-6 py-3 text-sm font-medium text-kastwit transition-colors hover:bg-[#9e1b18]"
+            >
+              In winkelwagen
+            </button>
+          </form>
         </div>
       </div>
 
