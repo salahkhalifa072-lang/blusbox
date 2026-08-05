@@ -39,6 +39,18 @@ export const metadata: Metadata = {
     icon: "/icon.png",
     apple: "/icon.png",
   },
+  // §11: nl-NL now, with nl-BE ready to switch on when we ship to Belgium.
+  alternates: {
+    canonical: "/",
+    languages: { "nl-NL": "/" },
+  },
+  openGraph: {
+    type: "website",
+    locale: "nl_NL",
+    siteName: "Blusbox",
+    url: siteUrl,
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({
