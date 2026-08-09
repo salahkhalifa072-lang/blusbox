@@ -6,7 +6,7 @@ import { SiteFooter } from "@/components/site/footer";
 import { leesWagen } from "@/lib/winkelwagen-cookie";
 import { berekenWagen } from "@/lib/winkelwagen";
 import { euro, verzendwaarde } from "@/lib/pricing";
-import { mollieBeschikbaar, mollieTestmodus } from "@/lib/mollie";
+import { stripeBeschikbaar, stripeTestmodus } from "@/lib/stripe";
 import { AfrekenFormulier } from "./formulier";
 
 export const metadata: Metadata = {
@@ -33,7 +33,7 @@ export default async function AfrekenenPage() {
         lead="Gast bestellen kan gewoon; een account is niet nodig. Verzending is altijd gratis."
       />
       <main className="mx-auto max-w-5xl px-6 py-16">
-        {!mollieBeschikbaar() ? (
+        {!stripeBeschikbaar() ? (
           <div
             role="note"
             className="mb-10 rounded-2xl border border-signaal bg-signaal/15 p-5"
@@ -47,14 +47,14 @@ export default async function AfrekenenPage() {
               zodra de koppeling live staat.
             </p>
           </div>
-        ) : mollieTestmodus() ? (
+        ) : stripeTestmodus() ? (
           <div
             role="note"
             className="mb-10 rounded-2xl border border-signaal bg-signaal/15 p-5"
           >
             <p className="data text-xs uppercase tracking-widest">Testmodus</p>
             <p className="mt-2 text-sm">
-              Er wordt geen echt geld afgeschreven.
+              Er wordt geen echt geld afgeschreven. Gebruik de iDEAL-testbank op de betaalpagina.
             </p>
           </div>
         ) : null}

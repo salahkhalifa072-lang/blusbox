@@ -19,11 +19,12 @@ import {
 } from "@/lib/adres";
 import { btwVerlegd } from "@/lib/btw";
 import {
-  MollieNietGeconfigureerd,
-  maakBetaling,
-  mollieBeschikbaar,
-} from "@/lib/mollie";
-import { siteUrl } from "@/lib/site";
+  StripeNietGeconfigureerd,
+  maakCheckoutSessie,
+  stripeBeschikbaar,
+} from "@/lib/stripe";
+import { berekenWagen } from "@/lib/winkelwagen";
+import { inclBtw } from "@/lib/btw";
 
 export type AfrekenFout = {
   velden?: Record<string, string>;
@@ -126,44 +127,57 @@ export async function rekenAf(
 
   // Order exists and is reserved. If payment cannot start, the customer
   // still has an order number to refer to — never a silent dead end.
-  if (!mollieBeschikbaar()) {
+  if (!stripeBeschikbaar()) {
     await schrijfWagen(LEGE_WAGEN);
     redirect(`/bestelling/${bestelling.ordernummer}?betalen=nietingesteld`);
   }
 
   const kop = await headers();
   const host = kop.get("host") ?? "";
-  const basis = host.includes("localhost") ? `http://${host}` : siteUrl;
-  const lokaal = host.includes("localhost");
+  const protocol = host.startsWith("localhost") ? "http" : "https";
+  const basis = `${protocol}://${host}`;
 
-  let betaling;
+  // Rebuild the lines for Stripe. Consumers are charged incl. btw, so the
+  // unit amount shown on the Stripe page matches the site exactly; on a
+  // reverse-charged order the excl. price is the amount due.
+  const overzicht = berekenWagen(wagen, {
+    landcode,
+    isZakelijk,
+    btwIdGevalideerd,
+  });
+
+  let sessie;
   try {
-    betaling = await maakBetaling({
-      bedragCenten: bestelling.totaalInclBtwCenten,
-      omschrijving: `Blusbox ${bestelling.ordernummer}`,
-      redirectUrl: `${basis}/bestelling/${bestelling.ordernummer}`,
-      // Mollie cannot reach localhost; the confirmation page polls instead.
-      webhookUrl: lokaal ? undefined : `${siteUrl}/api/mollie/webhook`,
+    sessie = await maakCheckoutSessie({
+      regels: overzicht.regels.map((r) => ({
+        naam: r.item.naam,
+        omschrijving: r.item.omschrijving,
+        stukprijsCenten: overzicht.totalen.btwVerlegd
+          ? r.item.prijsExclBtwCenten
+          : inclBtw(r.item.prijsExclBtwCenten, r.item.btwPercentage),
+        aantal: r.aantal,
+      })),
+      email,
       ordernummer: bestelling.ordernummer,
       orderId: bestelling.id,
+      succesUrl: `${basis}/bestelling/${bestelling.ordernummer}`,
+      annuleerUrl: `${basis}/winkelwagen`,
+      btwVerlegd: overzicht.totalen.btwVerlegd,
     });
   } catch (fout) {
-    if (fout instanceof MollieNietGeconfigureerd) {
+    if (fout instanceof StripeNietGeconfigureerd) {
       await schrijfWagen(LEGE_WAGEN);
       redirect(`/bestelling/${bestelling.ordernummer}?betalen=nietingesteld`);
     }
+    console.error("Stripe-sessie aanmaken mislukt:", fout);
     return {
-      algemeen:
-        "De betaling kon niet worden gestart. Je bestelling is bewaard onder nummer " +
-        bestelling.ordernummer +
-        ".",
+      algemeen: `De betaling kon niet worden gestart. Je bestelling is bewaard onder nummer ${bestelling.ordernummer}.`,
       oplossing: "Probeer het opnieuw, of neem contact met ons op.",
     };
   }
 
-  await markeerBetaald(bestelling.id, betaling.id, "nieuw");
+  await markeerBetaald(bestelling.id, sessie.id, "nieuw");
   await schrijfWagen(LEGE_WAGEN);
 
-  const checkout = betaling._links.checkout?.href;
-  redirect(checkout ?? `/bestelling/${bestelling.ordernummer}`);
+  redirect(sessie.url ?? `/bestelling/${bestelling.ordernummer}`);
 }
