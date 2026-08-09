@@ -33,7 +33,7 @@ export const metadata: Metadata = {
 
 const inDoos = [
   "Blusbox-module met DIN-railclip",
-  "Detectiekoord, voorgemonteerd",
+  "Detectiekoord, al aangesloten op de module",
   "Montage-instructie in het Nederlands",
   "Registratiekaart met lotnummer voor je vervangingstermijn",
 ];
@@ -121,7 +121,7 @@ export default function BlusboxPage() {
                   <div className="relative aspect-square overflow-hidden rounded-2xl bg-antraciet-verhoogd">
                     <Image
                       src="/media/verpakking-open.jpg"
-                      alt="Geopende Blusbox-verpakking met de module, het detectiekoord en de handleiding in schuimuitsparingen"
+                      alt="Geopende Blusbox-verpakking: de module met vastzittend lichtblauw detectiekoord, naast een rode kaart met het Blusbox-logo"
                       fill
                       sizes="(min-width: 1024px) 25vw, 50vw"
                       className="object-cover"

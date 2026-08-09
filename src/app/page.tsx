@@ -265,7 +265,7 @@ export default function Home() {
                 <ul className="mt-6 space-y-2 text-sm text-staal-tekst">
                   {[
                     "Blusbox-module met DIN-railclip",
-                    "Detectiekoord, voorgemonteerd",
+                    "Detectiekoord, al aangesloten op de module",
                     "Handleiding in het Nederlands",
                     "Registratiekaart met lotnummer",
                   ].map((r) => (
@@ -296,7 +296,7 @@ export default function Home() {
                   <div className="relative aspect-square overflow-hidden rounded-2xl">
                     <Image
                       src="/media/verpakking-open.jpg"
-                      alt="Geopende Blusbox-verpakking met de module, het detectiekoord en de handleiding in schuimuitsparingen"
+                      alt="Geopende Blusbox-verpakking: de module met vastzittend lichtblauw detectiekoord, naast een rode kaart met het Blusbox-logo"
                       fill
                       sizes="(min-width: 640px) 33vw, 100vw"
                       className="object-cover"
