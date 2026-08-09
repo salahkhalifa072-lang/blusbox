@@ -100,6 +100,38 @@ export default function BlusboxPage() {
                 />
                 <LogoBadge />
               </div>
+
+              {/* What arrives on the doormat — reassurance before buying */}
+              <div className="grid grid-cols-2 gap-4">
+                <figure>
+                  <div className="relative aspect-square overflow-hidden rounded-2xl bg-antraciet-verhoogd">
+                    <Image
+                      src="/media/verpakking-dicht.jpg"
+                      alt="Gesloten rode Blusbox-verpakking met logo en de tekst blusmodule voor de meterkast"
+                      fill
+                      sizes="(min-width: 1024px) 25vw, 50vw"
+                      className="object-cover"
+                    />
+                  </div>
+                  <figcaption className="data mt-2 text-xs text-railstaal">
+                    De verpakking
+                  </figcaption>
+                </figure>
+                <figure>
+                  <div className="relative aspect-square overflow-hidden rounded-2xl bg-antraciet-verhoogd">
+                    <Image
+                      src="/media/verpakking-open.jpg"
+                      alt="Geopende Blusbox-verpakking met de module, het detectiekoord en de handleiding in schuimuitsparingen"
+                      fill
+                      sizes="(min-width: 1024px) 25vw, 50vw"
+                      className="object-cover"
+                    />
+                  </div>
+                  <figcaption className="data mt-2 text-xs text-railstaal">
+                    Wat je ontvangt
+                  </figcaption>
+                </figure>
+              </div>
               <p className="data text-xs text-railstaal">
                 Beeld is een weergave.
               </p>

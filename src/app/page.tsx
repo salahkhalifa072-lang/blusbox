@@ -244,6 +244,70 @@ export default function Home() {
           </div>
         </section>
 
+        {/* What arrives on the doormat. Sits here on purpose: it follows the
+            product and carries the shipping promise into the buying moment. */}
+        <section className="bg-kastwit-dim py-24">
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="grid gap-12 lg:grid-cols-[1fr_1.3fr] lg:items-center">
+              <Reveal>
+                <p className="data text-xs uppercase tracking-widest text-staal-tekst">
+                  in de doos
+                </p>
+                <h2 className="font-display mt-4 text-[clamp(2rem,5vw,3.5rem)]">
+                  Alles erin.
+                  <span className="accent"> Verzending gratis.</span>
+                </h2>
+                <p className="mt-4 max-w-md text-staal-tekst">
+                  De module, het voorgemonteerde detectiekoord en een
+                  Nederlandse handleiding — plus de registratiekaart met het
+                  lotnummer van jouw unit. Meer heb je niet nodig.
+                </p>
+                <ul className="mt-6 space-y-2 text-sm text-staal-tekst">
+                  {[
+                    "Blusbox-module met DIN-railclip",
+                    "Detectiekoord, voorgemonteerd",
+                    "Handleiding in het Nederlands",
+                    "Registratiekaart met lotnummer",
+                  ].map((r) => (
+                    <li key={r} className="flex gap-3">
+                      <span className="data text-blusrood-op-licht" aria-hidden>
+                        —
+                      </span>
+                      <span>{r}</span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="data mt-6 text-xs text-staal-tekst">
+                  {gratisVerzending.kort} · t.w.v. {verzendwaarde}
+                </p>
+              </Reveal>
+
+              <Reveal delay={100}>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="relative aspect-square overflow-hidden rounded-2xl">
+                    <Image
+                      src="/media/verpakking-dicht.jpg"
+                      alt="Gesloten rode Blusbox-verpakking met het logo en de tekst blusmodule voor de meterkast"
+                      fill
+                      sizes="(min-width: 640px) 33vw, 100vw"
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="relative aspect-square overflow-hidden rounded-2xl">
+                    <Image
+                      src="/media/verpakking-open.jpg"
+                      alt="Geopende Blusbox-verpakking met de module, het detectiekoord en de handleiding in schuimuitsparingen"
+                      fill
+                      sizes="(min-width: 640px) 33vw, 100vw"
+                      className="object-cover"
+                    />
+                  </div>
+                </div>
+              </Reveal>
+            </div>
+          </div>
+        </section>
+
         {/* Er gebeurde niets — film block */}
         <section className="bg-antraciet py-24 text-kastwit">
           <div className="mx-auto max-w-6xl px-6">
