@@ -40,12 +40,36 @@ anders vermeld:
 | `AUTH_URL` | `https://blusbox.nl` |
 | `AUTH_RESEND_KEY` | API-key van Resend, zodra dat account er is |
 | `MAIL_VAN` | `Blusbox <noreply@blusbox.nl>` |
-| `MOLLIE_API_KEY` | live-key; gebruik de test-key in Preview |
+| `STRIPE_SECRET_KEY` | live-key (`sk_live_…`); gebruik de test-key in Preview |
+| `STRIPE_WEBHOOK_SECRET` | `whsec_…` van het endpoint uit stap 4b |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | `pk_live_…` |
 
-> `AUTH_SECRET` en `MOLLIE_API_KEY` horen nergens in de repo. Zet ze
+> `AUTH_SECRET` en `STRIPE_SECRET_KEY` horen nergens in de repo. Zet ze
 > uitsluitend in Vercel.
 
-## 4. Domein koppelen
+
+### 4b. Stripe-webhook registreren
+
+Lokaal draait de webhook via `stripe listen`; in productie moet het endpoint
+in het dashboard staan, met een eigen signing secret.
+
+1. Stripe Dashboard → **Developers → Webhooks → Add endpoint**
+2. URL: `https://blusbox.nl/api/stripe/webhook`
+3. Selecteer deze gebeurtenissen:
+   - `checkout.session.completed`
+   - `checkout.session.async_payment_succeeded`
+   - `checkout.session.async_payment_failed`
+   - `checkout.session.expired`
+4. Kopieer het `whsec_…` en zet dat als `STRIPE_WEBHOOK_SECRET` in Vercel
+
+> De laatste drie zijn niet optioneel: iDEAL wordt asynchroon afgewikkeld.
+> Zonder die gebeurtenissen blijft een betaalde bestelling op `nieuw` staan
+> en wordt een mislukte betaling nooit afgesloten.
+
+Controleer ook **Settings → Business settings → Public details**: die naam
+staat op de betaalpagina en op het bankafschrift van de klant.
+
+## 5. Domein koppelen
 
 Project → Settings → Domains → voeg **beide** toe:
 
@@ -67,7 +91,7 @@ Neem over wat Vercel toont — die waarden kunnen wijzigen.
 
 Propagatie duurt meestal minuten, soms tot 24 uur. TLS regelt Vercel zelf.
 
-## 5. Controleren na livegang
+## 6. Controleren na livegang
 
 ```bash
 curl -sI https://www.blusbox.nl | grep -iE "^HTTP|^location"   # 308 → apex
@@ -80,11 +104,11 @@ Verwacht: `www` stuurt door naar de apex, `robots.txt` en `sitemap.xml`
 verwijzen naar `https://blusbox.nl` (niet naar localhost — dan staat
 `NEXT_PUBLIC_SITE_URL` verkeerd).
 
-## 6. Voor de webshop echt open kan
+## 7. Voor de webshop echt open kan
 
 Nog openstaand uit de brief, los van hosting:
 
-- §14 stap 6: catalogus, winkelwagen, Mollie, verzendregels
+- §14 stap 6: afgerond — catalogus, winkelwagen, Stripe, verzendregels
 - Bedrijfsgegevens in de footer en op `/contact` (`[VERIFY]`: KvK, btw-id,
   adres, e-mail)
 - Juridische teksten laten controleren — ze dragen nu een zichtbare
