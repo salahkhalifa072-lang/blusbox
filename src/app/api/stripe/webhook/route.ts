@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { leesWebhookGebeurtenis, naarOrderStatus } from "@/lib/stripe";
 import { markeerBetaald } from "@/lib/bestelling";
+import { stuurBestelbevestiging } from "@/lib/mail";
 
 /**
  * Stripe webhook.
@@ -40,12 +41,25 @@ export async function POST(request: Request) {
         // bank confirms, so only payment_status decides.
         const sessie = gebeurtenis.data.object as Stripe.Checkout.Session;
         const orderId = sessie.metadata?.orderId;
-        if (orderId) {
-          await markeerBetaald(
-            orderId,
-            sessie.id,
-            naarOrderStatus(sessie.payment_status),
+        const ordernummer = sessie.metadata?.ordernummer;
+        if (!orderId) break;
+
+        const status = naarOrderStatus(sessie.payment_status);
+        await markeerBetaald(orderId, sessie.id, status);
+
+        // Confirmation only once the money is actually in. A failed send
+        // is logged, never rethrown: the payment already succeeded, and a
+        // 500 here would make Stripe replay the whole event.
+        if (status === "betaald" && ordernummer) {
+          const resultaat = await stuurBestelbevestiging(
+            ordernummer,
+            sessie.customer_details?.email ?? undefined,
           );
+          if (!resultaat.verstuurd) {
+            console.error(
+              `Bevestigingsmail voor ${ordernummer} niet verstuurd: ${resultaat.reden}`,
+            );
+          }
         }
         break;
       }
