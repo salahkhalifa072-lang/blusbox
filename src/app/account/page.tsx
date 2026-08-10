@@ -23,7 +23,7 @@ export default async function AccountPage({
   const actor = await huidigeActor();
   if (actor) {
     if (magDashboard(actor.rol)) redirect("/dashboard");
-    if (magInstallateursportaal(actor.rol)) redirect("/installateurs");
+    if (magInstallateursportaal(actor.rol)) redirect("/portaal");
     redirect("/");
   }
 
@@ -33,7 +33,7 @@ export default async function AccountPage({
       await signIn("credentials", {
         email: String(formData.get("email") ?? ""),
         wachtwoord: String(formData.get("wachtwoord") ?? ""),
-        redirectTo: "/dashboard",
+        redirectTo: "/account",
       });
     } catch (e) {
       // next-auth signals a successful redirect by throwing; only a real
