@@ -1,7 +1,7 @@
 # Nog open
 
 Levend overzicht van wat nog moet gebeuren. Bijgewerkt tijdens de bouw.
-Laatst bijgewerkt: 10 augustus 2026, na §14 stap 8.
+Laatst bijgewerkt: 10 augustus 2026, na §14 stap 10.
 
 ## Blokkerend vóór livegang
 
@@ -44,16 +44,19 @@ Zonder deze punten mag de webshop niet open.
   documentbibliotheek (§9.5) zijn nog niet gebouwd
 
 ### Volgende stappen uit §14
-- Stap 9: installateursportaal
-- Stap 10: filmintegratie, ondertiteling, posters, performancepass
 - Stap 11: SEO, gestructureerde data, toegankelijkheidsaudit
+- Lighthouse is nog niet gedraaid; de norm uit §12 is ≥ 95 op `/`,
+  `/blusbox` en `/hoe-het-werkt`
 - Stap 12: Playwright-tests en launchchecklist
 
 ### Kleiner, maar bewust blijven liggen
 - `orders.mollieId` heet nog naar de oude provider; hernoemen vraagt een
   migratie en hoort bij de volgende schemawijziging
-- Hero-loop is 4,4 MB tegen een budget van 2 MB; een echte AV1/H.264-encode
-  hoort bij de performancepass en vraagt ffmpeg
+- Geen AV1-variant naast H.264 (§7.10 vraagt beide). macOS levert alleen
+  avconvert; een echte AV1-encode vraagt ffmpeg
+- `meterkast-front.mp4` is 4,5 MB. Wordt nu pas geladen als de sectie in
+  beeld komt, maar comprimeren zou beter zijn — avconvert maakte het
+  bestand gróter, dus dit vraagt ffmpeg
 - Beeldmateriaal is niet consistent: de hero toont een grijze module met
   blauwe leidingen, de packshot een volledig rode
 - E-mail bij verzending en levering bestaat nog niet

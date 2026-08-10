@@ -54,6 +54,13 @@ export function ScrollScrub() {
   const [progress, setProgress] = useState(0);
   const [reduced, setReduced] = useState(false);
   const [ready, setReady] = useState(false);
+  /**
+   * The scrub source is the largest asset on the site and scrubbing needs
+   * the whole file buffered, so it cannot be lazy in the usual sense. It
+   * is instead fetched only once the section comes within a screen of the
+   * viewport — the hero and the LCP are long done by then.
+   */
+  const [laadBron, setLaadBron] = useState(false);
   const anim = useRef<number | null>(null);
 
   useEffect(() => {
@@ -63,6 +70,24 @@ export function ScrollScrub() {
     mq.addEventListener("change", onChange);
     return () => mq.removeEventListener("change", onChange);
   }, []);
+
+  // Start fetching the source when the section is within a screen.
+  useEffect(() => {
+    if (reduced || laadBron) return;
+    const el = wrapRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setLaadBron(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "100% 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [reduced, laadBron]);
 
   // Scroll → progress → video.currentTime
   useEffect(() => {
@@ -165,14 +190,29 @@ export function ScrollScrub() {
               <video
                 ref={videoRef}
                 className="w-full bg-antraciet-verhoogd"
-                src="/media/meterkast-front.mp4"
+                // src is attached only once the section is near, so the
+                // poster carries the frame until then and the hero's LCP
+                // never competes with a multi-megabyte download.
+                src={laadBron ? "/media/meterkast-front.mp4" : undefined}
                 poster="/media/meterkast-front.jpg"
                 muted
                 playsInline
-                preload="auto"
+                preload={laadBron ? "auto" : "none"}
                 aria-label={caption}
                 onLoadedMetadata={() => setReady(true)}
-              />
+              >
+                {/* §12: a Dutch description track. The clip is silent, so
+                    these describe what is shown rather than transcribe
+                    speech — that is what makes it followable without
+                    seeing it. */}
+                <track
+                  kind="descriptions"
+                  src="/media/meterkast-front.nl.vtt"
+                  srcLang="nl"
+                  label="Nederlands"
+                  default
+                />
+              </video>
 
               {/* margin readout, ISO-signage grammar */}
               <div className="pointer-events-none absolute left-0 top-0 p-4 sm:p-6">
@@ -225,6 +265,20 @@ export function ScrollScrub() {
                 scroll om af te spelen · beeld is een weergave
               </p>
             </div>
+
+            {/* §12: a text alternative that is always reachable, not only
+                under prefers-reduced-motion. Collapsed so it does not
+                compete with the sequence, but it is real text in the DOM
+                and in the tab order. */}
+            <details className="mx-auto mt-4 max-w-3xl">
+              <summary className="data cursor-pointer text-[11px] text-railstaal underline underline-offset-4">
+                Beschrijving in tekst
+              </summary>
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-kastwit/70">
+                {caption} De temperatuurweergave loopt op van 21 °C naar de
+                activeringsdrempel van 170 °C en daalt daarna weer.
+              </p>
+            </details>
           </div>
         </div>
       </div>
