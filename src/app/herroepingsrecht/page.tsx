@@ -82,9 +82,14 @@ export default function HerroepingsrechtPage() {
 
           <h2>Modelformulier</h2>
           <p>
-            Het wettelijk modelformulier voor herroeping stellen wij als pdf
-            beschikbaar en voegen wij toe aan de orderbevestiging.
-            [VERIFY: modelformulier als pdf koppelen]
+            Het wettelijk modelformulier voor herroeping stel je hier
+            beschikbaar:{" "}
+            <a href="/herroepingsformulier.pdf">
+              modelformulier voor herroeping (pdf)
+            </a>
+            . Gebruik ervan is niet verplicht — melden via{" "}
+            <Link href="/retourneren/aanvragen">het retourformulier</Link> of
+            met een eigen ondubbelzinnige verklaring mag ook.
           </p>
 
           <h2>Uitzonderingen</h2>

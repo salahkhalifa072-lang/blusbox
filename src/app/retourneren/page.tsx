@@ -25,7 +25,10 @@ export default function RetournerenPage() {
 
           <h2>In het kort</h2>
           <ol>
-            <li>Meld je retour via je account of per e-mail.</li>
+            <li>
+              <Link href="/retourneren/aanvragen">Meld je retour aan</Link> met
+              je bestelnummer en e-mailadres — een account is niet nodig.
+            </li>
             <li>
               Je krijgt een retournummer en instructies, inclusief hoe het
               product verpakt en aangeboden moet worden.
