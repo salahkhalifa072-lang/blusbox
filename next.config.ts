@@ -12,16 +12,20 @@ import type { NextConfig } from "next";
  * the behaviour is identical wherever the app runs.
  */
 const nextConfig: NextConfig = {
-  async redirects() {
-    return [
-      {
-        source: "/:path*",
-        has: [{ type: "host", value: "www.blusbox.nl" }],
-        destination: "https://blusbox.nl/:path*",
-        permanent: true,
-      },
-    ];
-  },
+  /**
+   * No host redirect here on purpose.
+   *
+   * An earlier version redirected www to the apex. Vercel was configured
+   * to redirect the apex to www, so the two rules bounced against each
+   * other and every URL became an infinite redirect — the whole site was
+   * unreachable, including robots.txt and the sitemap.
+   *
+   * Exactly one layer may own the canonical host. That is the hosting
+   * platform, because it is also the layer that issues the certificates
+   * and cannot be overruled from here. Set the preferred domain in
+   * Vercel, and point NEXT_PUBLIC_SITE_URL at the same host so canonical
+   * tags and the sitemap agree with it.
+   */
 
   async headers() {
     return [
