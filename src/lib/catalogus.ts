@@ -1,4 +1,4 @@
-import { PRIJS_EXCL_CENTEN } from "./pricing";
+import { PRIJS_EXCL_CENTEN, PRIJS_INCL_CENTEN } from "./pricing";
 
 /**
  * §8 catalogue: hero SKU plus montageset, vervangmodule and an installer
@@ -15,6 +15,8 @@ export type CatalogusItem = {
   naam: string;
   omschrijving: string;
   prijsExclBtwCenten: number;
+  /** Advertised gross price. Consumer lines are billed from this. */
+  prijsInclBtwCenten?: number;
   btwPercentage: number;
   gevaarlijkeGoederen: boolean;
   unNummer: string | null;
@@ -33,6 +35,7 @@ export const catalogus: CatalogusItem[] = [
     omschrijving:
       "Automatische blusmodule voor de meterkast. Activeert zichzelf bij 170 °C, zonder stroom en zonder bediening.",
     prijsExclBtwCenten: PRIJS_EXCL_CENTEN,
+    prijsInclBtwCenten: PRIJS_INCL_CENTEN,
     btwPercentage: 21,
     gevaarlijkeGoederen: true,
     // [VERIFY: UN-nummer en ADR-klasse bevestigen met de leverancier]
@@ -63,6 +66,7 @@ export const catalogus: CatalogusItem[] = [
     omschrijving:
       "Vervanging na tien jaar of na een activering. Zelfde module, bedoeld voor een bestaande plaatsing.",
     prijsExclBtwCenten: PRIJS_EXCL_CENTEN,
+    prijsInclBtwCenten: PRIJS_INCL_CENTEN,
     btwPercentage: 21,
     gevaarlijkeGoederen: true,
     unNummer: null,

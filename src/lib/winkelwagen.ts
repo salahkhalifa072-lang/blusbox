@@ -115,6 +115,7 @@ export function berekenWagen(
     regels.map((r) => ({
       aantal: r.aantal,
       stukprijsExclBtwCenten: r.item.prijsExclBtwCenten,
+      stukprijsInclBtwCenten: r.item.prijsInclBtwCenten,
       btwPercentage: r.item.btwPercentage,
     })),
     {

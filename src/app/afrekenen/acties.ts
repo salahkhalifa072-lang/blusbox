@@ -24,7 +24,6 @@ import {
   stripeBeschikbaar,
 } from "@/lib/stripe";
 import { berekenWagen } from "@/lib/winkelwagen";
-import { inclBtw } from "@/lib/btw";
 
 export type AfrekenFout = {
   velden?: Record<string, string>;
@@ -152,9 +151,12 @@ export async function rekenAf(
       regels: overzicht.regels.map((r) => ({
         naam: r.item.naam,
         omschrijving: r.item.omschrijving,
+        // Charge exactly what the page advertised. Falling back to
+        // inclBtw() would recompute from the net price and can land a
+        // cent away from the shown amount.
         stukprijsCenten: overzicht.totalen.btwVerlegd
           ? r.item.prijsExclBtwCenten
-          : inclBtw(r.item.prijsExclBtwCenten, r.item.btwPercentage),
+          : (r.item.prijsInclBtwCenten ?? r.item.prijsExclBtwCenten),
         aantal: r.aantal,
       })),
       email,

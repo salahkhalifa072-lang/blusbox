@@ -53,10 +53,35 @@ export function btwVerlegd(opts: {
   );
 }
 
+/**
+ * Splits a gross amount into net and btw, exactly.
+ *
+ * btw is the remainder after rounding the net down from the gross, never
+ * `round(net * tarief)`. That matters: an advertised price of € 28,95
+ * cannot be produced by adding rounded btw to any whole-cent net amount —
+ * the results jump from 28,94 to 28,96. Deriving btw by subtraction makes
+ * every advertised price exactly representable, which is what a consumer
+ * shop needs, and it is how a Dutch consumer invoice is drawn up.
+ */
+export function splitsIncl(
+  inclCenten: number,
+  btwPercentage = 21,
+): { exclCenten: number; btwCenten: number } {
+  const excl = rondAf(inclCenten / (1 + btwPercentage / 100));
+  return { exclCenten: excl, btwCenten: inclCenten - excl };
+}
+
 export type Regel = {
   aantal: number;
   stukprijsExclBtwCenten: number;
   btwPercentage: number;
+  /**
+   * The advertised gross unit price. When present and btw is actually
+   * charged, the line is calculated from this so the customer pays the
+   * price on the page to the cent. Business buyers are billed from the
+   * net price instead, which is what their invoice is based on.
+   */
+  stukprijsInclBtwCenten?: number;
 };
 
 export type OrderTotalen = {
@@ -84,6 +109,22 @@ export function berekenTotalen(
   let btw = 0;
 
   for (const regel of regels) {
+    if (!verlegd && regel.stukprijsInclBtwCenten !== undefined) {
+      // Consumer line: the advertised gross price is the truth, so work
+      // down from it. Adding rounded btw to a net price cannot reproduce
+      // every advertised amount and would charge a cent too much or too
+      // little (see splitsIncl).
+      const regelIncl = regel.aantal * regel.stukprijsInclBtwCenten;
+      const { exclCenten, btwCenten } = splitsIncl(
+        regelIncl,
+        regel.btwPercentage,
+      );
+      subtotaal += exclCenten;
+      btw += btwCenten;
+      continue;
+    }
+
+    // Business line, or btw reverse-charged: the net price is the base.
     const regelTotaal = regel.aantal * regel.stukprijsExclBtwCenten;
     subtotaal += regelTotaal;
     if (!verlegd) {

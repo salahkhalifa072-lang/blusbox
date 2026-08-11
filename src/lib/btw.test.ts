@@ -4,10 +4,10 @@ import {
   berekenTotalen,
   btwVerlegd,
   exclBtw,
-  inclBtw,
   isEuLand,
   prijsWeergave,
   rondAf,
+  splitsIncl,
 } from "./btw";
 import { PRIJS_EXCL_CENTEN, PRIJS_INCL_CENTEN } from "./pricing";
 
@@ -22,10 +22,53 @@ describe("btw-berekening", () => {
     expect(t.totaalInclBtwCenten).toBe(2695);
   });
 
-  it("komt uit op de gepubliceerde consumentenprijs", () => {
-    // The site advertises € 26,95 incl. — the stored excl. price must
-    // round-trip to exactly that, or the PDP and the invoice disagree.
-    expect(inclBtw(PRIJS_EXCL_CENTEN)).toBe(PRIJS_INCL_CENTEN);
+  it("rekent de consument precies de geadverteerde prijs", () => {
+    // The regression this whole model exists for: € 28,95 cannot be
+    // produced by adding rounded btw to any whole-cent net price — the
+    // results jump from 28,94 to 28,96. Billing from the gross price and
+    // deriving btw by subtraction makes it exact.
+    const t = berekenTotalen(
+      [
+        {
+          aantal: 1,
+          stukprijsExclBtwCenten: PRIJS_EXCL_CENTEN,
+          stukprijsInclBtwCenten: PRIJS_INCL_CENTEN,
+          btwPercentage: 21,
+        },
+      ],
+      { landcode: "NL", isZakelijk: false, btwIdGevalideerd: false },
+    );
+    expect(t.totaalInclBtwCenten).toBe(PRIJS_INCL_CENTEN);
+    expect(t.subtotaalExclBtwCenten + t.btwBedragCenten).toBe(
+      PRIJS_INCL_CENTEN,
+    );
+  });
+
+  it("blijft exact bij elk aantal", () => {
+    for (const aantal of [1, 2, 3, 7, 10]) {
+      const t = berekenTotalen(
+        [
+          {
+            aantal,
+            stukprijsExclBtwCenten: PRIJS_EXCL_CENTEN,
+            stukprijsInclBtwCenten: PRIJS_INCL_CENTEN,
+            btwPercentage: 21,
+          },
+        ],
+        { landcode: "NL", isZakelijk: false, btwIdGevalideerd: false },
+      );
+      expect(t.totaalInclBtwCenten).toBe(PRIJS_INCL_CENTEN * aantal);
+    }
+  });
+
+  it("splitst een brutobedrag exact", () => {
+    for (const bruto of [2895, 2695, 1, 999, 100000]) {
+      const { exclCenten, btwCenten } = splitsIncl(bruto);
+      expect(exclCenten + btwCenten).toBe(bruto);
+    }
+  });
+
+  it("leidt de nettoprijs af uit de geadverteerde prijs", () => {
     expect(exclBtw(PRIJS_INCL_CENTEN)).toBe(PRIJS_EXCL_CENTEN);
   });
 
