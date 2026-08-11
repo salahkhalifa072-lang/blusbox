@@ -26,7 +26,7 @@ export function SiteHeader() {
           className="flex items-center gap-2 text-kastwit"
           aria-label="Blusbox, naar de homepage"
         >
-          <LogoMark className="h-8 w-auto" priority />
+          <LogoMark className="h-8 w-auto" title="" priority />
           <span className="font-display text-lg tracking-tight">Blusbox</span>
         </Link>
 

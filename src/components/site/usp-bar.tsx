@@ -51,8 +51,9 @@ const usps = [
  *
  * Cards on the light ground rather than a flat divided strip: the strip
  * read as a footer and got skipped. The pictogram carries the meaning at a
- * glance, the heading confirms it, the line underneath answers the obvious
- * follow-up question. Icons stay in --antraciet — §6 allows red once per
+ * glance, the card title confirms it, the line underneath answers the
+ * obvious follow-up question. The titles are not headings: the list itself
+ * is the structure, and an <h3> straight after the page <h1> skips a level. Icons stay in --antraciet — §6 allows red once per
  * screen, and on the homepage that is already spent on the hero.
  */
 export function UspBar() {
@@ -68,7 +69,7 @@ export function UspBar() {
               <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-railstaal/45 text-antraciet transition-colors group-hover:border-antraciet/35">
                 <Icoon className="h-5 w-5" />
               </span>
-              <h3 className="mt-4 text-sm font-medium leading-snug">{kop}</h3>
+              <p className="mt-4 text-sm font-medium leading-snug">{kop}</p>
               <p className="mt-1.5 text-xs leading-relaxed text-staal-tekst">
                 {regel}
               </p>

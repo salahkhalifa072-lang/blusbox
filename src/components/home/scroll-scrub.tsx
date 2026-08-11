@@ -56,11 +56,16 @@ export function ScrollScrub() {
   const [ready, setReady] = useState(false);
   /**
    * The scrub source is the largest asset on the site and scrubbing needs
-   * the whole file buffered, so it cannot be lazy in the usual sense. It
-   * is instead fetched only once the section comes within a screen of the
-   * viewport — the hero and the LCP are long done by then.
+   * the whole file buffered, so it cannot be lazy in the usual sense.
+   *
+   * Proximity alone is not enough to defer it: this section sits directly
+   * under the hero, so it is already within a screen on first paint and the
+   * observer fires immediately. On mobile that put 1.5 MB on the wire beside
+   * the hero video and pushed LCP to 5.4 s. So it waits for the load event
+   * as well — by then the hero has painted and the connection is free.
    */
   const [laadBron, setLaadBron] = useState(false);
+  const [paginaGeladen, setPaginaGeladen] = useState(false);
   const anim = useRef<number | null>(null);
 
   useEffect(() => {
@@ -71,9 +76,20 @@ export function ScrollScrub() {
     return () => mq.removeEventListener("change", onChange);
   }, []);
 
-  // Start fetching the source when the section is within a screen.
   useEffect(() => {
-    if (reduced || laadBron) return;
+    if (document.readyState === "complete") {
+      setPaginaGeladen(true);
+      return;
+    }
+    const opGeladen = () => setPaginaGeladen(true);
+    window.addEventListener("load", opGeladen, { once: true });
+    return () => window.removeEventListener("load", opGeladen);
+  }, []);
+
+  // Start fetching the source once the page has loaded and the section is
+  // within a screen of the viewport.
+  useEffect(() => {
+    if (reduced || laadBron || !paginaGeladen) return;
     const el = wrapRef.current;
     if (!el) return;
     const io = new IntersectionObserver(
@@ -87,7 +103,7 @@ export function ScrollScrub() {
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [reduced, laadBron]);
+  }, [reduced, laadBron, paginaGeladen]);
 
   // Scroll → progress → video.currentTime
   useEffect(() => {

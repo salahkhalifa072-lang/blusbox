@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { PageHeader, SectionTitle } from "@/components/site/page-header";
+import { KruimelData } from "@/components/site/gestructureerde-data";
 import { SiteFooter } from "@/components/site/footer";
 import { VideoBlock } from "@/components/ui/video-block";
 import { Reveal } from "@/components/ui/reveal";
@@ -18,6 +19,7 @@ export const metadata: Metadata = {
 export default function HoeHetWerktPage() {
   return (
     <>
+      <KruimelData kruimels={[{ naam: "Hoe het werkt", pad: "/hoe-het-werkt" }]} />
       <PageHeader
         eyebrow="drie akten"
         title="Warmte, drempel,"
@@ -100,6 +102,7 @@ export default function HoeHetWerktPage() {
                 <div className="relative aspect-video overflow-hidden rounded-2xl">
                   <VideoBlock
                     src="/media/discharge.mp4"
+            av1Src="/media/discharge.av1.mp4"
                     poster="/media/discharge.jpg"
                     label="Filmfragment: een wit aerosolfront verspreidt zich door de kast en dooft de vuurgloed"
                     className="absolute inset-0 h-full w-full object-cover"

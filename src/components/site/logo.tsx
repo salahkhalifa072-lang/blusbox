@@ -9,10 +9,13 @@ export function LogoMark({
   className = "h-8 w-8",
   title = "Blusbox",
   priority = false,
+  /** rendered width, so the browser can pick a small variant (§12 budget) */
+  sizes = "32px",
 }: {
   className?: string;
   title?: string;
   priority?: boolean;
+  sizes?: string;
 }) {
   return (
     <Image
@@ -21,6 +24,9 @@ export function LogoMark({
       width={531}
       height={838}
       priority={priority}
+      // Without this the header mark preloads at 640 px wide (8 KB) to paint
+      // at 32 px (1.2 KB) — and it preloads ahead of the LCP.
+      sizes={sizes}
       className={`${className} object-contain`}
     />
   );

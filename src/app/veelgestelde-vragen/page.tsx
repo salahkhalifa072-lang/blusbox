@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/site/page-header";
+import { KruimelData } from "@/components/site/gestructureerde-data";
 import { SiteFooter } from "@/components/site/footer";
 import { FaqList } from "@/components/ui/accordion";
 import { faq } from "@/lib/faq";
@@ -25,6 +26,7 @@ const jsonLd = {
 export default function FaqPage() {
   return (
     <>
+      <KruimelData kruimels={[{ naam: "Veelgestelde vragen", pad: "/veelgestelde-vragen" }]} />
       <PageHeader
         eyebrow="vragen"
         title="Veelgestelde"

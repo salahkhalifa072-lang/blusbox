@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Anton, Manrope, Geist_Mono } from "next/font/google";
 import { siteUrl } from "@/lib/site";
+import { OrganisatieData } from "@/components/site/gestructureerde-data";
 import "./globals.css";
 
 /**
@@ -63,7 +64,10 @@ export default function RootLayout({
       lang="nl"
       className={`${anton.variable} ${manrope.variable} ${geistMono.variable}`}
     >
-      <body className="bg-kastwit text-antraciet antialiased">{children}</body>
+      <body className="bg-kastwit text-antraciet antialiased">
+        <OrganisatieData />
+        {children}
+      </body>
     </html>
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader, SectionTitle } from "@/components/site/page-header";
+import { KruimelData } from "@/components/site/gestructureerde-data";
 import { SiteFooter } from "@/components/site/footer";
 import { Reveal } from "@/components/ui/reveal";
 
@@ -47,6 +48,7 @@ const voordelen = [
 export default function InstallateursPage() {
   return (
     <>
+      <KruimelData kruimels={[{ naam: "Zakelijk", pad: "/zakelijk" }, { naam: "Voor installateurs", pad: "/installateurs" }]} />
       <PageHeader
         eyebrow="dealerprogramma"
         title="U plaatst hem."

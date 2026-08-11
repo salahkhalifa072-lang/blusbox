@@ -1,7 +1,8 @@
 # Nog open
 
 Levend overzicht van wat nog moet gebeuren. Bijgewerkt tijdens de bouw.
-Laatst bijgewerkt: 11 augustus 2026, na §14 stap 10 en de vindbaarheidsfix.
+Laatst bijgewerkt: 11 augustus 2026, na §14 stap 11 (SEO, gestructureerde
+data, toegankelijkheid en Lighthouse).
 
 ## Blokkerend vóór livegang
 
@@ -16,7 +17,6 @@ Zonder deze punten mag de webshop niet open.
 | Stripe-webhook registreren in productie | `stripe listen` werkt alleen lokaal. Zie DEPLOY.md §4b | klant |
 | Stripe-weergavenaam staat op "Aegis supply" | Dat staat op de betaalpagina en het bankafschrift van de klant | klant |
 | API-sleutels roteren | Stripe-testsleutel en Resend-sleutel zijn in een chattranscript beland | klant |
-| Site aanmelden bij Google Search Console | De site is nu pas crawlbaar; indexeren gebeurt niet vanzelf en duurt dagen tot weken | klant |
 | `NEXT_PUBLIC_SITE_URL` in Vercel zetten | Werkt nu ook zonder, via het productiedomein van Vercel, maar expliciet is beter — en nodig zodra het domein wijzigt | klant |
 | Kiezen: apex of www als hoofddomein | Nu bedient `www.blusbox.nl` de site en stuurt de apex door. Prima, maar leg de keuze vast | klant |
 
@@ -46,19 +46,43 @@ Zonder deze punten mag de webshop niet open.
   documentbibliotheek (§9.5) zijn nog niet gebouwd
 
 ### Volgende stappen uit §14
-- Stap 11: SEO, gestructureerde data, toegankelijkheidsaudit
-- Lighthouse is nog niet gedraaid; de norm uit §12 is ≥ 95 op `/`,
-  `/blusbox` en `/hoe-het-werkt`
 - Stap 12: Playwright-tests en launchchecklist
+
+### Gemeten in stap 11
+
+Toegankelijkheid: axe (WCAG 2.0 + 2.1, A + AA + best practice) draait schoon
+op alle 22 publieke routes. Het contrast van tekst over film is apart
+nagerekend — axe geeft daar geen oordeel over — door het samengestelde beeld
+per pixel te meten over de hele looptijd van de video. Laagste waarde in de
+hero is nu 3,9:1 tegen een eis van 3:1 voor displaytekst.
+
+Lighthouse, tegen een productiebuild:
+
+| | perf | a11y | best | seo |
+|---|---|---|---|---|
+| desktop (alle drie de pagina's) | 100 | 100 | 100 | 100 |
+| mobiel, echte throttling | 98–99 | 100 | 100 | 100 |
+| mobiel, gesimuleerd 4G | 88–94 | 100 | 100 | 100 |
+
+De gesimuleerde mobiele score blijft achter terwijl de wáárgenomen LCP
+gelijk is aan de FCP (99–117 ms): het grootste element schildert bij de
+eerste paint. Wat de simulatie erbij optelt is de koude verbinding — DNS,
+TCP, TLS en een render-blokkerende stylesheet over een lijn met 150 ms RTT.
+Lokaal draait `next start` zonder HTTP/2, zonder brotli en zonder CDN;
+meet dit opnieuw tegen de productieomgeving voordat er conclusies aan
+hangen.
 
 ### Kleiner, maar bewust blijven liggen
 - `orders.mollieId` heet nog naar de oude provider; hernoemen vraagt een
   migratie en hoort bij de volgende schemawijziging
-- Geen AV1-variant naast H.264 (§7.10 vraagt beide). macOS levert alleen
-  avconvert; een echte AV1-encode vraagt ffmpeg
-- `meterkast-front.mp4` is 4,5 MB. Wordt nu pas geladen als de sectie in
-  beeld komt, maar comprimeren zou beter zijn — avconvert maakte het
-  bestand gróter, dus dit vraagt ffmpeg
+- De scrubvideo blijft bewust H.264, zonder AV1-variant: scrubben doet
+  willekeurige sprongen door de tijdlijn en H.264 wordt overal in hardware
+  gedecodeerd. De hero draait om dezelfde reden op H.264 — die is de LCP.
+  AV1 staat wel klaar voor de losse fragmenten
+- Video is opnieuw gecodeerd met ffmpeg (via `ffmpeg-static`, buiten het
+  project geïnstalleerd): 8,6 MB → 1,1 MB, audio eruit (alles speelt muted)
+  en `+faststart` erop. Er staat geen encodeerstap in de repo; wie nieuw
+  beeld toevoegt moet dit met de hand doen
 - Beeldmateriaal is niet consistent: de hero toont een grijze module met
   blauwe leidingen, de packshot een volledig rode
 - E-mail bij verzending en levering bestaat nog niet

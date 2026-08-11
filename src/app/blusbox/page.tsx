@@ -4,6 +4,7 @@ import Link from "next/link";
 import { SiteHeader } from "@/components/site/header";
 import { SiteFooter } from "@/components/site/footer";
 import { SectionTitle } from "@/components/site/page-header";
+import { KruimelData } from "@/components/site/gestructureerde-data";
 import { SpecTable } from "@/components/ui/spec-table";
 import { ClaimSource } from "@/components/ui/claim-source";
 import { FaqList } from "@/components/ui/accordion";
@@ -70,6 +71,7 @@ const jsonLd = {
 export default function BlusboxPage() {
   return (
     <>
+      <KruimelData kruimels={[{ naam: "Blusbox", pad: "/blusbox" }]} />
       <SiteHeader />
       <script
         type="application/ld+json"

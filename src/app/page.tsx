@@ -55,18 +55,30 @@ export default function Home() {
         <section className="relative min-h-screen overflow-hidden bg-antraciet">
           <VideoBlock
             src="/media/hero-banner.mp4"
+            av1Src="/media/hero-banner.av1.mp4"
             poster="/media/hero-banner.jpg"
             label="Bewegend beeld van de Blusbox-module"
             className="absolute inset-0 h-full w-full object-cover"
             priority
           />
+          {/* The render is bright — around 80% of its pixels sit above 200 in
+              luminance — so the scrims are not decoration. Measured with axe
+              plus a per-pixel check of the composited frame: without them the
+              copy column drops to ~1:1 against the module. */}
           <div
-            className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(22,24,26,0.35)_0%,rgba(22,24,26,0.8)_60%,var(--antraciet)_100%)]"
+            className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(22,24,26,0.4)_0%,rgba(22,24,26,0.82)_55%,var(--antraciet)_100%)]"
             aria-hidden
           />
           {/* keeps the body copy and cards legible over the bright render */}
           <div
-            className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-antraciet via-antraciet/85 to-transparent"
+            className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-antraciet via-antraciet/85 to-transparent"
+            aria-hidden
+          />
+          {/* Only the bottom-left corner, where the small copy lives: 11–16px
+              text needs 4.5:1, the display type needs 3:1. Darkening the whole
+              frame to satisfy the smallest type would bury the module. */}
+          <div
+            className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(22,24,26,0.92)_0%,rgba(22,24,26,0.45)_40%,transparent_72%)]"
             aria-hidden
           />
 
@@ -77,7 +89,7 @@ export default function Home() {
                   whole line for assistive tech; the closing half is painted
                   below the module and hidden from the accessibility tree. */}
               <h1 className="font-display text-[clamp(2.75rem,9vw,7.5rem)]">
-                <span aria-hidden className="accent">
+                <span aria-hidden className="text-blusrood-op-donker">
                   Als alles
                 </span>
                 <br aria-hidden />
@@ -94,13 +106,22 @@ export default function Home() {
 
             {/* bottom line + supporting copy */}
             <div>
-              <p
-                aria-hidden
-                className="font-display text-right text-[clamp(2.75rem,9vw,7.5rem)]"
-              >
-                <span className="text-kastwit">grijpt </span>
-                <span className="accent">Blusbox in</span>
-              </p>
+              {/* The closing line lands on the brightest part of the module.
+                  A soft, wide pool of shadow behind it reads as vignette
+                  rather than a band, and is what pulls the red clear of 3:1. */}
+              <div className="relative">
+                <div
+                  className="pointer-events-none absolute -inset-x-16 -inset-y-10 bg-[radial-gradient(ellipse_at_center,rgba(22,24,26,0.88)_0%,rgba(22,24,26,0.5)_45%,transparent_72%)]"
+                  aria-hidden
+                />
+                <p
+                  aria-hidden
+                  className="font-display relative text-right text-[clamp(2.75rem,9vw,7.5rem)]"
+                >
+                  <span className="text-kastwit">grijpt </span>
+                  <span className="text-blusrood-op-donker">Blusbox in</span>
+                </p>
+              </div>
 
               <div className="mt-10 flex flex-col gap-8 border-t border-kastwit/15 pt-6 lg:flex-row lg:items-end lg:justify-between">
                 <div className="max-w-md">
@@ -109,11 +130,13 @@ export default function Home() {
                     <span className="data text-kastwit">170 °C</span> vanzelf
                     ingrijpt. Geen stroom. Geen bediening. Geen mens.
                   </p>
-                  <p className="data mt-5 text-sm text-kastwit">
-                    {prijsIncl}{" "}
-                    <span className="text-kastwit/50">incl. btw</span>
-                    <span className="mx-2 text-kastwit/30">·</span>
-                    <span className="text-blusrood-op-donker">
+                  {/* The promise sits in a filled badge rather than red text:
+                      it survives whatever frame is behind it, and it is how
+                      the PDP already states it. */}
+                  <p className="data mt-5 flex flex-wrap items-center gap-x-2 gap-y-2 text-sm text-kastwit">
+                    <span>{prijsIncl}</span>
+                    <span className="text-kastwit/70">incl. btw</span>
+                    <span className="rounded-full bg-blusrood-vlak px-3 py-1 text-xs font-medium">
                       {gratisVerzending.kort}
                     </span>
                   </p>
@@ -330,6 +353,7 @@ export default function Home() {
                   <div className="relative overflow-hidden rounded-2xl">
                     <VideoBlock
                       src="/media/discharge.mp4"
+            av1Src="/media/discharge.av1.mp4"
                       poster="/media/discharge.jpg"
                       label="Filmfragment: een wit aerosolfront rolt door het industriële landschap en dooft de vuurgloed"
                       className="aspect-video w-full object-cover"

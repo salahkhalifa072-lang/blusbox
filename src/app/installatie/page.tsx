@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { PageHeader, SectionTitle } from "@/components/site/page-header";
+import { KruimelData } from "@/components/site/gestructureerde-data";
 import { SiteFooter } from "@/components/site/footer";
 import { Reveal } from "@/components/ui/reveal";
 import { LogoBadge } from "@/components/site/logo";
@@ -49,6 +50,7 @@ const stappen = [
 export default function InstallatiePage() {
   return (
     <>
+      <KruimelData kruimels={[{ naam: "Installatie", pad: "/installatie" }]} />
       <PageHeader
         eyebrow="montage"
         title="Klikken, koord leggen,"

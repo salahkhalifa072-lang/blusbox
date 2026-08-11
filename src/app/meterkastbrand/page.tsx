@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { PageHeader, SectionTitle } from "@/components/site/page-header";
+import { KruimelData } from "@/components/site/gestructureerde-data";
 import { SiteFooter } from "@/components/site/footer";
 import { Reveal } from "@/components/ui/reveal";
 import { ClaimSource } from "@/components/ui/claim-source";
@@ -38,6 +39,7 @@ const oorzaken = [
 export default function MeterkastbrandPage() {
   return (
     <>
+      <KruimelData kruimels={[{ naam: "Brand in de meterkast", pad: "/meterkastbrand" }]} />
       <PageHeader
         eyebrow="kennisartikel"
         title="Brand in de"

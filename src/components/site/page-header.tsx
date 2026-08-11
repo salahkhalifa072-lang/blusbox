@@ -20,12 +20,21 @@ export function PageHeader({
   return (
     <>
       <SiteHeader />
-      <header className="bg-antraciet pb-16 pt-36 text-kastwit sm:pt-40">
+      {/* Not a <header>: SiteHeader above is already the page banner, and two
+          banner landmarks is a WCAG failure. A named <section> is a region, so
+          the title still sits inside a landmark rather than loose in the body. */}
+      <section
+        aria-labelledby="paginatitel"
+        className="bg-antraciet pb-16 pt-36 text-kastwit sm:pt-40"
+      >
         <div className="mx-auto max-w-6xl px-6">
           <p className="data text-xs uppercase tracking-widest text-railstaal">
             {eyebrow}
           </p>
-          <h1 className="font-display mt-4 max-w-4xl text-[clamp(2.5rem,7vw,5rem)]">
+          <h1
+            id="paginatitel"
+            className="font-display mt-4 max-w-4xl text-[clamp(2.5rem,7vw,5rem)]"
+          >
             {title}
             {accent ? <span className="accent"> {accent}</span> : null}
           </h1>
@@ -33,7 +42,7 @@ export function PageHeader({
             <p className="mt-6 max-w-2xl text-lg text-kastwit/70">{lead}</p>
           ) : null}
         </div>
-      </header>
+      </section>
     </>
   );
 }

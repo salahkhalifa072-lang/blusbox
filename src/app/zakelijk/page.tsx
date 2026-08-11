@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader, SectionTitle } from "@/components/site/page-header";
+import { KruimelData } from "@/components/site/gestructureerde-data";
 import { SiteFooter } from "@/components/site/footer";
 import { SpecTable } from "@/components/ui/spec-table";
 import { ClaimSource } from "@/components/ui/claim-source";
@@ -35,6 +36,7 @@ const doelgroepen = [
 export default function ZakelijkPage() {
   return (
     <>
+      <KruimelData kruimels={[{ naam: "Zakelijk", pad: "/zakelijk" }]} />
       <PageHeader
         eyebrow="zakelijk"
         title="De laatste laag,"
