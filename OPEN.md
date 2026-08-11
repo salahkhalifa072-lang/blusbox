@@ -56,21 +56,24 @@ nagerekend — axe geeft daar geen oordeel over — door het samengestelde beeld
 per pixel te meten over de hele looptijd van de video. Laagste waarde in de
 hero is nu 3,9:1 tegen een eis van 3:1 voor displaytekst.
 
-Lighthouse, tegen een productiebuild:
+Lighthouse op **www.blusbox.nl**, na deploy — de norm uit §12 is ≥ 95 op
+`/`, `/blusbox` en `/hoe-het-werkt`:
 
 | | perf | a11y | best | seo |
 |---|---|---|---|---|
-| desktop (alle drie de pagina's) | 100 | 100 | 100 | 100 |
-| mobiel, echte throttling | 98–99 | 100 | 100 | 100 |
-| mobiel, gesimuleerd 4G | 88–94 | 100 | 100 | 100 |
+| desktop | 100 · 100 · 100 | 100 | 100 | 100 |
+| mobiel, echte throttling | 95 · 97 · 98 | 100 | 100 | 100 |
+| mobiel, gesimuleerd 4G | 87 · 94 · 94 | 100 | 100 | 100 |
 
-De gesimuleerde mobiele score blijft achter terwijl de wáárgenomen LCP
-gelijk is aan de FCP (99–117 ms): het grootste element schildert bij de
-eerste paint. Wat de simulatie erbij optelt is de koude verbinding — DNS,
-TCP, TLS en een render-blokkerende stylesheet over een lijn met 150 ms RTT.
-Lokaal draait `next start` zonder HTTP/2, zonder brotli en zonder CDN;
-meet dit opnieuw tegen de productieomgeving voordat er conclusies aan
-hangen.
+Gehaald op desktop en op mobiel met echte throttling. De gesimuleerde
+mobiele meting blijft eronder en dat verschil is geen meetfout: Lighthouse
+projecteert daar een koude verbinding met 150 ms RTT, waarbij DNS, TCP, TLS
+en een render-blokkerende stylesheet elkaar opvolgen voordat er iets op het
+scherm kan staan. De waargenomen LCP op desktop is 0,16–0,21 s.
+
+Wat dit cijfer echt zou verbeteren is minder render-blokkerende CSS bij de
+eerste paint — critical CSS inline zetten. Dat is een ingreep in de
+buildpipeline en hoort niet meer bij stap 11.
 
 ### Kleiner, maar bewust blijven liggen
 - `orders.mollieId` heet nog naar de oude provider; hernoemen vraagt een
