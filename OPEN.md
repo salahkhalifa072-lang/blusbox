@@ -1,7 +1,7 @@
 # Nog open
 
 Levend overzicht van wat nog moet gebeuren. Bijgewerkt tijdens de bouw.
-Laatst bijgewerkt: 10 augustus 2026, na §14 stap 10.
+Laatst bijgewerkt: 11 augustus 2026, na §14 stap 10 en de vindbaarheidsfix.
 
 ## Blokkerend vóór livegang
 
@@ -16,7 +16,9 @@ Zonder deze punten mag de webshop niet open.
 | Stripe-webhook registreren in productie | `stripe listen` werkt alleen lokaal. Zie DEPLOY.md §4b | klant |
 | Stripe-weergavenaam staat op "Aegis supply" | Dat staat op de betaalpagina en het bankafschrift van de klant | klant |
 | API-sleutels roteren | Stripe-testsleutel en Resend-sleutel zijn in een chattranscript beland | klant |
-| `www.blusbox.nl` toevoegen in Vercel | DNS klopt, maar Vercel bedient de hostnaam nog niet | klant |
+| Site aanmelden bij Google Search Console | De site is nu pas crawlbaar; indexeren gebeurt niet vanzelf en duurt dagen tot weken | klant |
+| `NEXT_PUBLIC_SITE_URL` in Vercel zetten | Werkt nu ook zonder, via het productiedomein van Vercel, maar expliciet is beter — en nodig zodra het domein wijzigt | klant |
+| Kiezen: apex of www als hoofddomein | Nu bedient `www.blusbox.nl` de site en stuurt de apex door. Prima, maar leg de keuze vast | klant |
 
 ## Productgegevens die ontbreken
 
