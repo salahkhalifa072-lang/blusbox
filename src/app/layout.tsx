@@ -51,7 +51,9 @@ export const metadata: Metadata = {
     siteName: "Blusbox",
     url: siteUrl,
   },
-  robots: { index: true, follow: true },
+  // Geen expliciete robots-regel: indexeren is de standaard, en deze regel
+  // werd óók op de 404 gezet — naast Next' eigen `noindex`. Twee meta-tags
+  // met tegengestelde instructies laat je niet aan Google over.
 };
 
 export default function RootLayout({

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { leesWagen, schrijfWagen } from "@/lib/winkelwagen-cookie";
 import { geldigeSlugs, verwijder, voegToe, wijzigAantal } from "@/lib/winkelwagen";
 
@@ -23,6 +24,11 @@ export async function voegToeAanWagen(formData: FormData) {
 
   revalidatePath("/winkelwagen");
   revalidatePath("/blusbox");
+
+  // Zonder deze regel gebeurt er na de klik zichtbaar niets: de teller in de
+  // kop ververst pas bij een paginawissel. Doorsturen naar de wagen is de
+  // duidelijkste bevestiging en werkt ook zonder JavaScript.
+  redirect("/winkelwagen");
 }
 
 export async function wijzigWagenAantal(formData: FormData) {

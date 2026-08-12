@@ -13,6 +13,15 @@ import type { NextConfig } from "next";
  */
 const nextConfig: NextConfig = {
   /**
+   * De end-to-end-suite bouwt naar een eigen map.
+   *
+   * Zonder dit schrijft `npm run build` in dezelfde `.next` als een
+   * draaiende `next dev`, en die valt daar prompt van om met een 500. Dat
+   * kost elke keer een herstart voordat je doorhebt waar het aan lag.
+   */
+  distDir: process.env.NEXT_DIST_DIR || ".next",
+
+  /**
    * No host redirect here on purpose.
    *
    * An earlier version redirected www to the apex. Vercel was configured

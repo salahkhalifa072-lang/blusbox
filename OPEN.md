@@ -1,8 +1,8 @@
 # Nog open
 
 Levend overzicht van wat nog moet gebeuren. Bijgewerkt tijdens de bouw.
-Laatst bijgewerkt: 11 augustus 2026, na §14 stap 11 (SEO, gestructureerde
-data, toegankelijkheid en Lighthouse).
+Laatst bijgewerkt: 11 augustus 2026, na §14 stap 12 (Playwright en de
+launchchecklist). Daarmee is de bouwvolgorde uit §14 afgelopen.
 
 ## Blokkerend vóór livegang
 
@@ -45,8 +45,21 @@ Zonder deze punten mag de webshop niet open.
 - Producten, voorraad, klanten, kortingscodes, contenteditor en
   documentbibliotheek (§9.5) zijn nog niet gebouwd
 
-### Volgende stappen uit §14
-- Stap 12: Playwright-tests en launchchecklist
+### §14 is afgelopen
+De laatste stap leverde 100 end-to-end-tests op (`npm run e2e`), die op
+desktop én mobiel draaien tegen een productiebuild. De launchchecklist staat
+in `LANCERING.md`.
+
+Wat die tests onderweg boven water haalden, en wat daarop is aangepast:
+- Op "In winkelwagen" klikken deed zichtbaar niets. De teller in de kop
+  ververst pas bij een paginawissel, en de actie stuurde nergens heen. Nu
+  gaat de bezoeker naar de wagen.
+- De wagenteller was op telefoons helemaal verborgen (`hidden sm:inline`).
+- De 404 kreeg twee tegenstrijdige robots-instructies mee: `noindex` van
+  Next zelf en `index, follow` uit de rootlayout.
+- De koopbalk onderaan de productpagina stond op smalle schermen buiten elk
+  landmark. De audit van stap 11 draaide alleen op desktopbreedte en zag
+  hem daarom niet.
 
 ### Gemeten in stap 11
 

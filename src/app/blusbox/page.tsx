@@ -345,8 +345,14 @@ export default function BlusboxPage() {
         </section>
       </main>
 
-      {/* Sticky mobile add-to-cart */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-railstaal bg-kastwit/95 px-4 py-3 backdrop-blur-md lg:hidden">
+      {/* Sticky mobile add-to-cart. Een benoemde <section> en geen <div>:
+          hij staat buiten <main>, en losse inhoud buiten een landmark is
+          voor voorleessoftware lastig te vinden. Kwam niet uit de audit van
+          stap 11 — die draaide alleen op desktopbreedte. */}
+      <section
+        aria-label="Bestellen"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-railstaal bg-kastwit/95 px-4 py-3 backdrop-blur-md lg:hidden"
+      >
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="data text-sm">{prijsIncl}</p>
@@ -362,10 +368,11 @@ export default function BlusboxPage() {
               className="rounded-full bg-blusrood-vlak px-6 py-3 text-sm font-medium text-kastwit transition-colors hover:bg-[#9e1b18]"
             >
               In winkelwagen
+              <span className="sr-only"> (onderbalk)</span>
             </button>
           </form>
         </div>
-      </div>
+      </section>
 
       <SiteFooter />
     </>

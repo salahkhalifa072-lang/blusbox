@@ -33,12 +33,19 @@ export function WagenBadge() {
     // refetch after navigation, so adding to cart updates the header
   }, [pad]);
 
+  const n = aantal ?? 0;
+
   return (
+    // aria-label in plaats van een sr-only regel ernaast: anders leest een
+    // schermlezer eerst het zichtbare label en dan nóg een keer hetzelfde.
     <Link
       href="/winkelwagen"
-      className="data hidden whitespace-nowrap text-xs text-kastwit/60 transition-colors hover:text-kastwit sm:inline"
+      aria-label={`Winkelwagen, ${n} ${n === 1 ? "artikel" : "artikelen"}`}
+      className="data whitespace-nowrap text-xs text-kastwit/60 transition-colors hover:text-kastwit"
     >
-      Winkelwagen ({aantal ?? 0})
+      {/* Kort op een telefoon, voluit zodra er ruimte is */}
+      <span className="sm:hidden">Wagen ({n})</span>
+      <span className="hidden sm:inline">Winkelwagen ({n})</span>
     </Link>
   );
 }

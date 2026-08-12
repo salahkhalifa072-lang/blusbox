@@ -5,7 +5,8 @@ import { SiteFooter } from "@/components/site/footer";
 
 export const metadata: Metadata = {
   title: "Pagina niet gevonden",
-  robots: { index: false, follow: true },
+  // Geen eigen robots-regel: Next zet er zelf al `noindex` op. Allebei
+  // opnemen leverde twee meta-tags met verschillende inhoud op.
 };
 
 /**
