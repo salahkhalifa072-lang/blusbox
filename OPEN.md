@@ -93,6 +93,43 @@ adres behalve dat van het eigen account zolang `blusbox.nl` niet geverifieerd
 is — dat staat bovenaan bij de blokkerende punten. De code vangt dat netjes
 af: het bericht blijft op "nog te versturen" staan.
 
+### Vervangingsherinneringen (af)
+
+De homepage belooft "automatisch bericht voordat de termijn verloopt". Dat
+bericht bestaat nu: een dagelijkse ronde op `/api/cron/herinneringen`, met
+een sjabloon per termijn (12, 6 en 1 maand).
+
+Bij het bouwen kwam een fout boven water in logica die er al maanden stond
+en getest was. `verschuldigdeHerinnering` koos de **ruimste** termijn die
+gepasseerd was. Voor een unit die pas laat wordt geregistreerd — bijvoorbeeld
+drie weken voor het verlopen — betekende dat een mail met "je Blusbox
+verloopt over een jaar", gevolgd door "over een half jaar" en pas als derde
+het bericht dat klopte. Drie berichten, twee met onjuiste informatie. Niemand
+had het gemerkt omdat er nog nooit iets verstuurd werd.
+
+Nu wordt de **dringendste** gepasseerde termijn gekozen, en worden de
+ruimere termijnen meteen afgestempeld: één bericht dat klopt. De oude tests
+legden het verkeerde gedrag vast en zijn herschreven.
+
+Verder:
+- Beveiligd met `CRON_SECRET` in plaats van een sessie; een planner logt niet
+  in. Zonder dat geheim weigert het endpoint dienst, en bij een verkeerd
+  token geeft het 404 in plaats van 403 — wie het niet heeft, hoeft niet te
+  weten dat het bestaat.
+- `vercel.json` draait hem elke dag om 07:00.
+- Gasten krijgen hem ook: het adres komt van het account als dat er is, en
+  anders van de bestelling.
+- Units zonder e-mailadres blijven weg uit de ronde, maar blijven wel in het
+  dashboard staan als "verloopt binnenkort".
+
+Getest in `src/db/herinneringen.test.ts` (9 tests) tegen een echte
+Postgres-engine, plus de termijnlogica in `levensduur.test.ts`.
+
+**Zelfde blokkade als bij de terugroepberichten:** zolang `blusbox.nl` niet
+in Resend geverifieerd is, komt er niets aan bij een echte klant. Een
+mislukte verzending wordt niet afgestempeld, dus de ronde pakt hem de
+volgende dag gewoon weer op.
+
 ### Gemeten in stap 11
 
 Toegankelijkheid: axe (WCAG 2.0 + 2.1, A + AA + best practice) draait schoon
@@ -134,5 +171,3 @@ buildpipeline en hoort niet meer bij stap 11.
 - Beeldmateriaal is niet consistent: de hero toont een grijze module met
   blauwe leidingen, de packshot een volledig rode
 - E-mail bij verzending en levering bestaat nog niet
-- Herinneringen op 12/6/1 maand worden berekend en getoond, maar er is nog
-  geen planner die ze daadwerkelijk verstuurt

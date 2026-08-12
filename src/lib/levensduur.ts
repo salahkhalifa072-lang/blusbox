@@ -62,9 +62,16 @@ export function herinneringsdatums(
 }
 
 /**
- * Which reminder (if any) is due for a unit on a given day. Returns the
- * largest overdue offset that has not been sent yet, so a unit that was
- * registered late still gets one message instead of three at once.
+ * Welke herinnering vandaag verschuldigd is. Geeft de **meest dringende**
+ * termijn terug die nog niet verstuurd is.
+ *
+ * Dringend eerst, en niet andersom. Een unit die pas laat wordt
+ * geregistreerd heeft alle drie de momenten al gepasseerd; die klant een
+ * mail sturen dat zijn module "over een jaar" verloopt terwijl het over
+ * twee weken is, is erger dan geen mail. De overgeslagen termijnen zijn
+ * daarmee achterhaald — `achterhaaldeHerinneringen` zegt welke dat zijn,
+ * zodat ze afgestempeld kunnen worden en er niet alsnog een onjuist bericht
+ * achteraan komt.
  */
 export function verschuldigdeHerinnering(
   vervaldatum: IsoDatum,
@@ -72,10 +79,23 @@ export function verschuldigdeHerinnering(
   alVerzonden: { 12: boolean; 6: boolean; 1: boolean },
 ): HerinneringMaand | null {
   const datums = herinneringsdatums(vervaldatum);
-  for (const maand of HERINNERING_MAANDEN) {
+  // van dringend naar ruim: 1, 6, 12
+  for (const maand of [...HERINNERING_MAANDEN].reverse()) {
     if (!alVerzonden[maand] && vandaag >= datums[maand]) return maand;
   }
   return null;
+}
+
+/**
+ * De termijnen die met het versturen van `maand` hun betekenis verliezen.
+ *
+ * Wie de eenmaandsherinnering krijgt, hoeft daarna niet alsnog te horen dat
+ * zijn module over een half jaar verloopt.
+ */
+export function achterhaaldeHerinneringen(
+  maand: HerinneringMaand,
+): HerinneringMaand[] {
+  return HERINNERING_MAANDEN.filter((m) => m > maand);
 }
 
 export function isVerlopen(vervaldatum: IsoDatum, vandaag: IsoDatum): boolean {

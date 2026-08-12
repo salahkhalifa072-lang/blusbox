@@ -6,7 +6,16 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/dashboard/", "/account/", "/winkelwagen", "/afrekenen", "/design"],
+      disallow: [
+        "/dashboard/",
+        "/account/",
+        "/winkelwagen",
+        "/afrekenen",
+        "/design",
+        // hoort bij één afnemer, en de cron-route is geen pagina
+        "/terugroep/",
+        "/api/",
+      ],
     },
     sitemap: `${siteUrl}/sitemap.xml`,
   };

@@ -9,6 +9,7 @@ import {
   plusMaanden,
   verlooptBinnenMaanden,
   verschuldigdeHerinnering,
+  achterhaaldeHerinneringen,
 } from "./levensduur";
 
 describe("vervaldatum", () => {
@@ -66,28 +67,46 @@ describe("herinneringen", () => {
     ).toBe(12);
   });
 
-  it("stuurt er maar één tegelijk bij een late registratie", () => {
-    // Registered years late: all three moments are already past, but the
-    // customer should get one message, not three in the same minute.
+  it("kiest bij een late registratie de dringendste, niet de ruimste", () => {
+    // Alle drie de momenten zijn al gepasseerd; de module verloopt over
+    // zestien dagen. "Verloopt over een jaar" sturen is dan niet alleen
+    // overbodig, het is onjuist.
     expect(
       verschuldigdeHerinnering(vervaldatum, "2036-07-20", {
         12: false,
         6: false,
         1: false,
       }),
-    ).toBe(12);
+    ).toBe(1);
+  });
+
+  it("noemt de termijnen die daarmee achterhaald zijn", () => {
+    // Wie hoort dat het over een maand afloopt, hoeft daarna niet alsnog
+    // te horen dat het over een half jaar afloopt.
+    expect(achterhaaldeHerinneringen(1)).toEqual([12, 6]);
+    expect(achterhaaldeHerinneringen(6)).toEqual([12]);
+    expect(achterhaaldeHerinneringen(12)).toEqual([]);
   });
 
   it("gaat door naar de volgende zodra de vorige verstuurd is", () => {
+    // Normaal verloop: op de twaalfmaandsdatum is alleen 12 verschuldigd,
+    // een half jaar later 6, en zo verder.
     expect(
-      verschuldigdeHerinnering(vervaldatum, "2036-07-20", {
+      verschuldigdeHerinnering(vervaldatum, "2035-08-05", {
+        12: false,
+        6: false,
+        1: false,
+      }),
+    ).toBe(12);
+    expect(
+      verschuldigdeHerinnering(vervaldatum, "2036-02-05", {
         12: true,
         6: false,
         1: false,
       }),
     ).toBe(6);
     expect(
-      verschuldigdeHerinnering(vervaldatum, "2036-07-20", {
+      verschuldigdeHerinnering(vervaldatum, "2036-07-05", {
         12: true,
         6: true,
         1: false,

@@ -290,3 +290,73 @@ export async function registreerBevestiging(
 
   return gewijzigd.length > 0;
 }
+
+/**
+ * §9.3 vervangingsherinneringen.
+ *
+ * Levert de units waarvoor vandaag een herinnering openstaat, met het adres
+ * waar die heen moet. Het adres komt van het account als dat er is, en
+ * anders van de bestelling — een gast heeft net zo goed een module in de
+ * meterkast hangen.
+ *
+ * Units zonder enig e-mailadres blijven weg: die vallen niet te bereiken en
+ * zouden de batch alleen maar laten struikelen. Ze blijven wel in het
+ * dashboard staan als "verloopt binnenkort".
+ */
+export async function herinneringsOntvangers(
+  actor: Actor,
+  vandaag: IsoDatum,
+  db?: Db,
+) {
+  vereis(magDashboard(actor.rol), "herinneringen versturen");
+  const d = db ?? (await appDb());
+
+  const horizon = plusMaanden(vandaag, 12);
+
+  const rijen = await d
+    .select({
+      unitId: registeredUnits.id,
+      email: sql<
+        string | null
+      >`coalesce(${users.email}, ${orders.gastEmail})`.as("email"),
+      naam: users.name,
+      vervaldatum: registeredUnits.vervaldatum,
+      installatiedatum: registeredUnits.installatiedatum,
+      lotNummer: lots.lotNummer,
+      herinnering12Op: registeredUnits.herinnering12Op,
+      herinnering6Op: registeredUnits.herinnering6Op,
+      herinnering1Op: registeredUnits.herinnering1Op,
+    })
+    .from(registeredUnits)
+    .innerJoin(lots, eq(lots.id, registeredUnits.lotId))
+    .leftJoin(users, eq(users.id, registeredUnits.userId))
+    .leftJoin(orderLines, eq(orderLines.id, registeredUnits.orderLineId))
+    .leftJoin(orders, eq(orders.id, orderLines.orderId))
+    // Alles wat binnen een jaar verloopt; welke herinnering precies aan de
+    // beurt is bepaalt `verschuldigdeHerinnering` per rij.
+    .where(lte(registeredUnits.vervaldatum, horizon));
+
+  return rijen.filter((r): r is typeof r & { email: string } =>
+    Boolean(r.email),
+  );
+}
+
+/** Stempelt de verstuurde herinnering, zodat hij niet nog eens gaat. */
+export async function markeerHerinnering(
+  unitId: string,
+  maand: 12 | 6 | 1,
+  db?: SchrijfDb,
+) {
+  const handle = db ?? (await appSchrijfDb());
+  const kolom =
+    maand === 12
+      ? { herinnering12Op: new Date() }
+      : maand === 6
+        ? { herinnering6Op: new Date() }
+        : { herinnering1Op: new Date() };
+
+  await handle
+    .update(registeredUnits)
+    .set(kolom)
+    .where(eq(registeredUnits.id, unitId));
+}

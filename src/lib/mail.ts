@@ -2,6 +2,7 @@ import { Resend } from "resend";
 import { render } from "@react-email/components";
 import { Bestelbevestiging } from "@/emails/bestelbevestiging";
 import { Terugroepbericht } from "@/emails/terugroepbericht";
+import { Vervangingsherinnering } from "@/emails/vervangingsherinnering";
 import { maakHerroepingsformulier } from "./herroepingsformulier";
 import { euro, verzendwaarde } from "./pricing";
 import { formatteerNl, herroepingUiterlijk } from "./levensduur";
@@ -161,6 +162,57 @@ export async function stuurTerugroepbericht(opdracht: {
         Importance: "high",
         Priority: "urgent",
       },
+    });
+
+    if (error) return { verstuurd: false, reden: error.message };
+    if (!data?.id) return { verstuurd: false, reden: "Geen bericht-id ontvangen" };
+    return { verstuurd: true, id: data.id };
+  } catch (fout) {
+    return { verstuurd: false, reden: (fout as Error).message };
+  }
+}
+
+/**
+ * §9.3 vervangingsherinnering, één per unit.
+ *
+ * Net als bij de terugroepberichten: per ontvanger, en de aanroeper stempelt
+ * pas ná een geslaagde verzending.
+ */
+export async function stuurVervangingsherinnering(opdracht: {
+  email: string;
+  maanden: 12 | 6 | 1;
+  vervaldatum: string;
+  installatiedatum: string;
+  lotNummer: string;
+}): Promise<MailResultaat> {
+  if (!mailBeschikbaar()) {
+    return { verstuurd: false, reden: "RESEND_API_KEY ontbreekt" };
+  }
+
+  const html = await render(
+    Vervangingsherinnering({
+      maanden: opdracht.maanden,
+      vervaldatum: formatteerNl(opdracht.vervaldatum),
+      installatiedatum: formatteerNl(opdracht.installatiedatum),
+      lotNummer: opdracht.lotNummer,
+      siteUrl,
+      contactEmail: process.env.MAIL_CONTACT ?? "info@blusbox.nl",
+    }),
+  );
+
+  const onderwerp =
+    opdracht.maanden === 1
+      ? "Je Blusbox verloopt volgende maand"
+      : opdracht.maanden === 6
+        ? "Je Blusbox verloopt over een half jaar"
+        : "Je Blusbox verloopt over een jaar";
+
+  try {
+    const { data, error } = await client().emails.send({
+      from: afzender(),
+      to: opdracht.email,
+      subject: onderwerp,
+      html,
     });
 
     if (error) return { verstuurd: false, reden: error.message };

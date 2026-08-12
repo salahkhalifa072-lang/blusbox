@@ -52,6 +52,8 @@ Zonder deze punten mag een Nederlandse webshop niet verkopen.
 - [ ] `blusbox.nl` is geverifieerd in Resend
 - [ ] SPF, DKIM en DMARC staan in DNS en zijn groen in Resend
 - [ ] Afzenderadres is een adres dat gelezen wordt, geen `no-reply@`
+- [ ] `CRON_SECRET` staat in Vercel; zonder dat draait de dagelijkse
+      herinneringsronde niet (`/api/cron/herinneringen`)
 - [ ] Testmail aangekomen bij Gmail, Outlook en een eigen domein — niet in
       de spammap
 
@@ -74,7 +76,7 @@ Dit deel is geautomatiseerd. Draai het en lees de uitkomst.
 npm run lint && npx tsc --noEmit && npm test && npm run e2e
 ```
 
-- [ ] `npm test` — 124 unittests groen
+- [ ] `npm test` — 134 unittests groen
 - [ ] `npm run e2e` — 114 tests groen op desktop én mobiel, inclusief de
       toegankelijkheidsaudit op alle publieke routes
 - [ ] Lighthouse ≥ 95 op `/`, `/blusbox` en `/hoe-het-werkt` (§12). Meet
@@ -106,8 +108,6 @@ npm run lint && npx tsc --noEmit && npm test && npm run e2e
 
 Deze punten blokkeren de opening niet, maar iemand moet ze weten:
 
-- Er is nog geen planner die de vervangingsherinneringen op 12, 6 en 1 maand
-  verstuurt; de data worden wel berekend en getoond
 - Verzend- en afleverbericht bestaan nog niet
 - `orders.mollieId` heet nog naar de vorige betaalprovider
 
