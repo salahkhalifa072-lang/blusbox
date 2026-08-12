@@ -4,12 +4,50 @@ Levend overzicht van wat nog moet gebeuren. Bijgewerkt tijdens de bouw.
 Laatst bijgewerkt: 12 augustus 2026. De bouwvolgorde uit §14 is af; sindsdien
 wordt gewerkt aan wat daarna nog openstond.
 
+## Eerst dit: er staat geen database achter de live site
+
+Gemeten op 12 augustus 2026 tegen www.blusbox.nl:
+
+| Route | |
+|---|---|
+| `/`, `/blusbox`, `/winkelwagen`, `/api/wagen` | 200 |
+| `/account`, `/dashboard` | **500** |
+
+Het patroon is precies de scheidslijn tussen "raakt de database" en "raakt
+hem niet". `src/db/index.ts` gooit bij het laden een fout zodra
+`DATABASE_URL` ontbreekt; tijdens de build is er een uitwijk, daarbuiten
+niet. De bouw slaagt dus, maar elke route die de database nodig heeft valt
+om.
+
+Wat dat betekent: **de live site kan op dit moment geen bestelling
+aannemen en niemand kan inloggen.** Het is nu een folder. Alles wat
+hieronder "af" heet — terugroepberichten, herinneringen, verzendmail —
+werkt lokaal en kan in productie niet draaien zolang dit niet staat.
+
+Dit is niet stuk gegaan door recent werk; `/account` raakt geen van de
+nieuwe kolommen. De productiedatabase is vermoedelijk nooit aangemaakt: de
+database die eerder is opgezet draait op Postgres.app op deze Mac, en die is
+vanuit Vercel niet bereikbaar.
+
+Te doen, in deze volgorde:
+
+1. Managed Postgres aanmaken in eu-central-1 (Vercel → Storage → Neon).
+   Zie `DEPLOY.md` §2.
+2. `DATABASE_URL` in Vercel zetten voor alle omgevingen.
+3. Migraties draaien tegen die database:
+   `DATABASE_URL="<prod>" npm run db:migrate` — inclusief migratie `0001`,
+   die `orders.verzonden_op` en `orders.track_and_trace` toevoegt. Zonder
+   die stap valt het bestellingenscherm om zodra iemand inlogt.
+4. Beheerdersaccount aanmaken: `DATABASE_URL="<prod>" npm run db:admin`.
+5. Opnieuw controleren dat `/account` een 200 geeft.
+
 ## Blokkerend vóór livegang
 
 Zonder deze punten mag de webshop niet open.
 
 | Wat | Waarom | Wie |
 |---|---|---|
+| Productiedatabase (zie hierboven) | Zonder database geen bestellingen en geen inloggen | klant |
 | Bedrijfsgegevens: statutaire naam, KvK, btw-id, adres, telefoon, e-mail | Wettelijk verplicht in footer, op `/contact`, in de algemene voorwaarden en op het herroepingsformulier. Staat nu overal als `[VERIFY]` | klant |
 | Juridische teksten laten toetsen | AV, privacyverklaring, cookiebeleid en garantie zijn opgezette concepten met een zichtbare "nog niet definitief"-melding | jurist |
 | `blusbox.nl` verifiëren in Resend | Zolang dat niet is gebeurd verstuurt Resend alleen naar het eigen accountadres — een echte klant krijgt niets | klant |

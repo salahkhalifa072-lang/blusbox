@@ -6,6 +6,16 @@ gecontroleerd — niet "waarschijnlijk goed".
 Wie een punt afvinkt zet er de datum bij. `OPEN.md` houdt bij wat nog moet
 gebeuren en wie aan zet is; deze lijst is de laatste controle.
 
+## 0. Werkt de omgeving überhaupt
+
+- [ ] `DATABASE_URL` staat in Vercel en wijst naar een managed Postgres, niet
+      naar een database op iemands laptop
+- [ ] Alle migraties zijn gedraaid tegen die database
+      (`DATABASE_URL="<prod>" npm run db:migrate`)
+- [ ] `https://www.blusbox.nl/account` geeft 200 en niet 500 — dat is de
+      snelste controle of de database bereikbaar is
+- [ ] Er staat een beheerdersaccount in (`npm run db:admin`)
+
 ## 1. Wettelijk verplicht
 
 Zonder deze punten mag een Nederlandse webshop niet verkopen.
