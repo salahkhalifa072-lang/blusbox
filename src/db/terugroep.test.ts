@@ -2,11 +2,19 @@ import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import { maakTestDb } from "./testdb";
 import {
+  contactadresVanBestelling,
   markeerVerzonden,
   openstaandeNotices,
   registreerBevestiging,
 } from "./queries";
-import { lots, products, recallNotices, recalls } from "./schema";
+import {
+  lots,
+  orders,
+  products,
+  recallNotices,
+  recalls,
+  users,
+} from "./schema";
 
 /**
  * §9.2 versturen en bevestigen van terugroepberichten, tegen een echte
@@ -169,3 +177,50 @@ describe("bevestiging", () => {
 function eqId(waarde: string) {
   return eq(recallNotices.id, waarde);
 }
+
+describe("contactadres van een bestelling", () => {
+  const idKlant = "33333333-3333-4333-8333-111111111111";
+  const totalen = {
+    subtotaalExclBtwCenten: 2393,
+    btwBedragCenten: 502,
+    totaalInclBtwCenten: 2895,
+  };
+
+  it("gebruikt het accountadres bij een ingelogde klant", async () => {
+    // gastEmail blijft leeg bij een account; wie alleen dát veld leest
+    // stuurt niets naar deze klant.
+    await db
+      .insert(users)
+      .values({ id: idKlant, email: "anna@example.nl", name: "Anna" });
+    await db.insert(orders).values({
+      ordernummer: "BB-2026-000010",
+      userId: idKlant,
+      gastEmail: null,
+      status: "betaald",
+      postcode: "1011AB",
+      ...totalen,
+    });
+
+    expect(await contactadresVanBestelling("BB-2026-000010", db)).toBe(
+      "anna@example.nl",
+    );
+  });
+
+  it("gebruikt het gastadres bij een bestelling zonder account", async () => {
+    await db.insert(orders).values({
+      ordernummer: "BB-2026-000011",
+      gastEmail: "gast@example.nl",
+      status: "betaald",
+      postcode: "3011AB",
+      ...totalen,
+    });
+
+    expect(await contactadresVanBestelling("BB-2026-000011", db)).toBe(
+      "gast@example.nl",
+    );
+  });
+
+  it("geeft null bij een onbekend ordernummer", async () => {
+    expect(await contactadresVanBestelling("BB-BESTAAT-NIET", db)).toBeNull();
+  });
+});

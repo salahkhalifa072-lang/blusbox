@@ -360,3 +360,32 @@ export async function markeerHerinnering(
     .set(kolom)
     .where(eq(registeredUnits.id, unitId));
 }
+
+/**
+ * Het e-mailadres waarop de klant van een bestelling bereikbaar is.
+ *
+ * `gastEmail` staat alleen gevuld bij een gastbestelling — bij een account
+ * blijft het bewust leeg en hangt het adres aan de gebruiker. Wie alleen
+ * `gastEmail` leest stuurt dus niets naar ingelogde klanten. De
+ * bestelbevestiging ontsnapte daaraan omdat Stripe het adres meegeeft; alles
+ * wat later vanuit het dashboard vertrekt heeft die bron niet.
+ */
+export async function contactadresVanBestelling(
+  ordernummer: string,
+  db?: Db,
+): Promise<string | null> {
+  const handle = db ?? (await appDb());
+
+  const [rij] = await handle
+    .select({
+      gastEmail: orders.gastEmail,
+      accountEmail: users.email,
+    })
+    .from(orders)
+    .leftJoin(users, eq(users.id, orders.userId))
+    .where(eq(orders.ordernummer, ordernummer))
+    .limit(1);
+
+  if (!rij) return null;
+  return rij.accountEmail ?? rij.gastEmail ?? null;
+}

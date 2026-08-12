@@ -88,6 +88,9 @@ export async function bestellingenLijst(limiet = 50) {
       landcode: orders.landcode,
       postcode: orders.postcode,
       geplaatstOp: orders.geplaatstOp,
+      verzondenOp: orders.verzondenOp,
+      geleverdOp: orders.geleverdOp,
+      trackAndTrace: orders.trackAndTrace,
     })
     .from(orders)
     .orderBy(desc(orders.geplaatstOp))

@@ -130,6 +130,34 @@ in Resend geverifieerd is, komt er niets aan bij een echte klant. Een
 mislukte verzending wordt niet afgestempeld, dus de ronde pakt hem de
 volgende dag gewoon weer op.
 
+### Verzend- en bezorgbericht (af)
+
+De bestelbevestiging beloofde met zoveel woorden "zodra het pakket onderweg
+is, laten we het weten". Die mail bestond niet, en er was ook geen manier om
+een bestelling op verzonden of geleverd te zetten — het dashboard was op dit
+punt alleen kijken.
+
+Nu: twee knoppen per bestelling, met een optioneel zendingnummer, en twee
+berichten. De statuswijziging gaat vóór de mail; blijft de mail steken, dan
+is de bestelling nog steeds verzonden en kan het bericht opnieuw. Andersom
+zou een storing bij Resend de hele afhandeling blokkeren.
+
+Het bezorgbericht doet meer dan melden dat het pakket er is: het legt de
+einddatum van de bedenktijd vast. Die termijn loopt vanaf ontvangst, dus pas
+op dat moment is de datum bekend. `geleverdOp` is daarmee een veld met
+juridische betekenis, en het kan daarom niet achteraf verzet worden.
+
+Onderweg gevonden: **ingelogde klanten kregen geen enkele mail na de
+bestelbevestiging.** `gastEmail` blijft leeg zodra er een account aan de
+bestelling hangt — dat is met opzet, het adres hangt dan aan de gebruiker.
+Alles wat alleen `gastEmail` las, stuurde dus niets. De bestelbevestiging
+ontsnapte eraan doordat Stripe het adres meegeeft; dat vangnet is er bij
+een mail vanuit het dashboard niet. `contactadresVanBestelling` lost het nu
+overal op, met tests voor beide gevallen.
+
+Schemawijziging: `orders.verzonden_op` en `orders.track_and_trace`
+(migratie `0001`, alleen toevoegingen).
+
 ### Gemeten in stap 11
 
 Toegankelijkheid: axe (WCAG 2.0 + 2.1, A + AA + best practice) draait schoon
@@ -170,4 +198,3 @@ buildpipeline en hoort niet meer bij stap 11.
   beeld toevoegt moet dit met de hand doen
 - Beeldmateriaal is niet consistent: de hero toont een grijze module met
   blauwe leidingen, de packshot een volledig rode
-- E-mail bij verzending en levering bestaat nog niet

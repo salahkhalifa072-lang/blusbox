@@ -46,6 +46,8 @@ Zonder deze punten mag een Nederlandse webshop niet verkopen.
       terugbetaald
 - [ ] Bij die test: order ging van `nieuw` naar `betaald`, bevestigingsmail
       kwam aan, herroepingsformulier zat erbij
+- [ ] Diezelfde order op verzonden en daarna op geleverd gezet; beide
+      berichten kwamen aan en de einddatum van de bedenktijd klopte
 
 ## 4. E-mail
 
@@ -76,7 +78,7 @@ Dit deel is geautomatiseerd. Draai het en lees de uitkomst.
 npm run lint && npx tsc --noEmit && npm test && npm run e2e
 ```
 
-- [ ] `npm test` — 134 unittests groen
+- [ ] `npm test` — 137 unittests groen
 - [ ] `npm run e2e` — 114 tests groen op desktop én mobiel, inclusief de
       toegankelijkheidsaudit op alle publieke routes
 - [ ] Lighthouse ≥ 95 op `/`, `/blusbox` en `/hoe-het-werkt` (§12). Meet
@@ -108,7 +110,6 @@ npm run lint && npx tsc --noEmit && npm test && npm run e2e
 
 Deze punten blokkeren de opening niet, maar iemand moet ze weten:
 
-- Verzend- en afleverbericht bestaan nog niet
 - `orders.mollieId` heet nog naar de vorige betaalprovider
 
 Zie `OPEN.md` voor de volledige lijst.

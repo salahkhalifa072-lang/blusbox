@@ -3,11 +3,14 @@ import { render } from "@react-email/components";
 import { Bestelbevestiging } from "@/emails/bestelbevestiging";
 import { Terugroepbericht } from "@/emails/terugroepbericht";
 import { Vervangingsherinnering } from "@/emails/vervangingsherinnering";
+import { Verzendbericht } from "@/emails/verzendbericht";
+import { Bezorgbericht } from "@/emails/bezorgbericht";
 import { maakHerroepingsformulier } from "./herroepingsformulier";
 import { euro, verzendwaarde } from "./pricing";
 import { formatteerNl, herroepingUiterlijk } from "./levensduur";
 import { siteUrl } from "./site";
 import { haalBestelling } from "./bestelling";
+import { contactadresVanBestelling } from "@/db/queries";
 
 /**
  * Transactional mail (§3).
@@ -61,7 +64,9 @@ export async function stuurBestelbevestiging(
   }
 
   const { order, regels } = gegevens;
-  const naar = ontvanger ?? order.gastEmail;
+  // Stripe geeft normaal het adres mee; valt dat weg, dan is de resolver het
+  // vangnet — anders krijgt een ingelogde klant helemaal niets.
+  const naar = ontvanger ?? (await contactadresVanBestelling(ordernummer));
   if (!naar) {
     return { verstuurd: false, reden: "Geen e-mailadres bij deze bestelling" };
   }
@@ -215,6 +220,112 @@ export async function stuurVervangingsherinnering(opdracht: {
       html,
     });
 
+    if (error) return { verstuurd: false, reden: error.message };
+    if (!data?.id) return { verstuurd: false, reden: "Geen bericht-id ontvangen" };
+    return { verstuurd: true, id: data.id };
+  } catch (fout) {
+    return { verstuurd: false, reden: (fout as Error).message };
+  }
+}
+
+/** Adresregels zoals ze in de mail moeten staan. */
+function adresRegels(order: {
+  straat: string | null;
+  huisnummer: string | null;
+  postcode: string | null;
+  plaats: string | null;
+  landcode: string;
+}): string[] {
+  return [
+    [order.straat, order.huisnummer].filter(Boolean).join(" "),
+    [order.postcode, order.plaats].filter(Boolean).join("  "),
+    order.landcode,
+  ].filter(Boolean);
+}
+
+/**
+ * §8 verzendbericht. De bestelbevestiging belooft dit met zoveel woorden:
+ * "zodra het pakket onderweg is, laten we het weten".
+ */
+export async function stuurVerzendbericht(
+  ordernummer: string,
+): Promise<MailResultaat> {
+  if (!mailBeschikbaar()) {
+    return { verstuurd: false, reden: "RESEND_API_KEY ontbreekt" };
+  }
+
+  const gegevens = await haalBestelling(ordernummer);
+  if (!gegevens) {
+    return { verstuurd: false, reden: `Bestelling ${ordernummer} niet gevonden` };
+  }
+  const { order } = gegevens;
+  const naar = await contactadresVanBestelling(ordernummer);
+  if (!naar) {
+    return { verstuurd: false, reden: "Geen e-mailadres bij deze bestelling" };
+  }
+
+  const html = await render(
+    Verzendbericht({
+      ordernummer: order.ordernummer,
+      adres: adresRegels(order),
+      trackAndTrace: order.trackAndTrace ?? undefined,
+      siteUrl,
+    }),
+  );
+
+  try {
+    const { data, error } = await client().emails.send({
+      from: afzender(),
+      to: naar,
+      subject: `Je Blusbox is onderweg — ${order.ordernummer}`,
+      html,
+    });
+    if (error) return { verstuurd: false, reden: error.message };
+    if (!data?.id) return { verstuurd: false, reden: "Geen bericht-id ontvangen" };
+    return { verstuurd: true, id: data.id };
+  } catch (fout) {
+    return { verstuurd: false, reden: (fout as Error).message };
+  }
+}
+
+/**
+ * §8 bezorgbericht. Legt de einddatum van de bedenktijd vast — die loopt
+ * vanaf ontvangst, dus pas nu is die datum bekend.
+ */
+export async function stuurBezorgbericht(
+  ordernummer: string,
+): Promise<MailResultaat> {
+  if (!mailBeschikbaar()) {
+    return { verstuurd: false, reden: "RESEND_API_KEY ontbreekt" };
+  }
+
+  const gegevens = await haalBestelling(ordernummer);
+  if (!gegevens) {
+    return { verstuurd: false, reden: `Bestelling ${ordernummer} niet gevonden` };
+  }
+  const { order } = gegevens;
+  const naar = await contactadresVanBestelling(ordernummer);
+  if (!naar) {
+    return { verstuurd: false, reden: "Geen e-mailadres bij deze bestelling" };
+  }
+
+  const geleverd = (order.geleverdOp ?? new Date()).toISOString().slice(0, 10);
+
+  const html = await render(
+    Bezorgbericht({
+      ordernummer: order.ordernummer,
+      herroepingUiterlijk: formatteerNl(herroepingUiterlijk(geleverd)),
+      siteUrl,
+    }),
+  );
+
+  try {
+    const { data, error } = await client().emails.send({
+      from: afzender(),
+      to: naar,
+      subject: `Je Blusbox is bezorgd — ${order.ordernummer}`,
+      html,
+    });
     if (error) return { verstuurd: false, reden: error.message };
     if (!data?.id) return { verstuurd: false, reden: "Geen bericht-id ontvangen" };
     return { verstuurd: true, id: data.id };

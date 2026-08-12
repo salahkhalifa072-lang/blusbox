@@ -2,6 +2,7 @@ import { bestellingenLijst } from "@/db/dashboard";
 import { Cel, Leeg, Paneel, Rij, Status, Tabel } from "@/components/dashboard/ui";
 import { euro } from "@/lib/pricing";
 import { formatteerNl } from "@/lib/levensduur";
+import { Afhandelen } from "./afhandelen";
 
 export const dynamic = "force-dynamic";
 
@@ -12,8 +13,10 @@ export default async function BestellingenPagina() {
     <div className="space-y-6">
       <div>
         <h1 className="font-display text-3xl">Bestellingen</h1>
-        <p className="mt-1 text-sm text-staal-tekst">
-          {bestellingen.length} bestellingen, nieuwste eerst.
+        <p className="mt-1 max-w-2xl text-sm text-staal-tekst">
+          {bestellingen.length} bestellingen, nieuwste eerst. Op geleverd
+          zetten start de bedenktijd van veertien dagen; de klant krijgt dan
+          per mail de einddatum.
         </p>
       </div>
 
@@ -29,6 +32,7 @@ export default async function BestellingenPagina() {
               "Bezorging",
               "Totaal",
               "Geplaatst",
+              "Afhandeling",
             ]}
           >
             {bestellingen.map((b) => (
@@ -44,6 +48,14 @@ export default async function BestellingenPagina() {
                 <Cel mono>{euro(b.totaalCenten)}</Cel>
                 <Cel mono>
                   {formatteerNl(b.geplaatstOp.toISOString().slice(0, 10))}
+                </Cel>
+                <Cel>
+                  <Afhandelen
+                    ordernummer={b.ordernummer}
+                    status={b.status}
+                    verzonden={b.verzondenOp !== null}
+                    geleverd={b.geleverdOp !== null}
+                  />
                 </Cel>
               </Rij>
             ))}

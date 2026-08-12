@@ -199,7 +199,14 @@ export const orders = pgTable(
     geplaatstOp: timestamp("geplaatst_op", { withTimezone: true })
       .notNull()
       .defaultNow(),
+    verzondenOp: timestamp("verzonden_op", { withTimezone: true }),
+    /**
+     * De herroepingstermijn van veertien dagen loopt vanaf ontvangst, niet
+     * vanaf de bestelling. Dit veld bepaalt dus wanneer die termijn afloopt.
+     */
     geleverdOp: timestamp("geleverd_op", { withTimezone: true }),
+    /** Zendingnummer van de vervoerder, gaat mee in de verzendmail */
+    trackAndTrace: text("track_and_trace"),
   },
   (t) => [
     uniqueIndex("orders_ordernummer_uniek").on(t.ordernummer),
