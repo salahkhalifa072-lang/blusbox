@@ -1,8 +1,8 @@
 # Nog open
 
 Levend overzicht van wat nog moet gebeuren. Bijgewerkt tijdens de bouw.
-Laatst bijgewerkt: 11 augustus 2026, na §14 stap 12 (Playwright en de
-launchchecklist). Daarmee is de bouwvolgorde uit §14 afgelopen.
+Laatst bijgewerkt: 12 augustus 2026. De bouwvolgorde uit §14 is af; sindsdien
+wordt gewerkt aan wat daarna nog openstond.
 
 ## Blokkerend vóór livegang
 
@@ -36,11 +36,10 @@ Zonder deze punten mag de webshop niet open.
 ## Techniek nog te doen
 
 ### Uit stap 8 blijven liggen
-- Recall-notices worden **wel** aangemaakt maar **nog niet gemaild**; de
-  Resend-template en de verzendactie ontbreken
-- Bevestiging per afnemer (`bevestigdOp`) kan nog niet worden geregistreerd
+- ~~Recall-notices worden wel aangemaakt maar niet gemaild~~ **af** — zie
+  hieronder
+- ~~Bevestiging per afnemer (`bevestigdOp`)~~ **af**
 - Conversie en top-5 verwijzers op het overzicht vragen bezoekersstatistiek
-  (stap 11)
 - Picklijsten met ADR-papieren (§9.5) bestaan nog niet
 - Producten, voorraad, klanten, kortingscodes, contenteditor en
   documentbibliotheek (§9.5) zijn nog niet gebouwd
@@ -60,6 +59,39 @@ Wat die tests onderweg boven water haalden, en wat daarop is aangepast:
 - De koopbalk onderaan de productpagina stond op smalle schermen buiten elk
   landmark. De audit van stap 11 draaide alleen op desktopbreedte en zag
   hem daarom niet.
+
+### Terugroepberichten (af)
+
+De hele keten werkt nu: mailsjabloon, versturen per ontvanger, en een
+publieke pagina waar de afnemer bevestigt dat hij het gelezen heeft.
+
+Een paar keuzes die niet vanzelf spreken:
+- **Versturen staat los van het openen van een recall.** De lijst met
+  afnemers wordt bij het openen vastgelegd; versturen is een aparte knop.
+  Een storing bij de mailprovider kan de lijst dus niet kwijtmaken, en
+  opnieuw drukken stuurt alleen wat nog niet weg was.
+- **Eén mail per ontvanger, niet één bcc.** Bcc zou elk adres aan elke
+  andere afnemer laten zien, en één slecht adres zou de hele partij
+  meenemen.
+- **`verzondenOp` wordt pas gestempeld nadat Resend het bericht heeft
+  aangenomen.** Andersom zou een mislukte verzending eruitzien als
+  afgehandeld, en die afnemer krijgt dan nooit meer bericht. Mislukte
+  adressen komen met reden in beeld, zodat iemand ze kan nabellen.
+- **Bevestigen is een knop, geen link met de id erin.** Virusscanners en
+  previewers openen elke link in een mail; bij een GET zou de halve lijst
+  "bevestigd" zijn zonder dat er een mens gekeken heeft.
+- De bevestigpagina toont géén persoonsgegevens, alleen lotnummer en reden.
+  Wordt de link doorgestuurd, dan lekt er niets dat niet toch al openbaar is
+  zodra er een terugroepactie loopt.
+
+Getest tegen een echte Postgres-engine (`src/db/terugroep.test.ts`, 9 tests):
+niemand krijgt het dubbel, de eerste bevestiging blijft staan, en een
+bevestiging bij de één raakt de ander niet.
+
+**Let op:** versturen kan nu nog niet naar echte klanten. Resend weigert elk
+adres behalve dat van het eigen account zolang `blusbox.nl` niet geverifieerd
+is — dat staat bovenaan bij de blokkerende punten. De code vangt dat netjes
+af: het bericht blijft op "nog te versturen" staan.
 
 ### Gemeten in stap 11
 

@@ -1,9 +1,11 @@
-import { and, eq, isNotNull, lte, or, sql } from "drizzle-orm";
+import { and, eq, isNotNull, isNull, lte, or, sql } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
+import type { PgDatabase } from "drizzle-orm/pg-core";
 import {
   lots,
   orderLines,
   orders,
+  recallNotices,
   registeredUnits,
   users,
   type Rol,
@@ -212,4 +214,79 @@ export async function aantalVerlooptBinnen(
     );
 
   return row?.aantal ?? 0;
+}
+
+/**
+ * §9.2 terugroepberichten.
+ *
+ * Deze drie staan hier en niet in de server action, zodat ze tegen een
+ * echte database getest kunnen worden. De action doet er de rolcontrole en
+ * het mailen omheen; de regels over wat wanneer gestempeld mag worden zitten
+ * hier.
+ */
+
+/**
+ * Schrijvende variant van de handle hierboven.
+ *
+ * Gebaseerd op `PgDatabase` en niet op `PostgresJsDatabase`: postgres-js en
+ * PGlite geven bij `update` een net iets ander type terug, en alleen de
+ * gedeelde basis past op allebei. Anders draaien de tests wel, maar weigert
+ * tsc de testhandle.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SchrijfDb = Pick<PgDatabase<any, any, any>, "select" | "update">;
+
+async function appSchrijfDb(): Promise<SchrijfDb> {
+  const { db } = await import("./index");
+  return db as unknown as SchrijfDb;
+}
+
+/** Berichten die nog verstuurd moeten worden. Twee keer drukken is veilig. */
+export async function openstaandeNotices(recallId: string, db?: Db) {
+  const handle = db ?? (await appDb());
+  return handle
+    .select({ id: recallNotices.id, email: recallNotices.email })
+    .from(recallNotices)
+    .where(
+      and(
+        eq(recallNotices.recallId, recallId),
+        isNull(recallNotices.verzondenOp),
+      ),
+    );
+}
+
+/**
+ * Stempelt een bericht als verstuurd. Alleen aanroepen nadat de provider
+ * het heeft aangenomen — andersom ziet een mislukte verzending eruit als
+ * afgehandeld en krijgt die afnemer nooit meer bericht.
+ */
+export async function markeerVerzonden(noticeId: string, db?: SchrijfDb) {
+  const handle = db ?? (await appSchrijfDb());
+  await handle
+    .update(recallNotices)
+    .set({ verzondenOp: new Date() })
+    .where(eq(recallNotices.id, noticeId));
+}
+
+/**
+ * Registreert dat een afnemer het bericht heeft gezien.
+ *
+ * De eerste bevestiging telt: dat is het moment waarop iemand het gelezen
+ * had, en dat moment mag niet opschuiven doordat de pagina nog eens wordt
+ * geopend. Geeft terug of déze aanroep het heeft vastgelegd.
+ */
+export async function registreerBevestiging(
+  noticeId: string,
+  db?: SchrijfDb,
+): Promise<boolean> {
+  const handle = db ?? (await appSchrijfDb());
+  const gewijzigd = await handle
+    .update(recallNotices)
+    .set({ bevestigdOp: new Date() })
+    .where(
+      and(eq(recallNotices.id, noticeId), isNull(recallNotices.bevestigdOp)),
+    )
+    .returning({ id: recallNotices.id });
+
+  return gewijzigd.length > 0;
 }

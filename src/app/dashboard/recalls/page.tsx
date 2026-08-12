@@ -4,6 +4,7 @@ import { formatteerNl } from "@/lib/levensduur";
 import { vereisDashboard } from "@/lib/sessie";
 import { magRecallOpenen } from "@/lib/rollen";
 import { sluitRecall } from "../lots/acties";
+import { Verzendknop } from "./verzendknop";
 
 export const dynamic = "force-dynamic";
 
@@ -17,8 +18,11 @@ export default async function RecallsPagina() {
       <div>
         <h1 className="font-display text-3xl">Recalls</h1>
         <p className="mt-1 max-w-2xl text-sm text-staal-tekst">
-          Per recall staat vast wie is aangeschreven en wie heeft bevestigd.
-          Sluit een recall pas als iedereen is afgehandeld.
+          Per recall staat vast wie is aangeschreven, wie bericht heeft
+          gekregen en wie heeft bevestigd. Versturen is een aparte handeling:
+          de lijst wordt bij het openen vastgelegd, zodat een storing bij de
+          mailprovider hem niet kan kwijtmaken. Sluit een recall pas als
+          iedereen is afgehandeld.
         </p>
       </div>
 
@@ -32,7 +36,9 @@ export default async function RecallsPagina() {
               "Reden",
               "Geopend",
               "Aangeschreven",
+              "Verstuurd",
               "Bevestigd",
+              "Versturen",
               "Status",
             ]}
           >
@@ -45,7 +51,20 @@ export default async function RecallsPagina() {
                 </Cel>
                 <Cel mono>{r.aangeschreven}</Cel>
                 <Cel mono>
+                  {r.verzonden} / {r.aangeschreven}
+                </Cel>
+                <Cel mono>
                   {r.bevestigd} / {r.aangeschreven}
+                </Cel>
+                <Cel>
+                  {r.geslotenOp || !magSluiten ? (
+                    <span className="data text-xs text-staal-tekst">—</span>
+                  ) : (
+                    <Verzendknop
+                      recallId={r.id}
+                      openstaand={r.aangeschreven - r.verzonden}
+                    />
+                  )}
                 </Cel>
                 <Cel>
                   {r.geslotenOp ? (

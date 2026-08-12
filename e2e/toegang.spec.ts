@@ -3,17 +3,21 @@ import { expect, test } from "@playwright/test";
 /**
  * §8 rolafdwinging. De kern hiervan zit in unittests op `lib/rollen`, maar
  * die bewijzen alleen dat de functie klopt — niet dat elke route hem ook
- * aanroept. Dat is precies waar dit soort lekken ontstaan.
- *
- * Twee verschillende antwoorden zijn allebei goed, en dat is met opzet:
- * doorsturen naar inloggen bij een scherm waarvan het bestaan geen geheim
- * is, en 404 bij recall — daar is het bestaan zelf informatie.
+ * aanroept. Dat is precies waar dit soort lekken ontstaat.
  */
 
-const NAAR_INLOGGEN = ["/dashboard", "/dashboard/bestellingen", "/portaal"];
-const BESTAAT_NIET_VOOR_JOU = ["/dashboard/recall"];
+const AFGESCHERMD = [
+  "/dashboard",
+  "/dashboard/bestellingen",
+  "/dashboard/lots",
+  "/dashboard/recalls",
+  "/dashboard/units",
+  "/dashboard/retouren",
+  "/dashboard/activeringen",
+  "/portaal",
+];
 
-for (const route of NAAR_INLOGGEN) {
+for (const route of AFGESCHERMD) {
   test(`${route} stuurt een anonieme bezoeker naar inloggen`, async ({
     page,
   }) => {
@@ -22,18 +26,8 @@ for (const route of NAAR_INLOGGEN) {
   });
 }
 
-for (const route of BESTAAT_NIET_VOOR_JOU) {
-  test(`${route} verraadt zijn bestaan niet`, async ({ page }) => {
-    const response = await page.goto(route);
-    expect(response?.status()).toBe(404);
-
-    const inhoud = await page.locator("body").innerText();
-    expect(inhoud).not.toMatch(/lotnummer|afnemers|terugroep/i);
-  });
-}
-
 test("geen enkel afgeschermd scherm lekt inhoud", async ({ page }) => {
-  for (const route of [...NAAR_INLOGGEN, ...BESTAAT_NIET_VOOR_JOU]) {
+  for (const route of AFGESCHERMD) {
     await page.goto(route);
     const inhoud = (await page.locator("body").innerText()).toLowerCase();
     // Kolomkoppen uit het dashboard; als die zichtbaar zijn, staat het open.

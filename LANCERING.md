@@ -74,8 +74,8 @@ Dit deel is geautomatiseerd. Draai het en lees de uitkomst.
 npm run lint && npx tsc --noEmit && npm test && npm run e2e
 ```
 
-- [ ] `npm test` — 115 unittests groen
-- [ ] `npm run e2e` — 100 tests groen op desktop én mobiel, inclusief de
+- [ ] `npm test` — 124 unittests groen
+- [ ] `npm run e2e` — 114 tests groen op desktop én mobiel, inclusief de
       toegankelijkheidsaudit op alle publieke routes
 - [ ] Lighthouse ≥ 95 op `/`, `/blusbox` en `/hoe-het-werkt` (§12). Meet
       tegen productie, niet lokaal
@@ -99,14 +99,13 @@ npm run lint && npx tsc --noEmit && npm test && npm run e2e
 - [ ] Eerste echte bestelling handmatig nagelopen: betaling, mail, lotnummer
 - [ ] Search Console: geen dekkingsfouten na een week
 - [ ] Een terugroepactie een keer droog geoefend op testdata, zodat je weet
-      hoe het werkt vóórdat het nodig is
+      hoe het werkt vóórdat het nodig is. Let op: versturen werkt pas zodra
+      `blusbox.nl` in Resend geverifieerd is
 
 ## Wat bewust nog niet af is
 
 Deze punten blokkeren de opening niet, maar iemand moet ze weten:
 
-- Terugroepberichten worden aangemaakt maar nog niet verstuurd; dat gaat nu
-  met de hand via de exportlijst
 - Er is nog geen planner die de vervangingsherinneringen op 12, 6 en 1 maand
   verstuurt; de data worden wel berekend en getoond
 - Verzend- en afleverbericht bestaan nog niet

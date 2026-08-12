@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import { render } from "@react-email/components";
 import { Bestelbevestiging } from "@/emails/bestelbevestiging";
+import { Terugroepbericht } from "@/emails/terugroepbericht";
 import { maakHerroepingsformulier } from "./herroepingsformulier";
 import { euro, verzendwaarde } from "./pricing";
 import { formatteerNl, herroepingUiterlijk } from "./levensduur";
@@ -106,6 +107,60 @@ export async function stuurBestelbevestiging(
           content: Buffer.from(formulier).toString("base64"),
         },
       ],
+    });
+
+    if (error) return { verstuurd: false, reden: error.message };
+    if (!data?.id) return { verstuurd: false, reden: "Geen bericht-id ontvangen" };
+    return { verstuurd: true, id: data.id };
+  } catch (fout) {
+    return { verstuurd: false, reden: (fout as Error).message };
+  }
+}
+
+/**
+ * §9.2 recall notice for one recipient.
+ *
+ * Kept per-recipient on purpose. Bcc'ing the whole affected list would leak
+ * every customer's address to every other customer, and a single bounce
+ * would take the entire batch with it. The caller loops and records the
+ * outcome per notice, so one bad address costs one notice.
+ */
+export async function stuurTerugroepbericht(opdracht: {
+  noticeId: string;
+  email: string;
+  lotNummer: string;
+  reden: string;
+}): Promise<MailResultaat> {
+  if (!mailBeschikbaar()) {
+    return { verstuurd: false, reden: "RESEND_API_KEY ontbreekt" };
+  }
+
+  const html = await render(
+    Terugroepbericht({
+      lotNummer: opdracht.lotNummer,
+      reden: opdracht.reden,
+      bevestigUrl: `${siteUrl}/terugroep/${opdracht.noticeId}`,
+      siteUrl,
+      contactEmail: process.env.MAIL_CONTACT ?? "info@blusbox.nl",
+      telefoon: process.env.CONTACT_TELEFOON || undefined,
+    }),
+  );
+
+  try {
+    const { data, error } = await client().emails.send({
+      from: afzender(),
+      to: opdracht.email,
+      // Geen "Blusbox" vooraan: in een volle inbox moet het eerste woord al
+      // duidelijk maken dat dit geen nieuwsbrief is.
+      subject: `Veiligheidswaarschuwing: vervang je Blusbox (lot ${opdracht.lotNummer})`,
+      html,
+      headers: {
+        // Een terugroepbericht is geen bulkmail. Deze vlaggen houden het uit
+        // filters die "list mail" naar het tabblad Reclame duwen.
+        "X-Entity-Ref-ID": opdracht.noticeId,
+        Importance: "high",
+        Priority: "urgent",
+      },
     });
 
     if (error) return { verstuurd: false, reden: error.message };

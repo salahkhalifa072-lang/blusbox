@@ -15,6 +15,8 @@ const eslintConfig = [
     ignores: [
       "node_modules/**",
       ".next/**",
+      // buildmap van de e2e-suite; zie playwright.config.ts
+      ".next-e2e/**",
       "out/**",
       "build/**",
       "next-env.d.ts",

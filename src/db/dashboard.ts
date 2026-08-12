@@ -184,6 +184,11 @@ export async function recallsLijst() {
         where ${recallNotices.recallId} = ${recalls.id}
           and ${recallNotices.bevestigdOp} is not null
       )`,
+      verzonden: sql<number>`(
+        select count(*)::int from ${recallNotices}
+        where ${recallNotices.recallId} = ${recalls.id}
+          and ${recallNotices.verzondenOp} is not null
+      )`,
     })
     .from(recalls)
     .innerJoin(lots, eq(lots.id, recalls.lotId))
@@ -217,4 +222,18 @@ export async function herinneringenOpenstaand(vandaag: IsoDatum) {
         isNull(registeredUnits.herinnering12Op),
       ),
     );
+}
+
+/** De afnemers achter één recall, voor het detailoverzicht (§9.2). */
+export async function recallOntvangersLijst(recallId: string) {
+  return db
+    .select({
+      id: recallNotices.id,
+      email: recallNotices.email,
+      verzondenOp: recallNotices.verzondenOp,
+      bevestigdOp: recallNotices.bevestigdOp,
+    })
+    .from(recallNotices)
+    .where(eq(recallNotices.recallId, recallId))
+    .orderBy(recallNotices.email);
 }
