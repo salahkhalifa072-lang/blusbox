@@ -8,24 +8,21 @@ gebeuren en wie aan zet is; deze lijst is de laatste controle.
 
 ## 0. Werkt de omgeving überhaupt
 
-- [ ] `DATABASE_URL` staat in Vercel en wijst naar een managed Postgres, niet
-      naar een database op iemands laptop
-- [ ] Alle migraties zijn gedraaid tegen die database
-      (`DATABASE_URL="<prod>" npm run db:migrate`)
-- [ ] `https://www.blusbox.nl/account` geeft 200 en niet 500 — dat is de
-      snelste controle of de database bereikbaar is
-- [ ] Er staat een beheerdersaccount in (`npm run db:admin`)
+- [x] Neon Postgres in Frankfurt, gekoppeld aan het Vercel-project — 12-08-2026
+- [x] Migraties gedraaid, catalogus geseed, voorraad op 300
+- [x] Beheerdersaccount `info@blusbox.nl`
+- [ ] `https://www.blusbox.nl/account` geeft 200 en niet 500 — snelste controle
+      of de database bereikbaar is vanaf de live site
 
 ## 1. Wettelijk verplicht
 
 Zonder deze punten mag een Nederlandse webshop niet verkopen.
 
-- [ ] Statutaire naam, KvK-nummer, btw-identificatienummer, vestigingsadres,
-      telefoonnummer en e-mailadres staan in de footer, op `/contact` en in
-      de algemene voorwaarden
-- [ ] Diezelfde gegevens staan op het herroepingsformulier (`lib/herroepingsformulier.ts`)
-- [ ] Geen `[VERIFY]` meer op een publieke pagina — `rg "\[VERIFY\]" src/app`
-      geeft niets
+- [x] Handelsnaam, KvK, btw-id, telefoon en e-mail staan in de footer, op
+      `/contact`, in de voorwaarden en op het herroepingsformulier — 12-08-2026
+- [x] Geen `[VERIFY]` meer op een publieke pagina
+- [ ] Geen vestigingsadres getoond: dat is een bewuste keuze. Zorg dat het
+      retouradres wél in de retourbevestiging staat
 - [ ] Algemene voorwaarden, privacyverklaring, cookiebeleid en garantie zijn
       door een jurist bekeken en de "nog niet definitief"-melding is weg
 - [ ] De prijs staat overal inclusief btw voor consumenten (§8)
@@ -35,12 +32,11 @@ Zonder deze punten mag een Nederlandse webshop niet verkopen.
 
 ## 2. Product en verzending
 
-- [ ] UN-nummer en ADR-klasse ingevuld in `lib/catalogus.ts`
-- [ ] Vervoerder accepteert de zending als gevaarlijk goed, schriftelijk
-      bevestigd
-- [ ] Vervoersdocumenten gaan mee in het pakket
-- [ ] Maximum aantal modules per zending vastgelegd en afgedwongen
-- [ ] Levertijd en voorraad kloppen met wat er op de PDP staat
+- [x] Geen gevaarlijke-goederenclassificatie — bevestigd door de klant,
+      12-08-2026. Zie de kanttekening in `OPEN.md`
+- [x] Verzending gratis, levertijd één werkdag, geen maximum per zending
+- [x] Voorraad 300 stuks
+- [ ] Vervoerder gekozen en tarief afgestemd
 - [ ] Conformiteitsverklaring, veiligheidsinformatieblad, productblad en
       handleiding staan op `/downloads`
 
@@ -88,11 +84,11 @@ Dit deel is geautomatiseerd. Draai het en lees de uitkomst.
 npm run lint && npx tsc --noEmit && npm test && npm run e2e
 ```
 
-- [ ] `npm test` — 137 unittests groen
-- [ ] `npm run e2e` — 114 tests groen op desktop én mobiel, inclusief de
+- [ ] `npm test` — 134 unittests groen
+- [ ] `npm run e2e` — 116 tests groen op desktop én mobiel, inclusief de
       toegankelijkheidsaudit op alle publieke routes
 - [ ] Beheerdeel meegetest: `E2E_ADMIN_EMAIL=… E2E_ADMIN_WACHTWOORD=… npm run e2e`
-      geeft 124 tests groen (de tien extra zijn de dashboardschermen)
+      geeft 126 tests groen (de tien extra zijn de dashboardschermen)
 - [ ] Lighthouse ≥ 95 op `/`, `/blusbox` en `/hoe-het-werkt` (§12). Meet
       tegen productie, niet lokaal
 - [ ] De site is bruikbaar zonder JavaScript: prijs, tekst en navigatie

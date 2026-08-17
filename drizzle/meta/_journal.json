@@ -15,6 +15,20 @@
       "when": 1786530889024,
       "tag": "0001_curved_chat",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1786957058581,
+      "tag": "0002_voorraad",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1786957070411,
+      "tag": "0003_geen-gevaarlijke-goederen",
+      "breakpoints": true
     }
   ]
 }

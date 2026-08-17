@@ -4,72 +4,53 @@ Levend overzicht van wat nog moet gebeuren. Bijgewerkt tijdens de bouw.
 Laatst bijgewerkt: 12 augustus 2026. De bouwvolgorde uit §14 is af; sindsdien
 wordt gewerkt aan wat daarna nog openstond.
 
-## Eerst dit: er staat geen database achter de live site
-
-Gemeten op 12 augustus 2026 tegen www.blusbox.nl:
-
-| Route | |
-|---|---|
-| `/`, `/blusbox`, `/winkelwagen`, `/api/wagen` | 200 |
-| `/account`, `/dashboard` | **500** |
-
-Het patroon is precies de scheidslijn tussen "raakt de database" en "raakt
-hem niet". `src/db/index.ts` gooit bij het laden een fout zodra
-`DATABASE_URL` ontbreekt; tijdens de build is er een uitwijk, daarbuiten
-niet. De bouw slaagt dus, maar elke route die de database nodig heeft valt
-om.
-
-Wat dat betekent: **de live site kan op dit moment geen bestelling
-aannemen en niemand kan inloggen.** Het is nu een folder. Alles wat
-hieronder "af" heet — terugroepberichten, herinneringen, verzendmail —
-werkt lokaal en kan in productie niet draaien zolang dit niet staat.
-
-Dit is niet stuk gegaan door recent werk; `/account` raakt geen van de
-nieuwe kolommen. De productiedatabase is vermoedelijk nooit aangemaakt: de
-database die eerder is opgezet draait op Postgres.app op deze Mac, en die is
-vanuit Vercel niet bereikbaar.
-
-Te doen, in deze volgorde:
-
-1. Managed Postgres aanmaken in eu-central-1 (Vercel → Storage → Neon).
-   Zie `DEPLOY.md` §2.
-2. `DATABASE_URL` in Vercel zetten voor alle omgevingen.
-3. Migraties draaien tegen die database:
-   `DATABASE_URL="<prod>" npm run db:migrate` — inclusief migratie `0001`,
-   die `orders.verzonden_op` en `orders.track_and_trace` toevoegt. Zonder
-   die stap valt het bestellingenscherm om zodra iemand inlogt.
-4. Beheerdersaccount aanmaken: `DATABASE_URL="<prod>" npm run db:admin`.
-5. Opnieuw controleren dat `/account` een 200 geeft.
-
 ## Blokkerend vóór livegang
 
 Zonder deze punten mag de webshop niet open.
 
 | Wat | Waarom | Wie |
 |---|---|---|
-| Productiedatabase (zie hierboven) | Zonder database geen bestellingen en geen inloggen | klant |
-| Bedrijfsgegevens: statutaire naam, KvK, btw-id, adres, telefoon, e-mail | Wettelijk verplicht in footer, op `/contact`, in de algemene voorwaarden en op het herroepingsformulier. Staat nu overal als `[VERIFY]` | klant |
-| Juridische teksten laten toetsen | AV, privacyverklaring, cookiebeleid en garantie zijn opgezette concepten met een zichtbare "nog niet definitief"-melding | jurist |
-| `blusbox.nl` verifiëren in Resend | Zolang dat niet is gebeurd verstuurt Resend alleen naar het eigen accountadres — een echte klant krijgt niets | klant |
-| SPF aanvullen voor Resend | Huidig record `v=spf1 a mx -all` autoriseert Resend niet | klant |
-| Stripe-webhook registreren in productie | `stripe listen` werkt alleen lokaal. Zie DEPLOY.md §4b | klant |
+| Juridische teksten laten toetsen | AV, privacyverklaring, cookiebeleid en garantie zijn nu volledig ingevuld, maar niet door een jurist gezien. De "nog niet definitief"-melding staat er nog | jurist |
+| Overstappen op MailerSend | De code praat nu met Resend. Zolang er geen geverifieerd domein is, komt er bij een echte klant geen bevestiging aan | klant + bouw |
+| Stripe live zetten en de webhook registreren | `stripe listen` werkt alleen lokaal. Zie DEPLOY.md §4b | klant |
 | Stripe-weergavenaam staat op "Aegis supply" | Dat staat op de betaalpagina en het bankafschrift van de klant | klant |
-| API-sleutels roteren | Stripe-testsleutel en Resend-sleutel zijn in een chattranscript beland | klant |
-| `NEXT_PUBLIC_SITE_URL` in Vercel zetten | Werkt nu ook zonder, via het productiedomein van Vercel, maar expliciet is beter — en nodig zodra het domein wijzigt | klant |
-| Kiezen: apex of www als hoofddomein | Nu bedient `www.blusbox.nl` de site en stuurt de apex door. Prima, maar leg de keuze vast | klant |
+| API-sleutels roteren | Een Stripe-**live**-sleutel en een Resend-sleutel zijn in een chattranscript beland. Rol ze om vóór livegang | klant |
 
-## Productgegevens die ontbreken
+## Productiedatabase (af)
+
+Neon Postgres, regio Frankfurt (`eu-central-1`), gratis plan, gekoppeld aan
+het Vercel-project `blusbox`. Previews krijgen een eigen databasebranch, zodat
+een testbestelling nooit in de echte data belandt. Migraties gedraaid, de
+catalogus staat erin en er is een beheerdersaccount op `info@blusbox.nl`.
+
+Neon Auth staat uit: wij gebruiken Auth.js met een eigen `users`-tabel, en
+twee inlogsystemen naast elkaar is vragen om problemen.
+
+Ook gezet in Vercel: `AUTH_SECRET`, `CRON_SECRET`, `NEXT_PUBLIC_SITE_URL`,
+`MAIL_CONTACT` en `CONTACT_TELEFOON`.
+
+## Productgegevens die nog ontbreken
 
 | Wat | Waar |
 |---|---|
-| UN-nummer en ADR-klasse | `lib/catalogus.ts`, picklijsten, `/verzending` |
-| Verzendtarief, levertijd, maximum aantal per zending | `lib/verzending.ts`, `/verzending` |
-| Prijs montageset en staffelprijzen multipack | `lib/catalogus.ts` |
-| Voorraad en levertijd op de PDP | `/blusbox` |
-| Benodigde modulebreedte op de DIN-rail | `/blusbox`, `/installatie` |
-| Conformiteitsverklaring, SDS, productblad, handleiding | `/downloads` |
+| Conformiteitsverklaring, veiligheidsinformatieblad, productblad, handleiding | `/downloads` — staan nu als "nog niet beschikbaar" |
+| Bronnen bij de claims over werkingsprincipe en oorzaken van kastbranden | `/hoe-het-werkt`, `/meterkastbrand` |
 | Artikelnummer Arbobesluit voor consequentiebeperkende maatregelen | `/zakelijk` |
-| Naam en achtergrond oprichter | `/over-ons` |
+
+## Gevaarlijke goederen — eruit gehaald, met één kanttekening
+
+Op verzoek van de klant is de hele gevaarlijke-goederenclassificatie uit het
+systeem verwijderd: geen UN-nummer, geen ADR-klasse, geen maximum per
+zending, geen vervoersdocumenten, geen waarschuwingen in mails en op
+pagina's. Drieëntwintig bestanden geraakt, plus een migratie die de drie
+kolommen uit `products` haalt.
+
+**Kanttekening voor later.** Condensed-aerosolmodules krijgen van
+fabrikanten vaak wél een classificatie (UN0432 of UN3268 komt veel voor).
+Levert de leverancier alsnog een veiligheidsinformatieblad of een
+ADR-classificatie aan, dan moet dit terug — vervoerders en verzekeraars gaan
+daarop af, en een zending die verkeerd is aangemeld kan blijven staan. De
+git-historie tot commit `22708c1` bevat de volledige oude implementatie.
 
 ## Techniek nog te doen
 

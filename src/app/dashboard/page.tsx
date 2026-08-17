@@ -69,8 +69,8 @@ export default async function DashboardOverzicht() {
         />
         <Tegel
           label="Conversie"
-          waarde="[VERIFY]"
-          toelichting="Vereist bezoekersstatistiek (stap 11)"
+          waarde="—"
+          toelichting="Er staat geen bezoekersstatistiek op de site"
         />
       </div>
 

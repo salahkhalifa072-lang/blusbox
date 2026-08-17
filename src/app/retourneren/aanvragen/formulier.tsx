@@ -54,9 +54,9 @@ export function RetourFormulier() {
         <div className="mt-6 rounded-xl border border-signaal bg-signaal/15 p-4">
           <p className="text-sm font-medium">Stuur de module nog niet terug</p>
           <p className="mt-1 text-sm">
-            Blusbox valt onder een classificatie voor gevaarlijke goederen. Je
-            ontvangt van ons de retourinstructies en de benodigde papieren; een
-            zending zonder die documenten kan worden geweigerd.
+            Meld je retour hier aan, dan ontvang je het retouradres en de
+            instructies. Zo weten wij welk pakket eraan komt en kunnen we je
+            geld sneller terugstorten.
           </p>
         </div>
 

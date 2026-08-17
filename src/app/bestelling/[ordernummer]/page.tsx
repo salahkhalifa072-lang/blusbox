@@ -149,8 +149,8 @@ export default async function BestellingPage({
               modelformulier voor herroeping.
             </li>
             <li>
-              De zending wordt vervoerd als gevaarlijk goed; de
-              vervoersdocumenten gaan mee in het pakket.
+              Je pakket wordt binnen één werkdag bezorgd. Zodra het onderweg
+              is, krijg je bericht.
             </li>
             <li>
               Bij levering krijg je het lotnummer van je module. Registreer de

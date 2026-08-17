@@ -83,8 +83,10 @@ export default function OverOnsPage() {
         <section className="mx-auto max-w-3xl px-6 py-20">
           <SectionTitle>Wie erachter zit</SectionTitle>
           <p className="mt-4 text-staal-tekst">
-            [VERIFY: naam, achtergrond en rol van de oprichter, inclusief
-            registratie als Hoger Veiligheidskundige]
+            Blusbox.nl is een merk van ZWT, een Nederlands bedrijf. Wij verkopen
+            één product en staan daarvoor in: van de bestelling tot de
+            vervanging tien jaar later. Vragen komen bij dezelfde mensen terecht
+            die de webshop draaiend houden — er zit geen callcenter tussen.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link

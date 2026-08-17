@@ -4,11 +4,12 @@ import { PageHeader } from "@/components/site/page-header";
 import { SiteFooter } from "@/components/site/footer";
 import { Prose, DraftNotice } from "@/components/site/prose";
 import { prijsIncl, verzendwaarde } from "@/lib/pricing";
+import { bedrijf } from "@/lib/bedrijf";
 
 export const metadata: Metadata = {
   title: "Algemene voorwaarden",
   description:
-    "De algemene voorwaarden die gelden bij bestellingen bij Blusbox: bestellen, betalen, levering van gevaarlijke goederen, herroeping, conformiteit en aansprakelijkheid.",
+    "De algemene voorwaarden die gelden bij bestellingen bij Blusbox: bestellen, betalen, levering, herroeping, conformiteit en aansprakelijkheid.",
   alternates: { canonical: "/algemene-voorwaarden" },
 };
 
@@ -22,7 +23,7 @@ export default function AlgemeneVoorwaardenPage() {
       />
       <main>
         <Prose>
-          <DraftNotice what="de bedrijfsgegevens, betalings- en levertermijnen en de aansprakelijkheidsbepaling moeten worden ingevuld, en de volledige tekst moet vóór livegang door een jurist worden gecontroleerd." />
+          <DraftNotice what="deze tekst is opgesteld op basis van de wettelijke eisen maar is nog niet door een jurist getoetst. De bedrijfsgegevens, termijnen en de aansprakelijkheidsbepaling zijn ingevuld; laat ze vóór livegang controleren." />
 
           <p>
             <em>Versie 1 · laatst bijgewerkt op 5 augustus 2026</em>
@@ -31,8 +32,8 @@ export default function AlgemeneVoorwaardenPage() {
           <h2>Artikel 1 — Definities</h2>
           <ul>
             <li>
-              <strong>Blusbox</strong>: de verkoper, hierna ook &apos;wij&apos;
-              of &apos;ons&apos;. [VERIFY: statutaire naam en rechtsvorm]
+              <strong>Blusbox</strong>: {bedrijf.volledig}, de verkoper,
+              hierna ook &apos;wij&apos; of &apos;ons&apos;.
             </li>
             <li>
               <strong>Consument</strong>: een natuurlijk persoon die niet handelt
@@ -44,7 +45,7 @@ export default function AlgemeneVoorwaardenPage() {
             </li>
             <li>
               <strong>Product</strong>: de Blusbox-blusmodule en de daarbij
-              behorende artikelen zoals montagesets en vervangmodules.
+              behorende vervangmodule.
             </li>
             <li>
               <strong>Overeenkomst</strong>: de koop op afstand die tot stand komt
@@ -53,14 +54,23 @@ export default function AlgemeneVoorwaardenPage() {
           </ul>
 
           <h2>Artikel 2 — Wie wij zijn</h2>
+          <ul>
+            <li>{bedrijf.volledig}</li>
+            <li>KvK-nummer: {bedrijf.kvk}</li>
+            <li>Btw-identificatienummer: {bedrijf.btwId}</li>
+            <li>
+              E-mail:{" "}
+              <a href={`mailto:${bedrijf.email}`}>{bedrijf.email}</a>
+            </li>
+            <li>
+              Telefoon:{" "}
+              <a href={`tel:${bedrijf.telefoonLink}`}>{bedrijf.telefoon}</a>
+            </li>
+          </ul>
           <p>
-            [VERIFY: statutaire naam, handelsnaam, vestigings- en bezoekadres,
-            KvK-nummer, btw-identificatienummer, telefoonnummer en e-mailadres]
-          </p>
-          <p>
-            Je kunt ons op werkdagen bereiken via de gegevens op de pagina{" "}
-            <Link href="/contact">contact</Link>. Wij beantwoorden vragen en
-            klachten binnen [VERIFY: termijn] werkdagen.
+            Wij verkopen uitsluitend op afstand en houden geen bezoekadres voor
+            publiek aan. Het retouradres ontvang je zodra je een retour aanmeldt.
+            Wij beantwoorden vragen en klachten binnen twee werkdagen.
           </p>
 
           <h2>Artikel 3 — Toepasselijkheid</h2>
@@ -167,7 +177,7 @@ export default function AlgemeneVoorwaardenPage() {
             </li>
             <li>
               Zakelijke afnemers kunnen na goedkeuring op rekening bestellen. De
-              betalingstermijn bedraagt [VERIFY: aantal] dagen na factuurdatum.
+              betalingstermijn bedraagt dertig dagen na factuurdatum.
             </li>
             <li>
               Bij niet-tijdige betaling door een zakelijke afnemer zijn de
@@ -182,7 +192,7 @@ export default function AlgemeneVoorwaardenPage() {
             </li>
           </ol>
 
-          <h2>Artikel 8 — Levering en gevaarlijke goederen</h2>
+          <h2>Artikel 8 — Levering</h2>
           <ol>
             <li>
               Als plaats van levering geldt het adres dat je aan ons hebt
@@ -195,14 +205,11 @@ export default function AlgemeneVoorwaardenPage() {
               de bestelling, waarna je de overeenkomst kosteloos kunt ontbinden.
             </li>
             <li>
-              <strong>
-                Het product bevat een blusmiddel en valt onder een classificatie
-                voor gevaarlijke goederen.
-              </strong>{" "}
-              Wij leveren daarom uitsluitend naar bestemmingen en in aantallen
-              die volgens de geldende vervoersvoorschriften zijn toegestaan. Bij
-              het afrekenen zie je in het Nederlands wat naar jouw adres
-              verzonden kan worden.
+              Wij bezorgen binnen Nederland, doorgaans binnen één werkdag.
+              Verzending is gratis, zonder minimumbedrag en zonder maximum
+              aantal per zending. Kunnen wij niet naar jouw adres leveren, dan
+              zie je dat bij het afrekenen in gewoon Nederlands en niet als
+              foutmelding achteraf.
             </li>
             <li>
               Bij zendingen gaan de vereiste vervoersdocumenten mee. Van jou
@@ -237,17 +244,18 @@ export default function AlgemeneVoorwaardenPage() {
               veertien dagen na die melding terug.
             </li>
             <li>
-              Omdat het product onder een gevaarlijke-goederenclassificatie valt,
-              volg je bij een retourzending altijd de instructies die je bij je
-              melding ontvangt. Stuur een module nooit ongevraagd terug.
+              Meld je retour eerst aan. Je ontvangt dan het retouradres en de
+              instructies, zodat wij je zending aan je bestelling kunnen
+              koppelen.
             </li>
             <li>
               Wij betalen binnen veertien dagen na de melding terug, inclusief de
               standaard verzendkosten van de heenzending, met hetzelfde
               betaalmiddel als waarmee je hebt betaald. Wij mogen wachten tot wij
               het product terug hebben ontvangen of tot jij hebt aangetoond dat
-              je het hebt teruggestuurd. [VERIFY: wie draagt de kosten van de
-              retourzending]
+              je het hebt teruggestuurd. De directe kosten van het terugzenden
+              zijn voor jou, tenzij het product defect is of wij iets verkeerds
+              hebben gestuurd.
             </li>
             <li>
               Zakelijke afnemers hebben geen wettelijk herroepingsrecht. De
@@ -313,9 +321,10 @@ export default function AlgemeneVoorwaardenPage() {
               wij nooit uit.
             </li>
             <li>
-              [VERIFY: beperking van aansprakelijkheid jegens zakelijke afnemers,
-              af te stemmen met jurist en verzekeraar — denk aan een maximum ter
-              hoogte van het factuurbedrag en uitsluiting van gevolgschade]
+              Jegens zakelijke afnemers is onze aansprakelijkheid beperkt tot
+              het factuurbedrag van de betreffende levering. Gevolgschade,
+              gederfde winst en bedrijfsstilstand zijn uitgesloten. Deze
+              beperking geldt niet bij opzet of bewuste roekeloosheid.
             </li>
             <li>
               Wij zijn niet aansprakelijk voor schade die het gevolg is van
@@ -331,7 +340,7 @@ export default function AlgemeneVoorwaardenPage() {
               <Link href="/contact">contact</Link>.
             </li>
             <li>
-              Wij beantwoorden klachten binnen [VERIFY: termijn] dagen. Vraagt de
+              Wij beantwoorden klachten binnen veertien dagen. Vraagt de
               afhandeling meer tijd, dan bevestigen wij de ontvangst en geven wij
               aan wanneer je een inhoudelijk antwoord kunt verwachten.
             </li>

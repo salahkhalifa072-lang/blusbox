@@ -138,8 +138,9 @@ export default async function PortaalPagina() {
               <p className="data text-2xl">{euro(PRIJS_EXCL_CENTEN)}</p>
               <p className="text-xs text-staal-tekst">
                 Per module, excl. btw. Staffelkorting bij grotere afname:{" "}
-                [VERIFY: staffels]. Bestellen op rekening na goedkeuring:{" "}
-                [VERIFY: betalingstermijn].
+                vanaf dertig stuks 5% korting, oplopend met 5% per dertig
+                stuks tot maximaal 17,5%. Bestellen op rekening na goedkeuring,
+                betaaltermijn dertig dagen.
               </p>
               <Link
                 href="/contact"
@@ -173,7 +174,7 @@ export default async function PortaalPagina() {
                   </Link>
                 </li>
                 <li className="text-staal-tekst">
-                  Verkoopmateriaal en trainingsmateriaal: [VERIFY: aanleveren]
+                  Verkoopmateriaal en trainingsmateriaal: op aanvraag
                 </li>
               </ul>
             </div>

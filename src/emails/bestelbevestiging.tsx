@@ -210,10 +210,9 @@ export function Bestelbevestiging({
             }}
           >
             <Text style={{ margin: 0, fontSize: "13px", lineHeight: 1.6 }}>
-              <strong>Stuur de module nooit ongevraagd terug.</strong> Blusbox
-              valt onder een classificatie voor gevaarlijke goederen. Meld je
-              retour eerst aan; je ontvangt dan de instructies en de
-              vervoersdocumenten.
+              <strong>Meld een retour eerst aan.</strong> Dan weten wij welk
+              pakket eraan komt en ontvang je het retouradres en de
+              instructies. Ongevraagd terugsturen kost alleen maar tijd.
             </Text>
           </Section>
 

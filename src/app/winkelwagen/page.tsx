@@ -85,11 +85,6 @@ export default async function WinkelwagenPage() {
                   <p className="mt-1 text-sm text-staal-tekst">
                     {regel.item.omschrijving}
                   </p>
-                  {regel.item.gevaarlijkeGoederen ? (
-                    <p className="data mt-2 text-xs text-staal-tekst">
-                      Wordt vervoerd als gevaarlijk goed
-                    </p>
-                  ) : null}
                 </div>
 
                 <div className="flex items-center gap-4">

@@ -7,7 +7,7 @@ import { Prose, DraftNotice } from "@/components/site/prose";
 export const metadata: Metadata = {
   title: "Retourneren",
   description:
-    "Een bestelling terugsturen: melden via je account, retourinstructies voor gevaarlijke goederen en terugbetaling.",
+    "Een bestelling terugsturen: melden via je account, retourinstructies ontvangen en terugbetaling binnen veertien dagen.",
   alternates: { canonical: "/retourneren" },
 };
 
@@ -17,7 +17,7 @@ export default function RetournerenPage() {
       <PageHeader
         eyebrow="service"
         title="Retourneren"
-        lead="Melden, instructies afwachten, terugsturen. Omdat het product een gevaarlijke-goederenclassificatie heeft, wijkt de derde stap af van wat je van een gewone webshop gewend bent."
+        lead="Melden, instructies afwachten, terugsturen. Je hebt veertien dagen bedenktijd en hoeft geen reden op te geven."
       />
       <main>
         <Prose>
@@ -58,25 +58,26 @@ export default function RetournerenPage() {
             verwachten. Zie <Link href="/garantie">garantie en conformiteit</Link>.
           </p>
 
-          <h2>Waarom retourneren hier anders werkt</h2>
+          <h2>Meld je retour eerst aan</h2>
           <p>
-            Blusbox bevat een blusmiddel en valt daarmee onder een classificatie
-            voor gevaarlijke goederen. Een module mag daardoor niet zomaar in een
-            gewone pakketzending of via een willekeurig afhaalpunt terug. Wij
-            geven je bij je melding de route die wél mag, inclusief de
-            benodigde vervoersdocumenten.
+            Bij je melding ontvang je het retouradres en de instructies. Dat is
+            geen formaliteit: zo weten wij welk pakket eraan komt, kunnen we het
+            aan jouw bestelling koppelen en sneller terugbetalen. Een pakket dat
+            onaangekondigd binnenkomt zonder afzender kost iedereen tijd.
           </p>
           <p>
-            Stuur een module dus nooit ongevraagd terug: zonder de juiste
-            papieren kan de zending worden geweigerd of onderweg blijven staan.
+            De kosten van de retourzending zijn voor jou, tenzij het product
+            defect is of wij iets verkeerds hebben gestuurd — in dat geval
+            regelen en betalen wij het retour.
           </p>
 
           <h2>Geactiveerde modules</h2>
           <p>
             Een module die is afgegaan, is verbruikt en kan niet worden
             geretourneerd of hergebruikt. Meld de activering in je account —
-            zowel voor de vervanging als voor het activeringsregister.
-            [VERIFY: route voor afvoer van een geactiveerde module]
+            zowel voor de vervanging als voor het activeringsregister. Gooi hem
+            niet bij het restafval; stuur hem naar ons terug, dan zorgen wij
+            voor de verwerking.
           </p>
         </Prose>
       </main>

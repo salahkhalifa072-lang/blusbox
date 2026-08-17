@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PageHeader, SectionTitle } from "@/components/site/page-header";
 import { KruimelData } from "@/components/site/gestructureerde-data";
 import { SiteFooter } from "@/components/site/footer";
+import { staffelOverzicht } from "@/lib/catalogus";
 import { SpecTable } from "@/components/ui/spec-table";
 import { ClaimSource } from "@/components/ui/claim-source";
 import { Reveal } from "@/components/ui/reveal";
@@ -164,8 +165,8 @@ export default function ZakelijkPage() {
                   meegaat.
                 </p>
                 <p className="data mt-4 text-xs text-staal-tekst">
-                  Over dekking of premiekorting doen wij geen uitspraken.
-                  [VERIFY: afspraken met verzekeraars]
+                  Over dekking of premiekorting doen wij geen uitspraken; dat
+                  is een zaak tussen u en uw verzekeraar.
                 </p>
               </div>
             </Reveal>
@@ -201,10 +202,17 @@ export default function ZakelijkPage() {
             <div>
               <SectionTitle>Staffelprijzen aanvragen</SectionTitle>
               <p className="mt-4 text-kastwit/70">
-                Zakelijke prijzen zijn exclusief btw en lopen in staffels. Voor
-                afname vanaf [VERIFY: minimumaantal] stellen wij een offerte op
-                met levertijd en verzendvoorwaarden per bestemming.
+                Zakelijke prijzen zijn exclusief btw. Vanaf dertig stuks loopt
+                de korting op met het aantal:
               </p>
+              <ul className="data mt-4 space-y-1 text-sm text-kastwit/70">
+                {staffelOverzicht().map((r) => (
+                  <li key={r.vanaf}>
+                    vanaf {r.vanaf} stuks — {String(r.korting).replace(".", ",")}%
+                    korting
+                  </li>
+                ))}
+              </ul>
               <p className="mt-4 text-kastwit/70">
                 Levering gaat op rekening na goedkeuring. Voor bestellingen
                 binnen de EU buiten Nederland verwerken wij btw-verlegging op
@@ -251,7 +259,8 @@ export default function ZakelijkPage() {
               >
                 <p className="data text-xs text-staal-tekst">{c}</p>
                 <p className="mt-3 text-sm text-staal-tekst">
-                  [VERIFY: case-omschrijving en resultaat]
+                  Wij zijn net begonnen. Zodra de eerste projecten zijn
+                  opgeleverd, staan ze hier — met cijfers, niet met verhalen.
                 </p>
               </div>
             ))}

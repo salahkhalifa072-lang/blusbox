@@ -55,9 +55,6 @@ beforeAll(async () => {
     slug: "blusbox",
     naam: "Blusbox",
     prijsExclBtwCenten: 2227,
-    gevaarlijkeGoederen: true,
-    unNummer: "UN0432",
-    adrKlasse: "1.4S",
   });
 
   await db.insert(lots).values([

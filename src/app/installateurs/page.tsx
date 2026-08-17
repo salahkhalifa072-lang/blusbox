@@ -84,7 +84,7 @@ export default function InstallateursPage() {
               </p>
               <ul className="data mt-6 space-y-2 text-xs text-railstaal">
                 <li>1. Aanvraag met KvK-nummer en btw-id</li>
-                <li>2. Beoordeling binnen [VERIFY: doorlooptijd]</li>
+                <li>2. Beoordeling binnen twee werkdagen</li>
                 <li>3. Toegang tot dealerportaal en bestellen op rekening</li>
               </ul>
               <div className="mt-8 flex flex-wrap gap-3">

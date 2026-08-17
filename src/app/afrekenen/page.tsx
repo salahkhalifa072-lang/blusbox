@@ -111,8 +111,8 @@ export default async function AfrekenenPage() {
             </dl>
 
             <p className="data mt-5 text-xs leading-relaxed text-staal-tekst">
-              De zending wordt vervoerd als gevaarlijk goed; de
-              vervoersdocumenten gaan mee in het pakket.
+              Verzending is gratis. Besteld op een werkdag vóór 16:00, dan gaat
+              je pakket dezelfde dag de deur uit.
             </p>
 
             <Link

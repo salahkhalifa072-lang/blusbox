@@ -60,7 +60,7 @@ export default function DownloadsPage() {
                 <p className="data mt-2 text-xs text-staal-tekst">{d.meta}</p>
               </div>
               <span className="data rounded-full border border-dashed border-railstaal px-4 py-2 text-xs text-staal-tekst">
-                [VERIFY: bestand]
+                nog niet beschikbaar
               </span>
             </li>
           ))}

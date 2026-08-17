@@ -60,11 +60,20 @@ describe("modelformulier voor herroeping", () => {
     }
   });
 
-  it("waarschuwt dat de module niet ongevraagd teruggestuurd mag worden", async () => {
-    // A consumer who posts an aerosol module without the transport papers
-    // can have the parcel refused; the form has to say so.
+  it("vraagt de retour eerst aan te melden", async () => {
+    // Zonder aanmelding komt er een pakket binnen dat aan geen bestelling
+    // te koppelen is; dat vertraagt de terugbetaling.
     const tekst = tekstUitPdf(await maakHerroepingsformulier());
-    expect(tekst).toContain("gevaarlijke goederen");
+    expect(tekst).toContain("aan");
+    expect(tekst).toMatch(/retouradres/i);
+  });
+
+  it("draagt de bedrijfsgegevens die het formulier vraagt", async () => {
+    const tekst = tekstUitPdf(await maakHerroepingsformulier());
+    expect(tekst).toContain("86275437");
+    expect(tekst).toContain("info@blusbox.nl");
+    // Geen placeholders meer op een wettelijk document.
+    expect(tekst).not.toContain("VERIFY");
   });
 
   it("zegt dat gebruik van het formulier niet verplicht is", async () => {

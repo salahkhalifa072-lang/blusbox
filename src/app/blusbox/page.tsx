@@ -6,12 +6,12 @@ import { SiteFooter } from "@/components/site/footer";
 import { SectionTitle } from "@/components/site/page-header";
 import { KruimelData } from "@/components/site/gestructureerde-data";
 import { SpecTable } from "@/components/ui/spec-table";
-import { ClaimSource } from "@/components/ui/claim-source";
 import { FaqList } from "@/components/ui/accordion";
 import { VideoBlock } from "@/components/ui/video-block";
 import { LogoBadge } from "@/components/site/logo";
 import { productFacts } from "@/lib/product-facts";
 import { faqUitgelicht } from "@/lib/faq";
+import { LEVERTIJD } from "@/lib/verzending";
 import { voegToeAanWagen } from "@/app/winkelwagen/acties";
 import {
   gratisVerzending,
@@ -47,7 +47,6 @@ const jsonLd = {
     "Automatische condensed-aerosol blusmodule voor de meterkast. Zelfactiverend bij 170 °C, zonder stroom of bediening.",
   brand: { "@type": "Brand", name: "Blusbox" },
   category: "Brandbeveiliging",
-  // [VERIFY: gtin en beschikbaarheid]
   offers: {
     "@type": "Offer",
     price: (PRIJS_INCL_CENTEN / 100).toFixed(2),
@@ -176,8 +175,8 @@ export default function BlusboxPage() {
                 </p>
 
                 <div className="data mt-4 flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-railstaal">
-                  <span>Voorraad: [VERIFY]</span>
-                  <span>Levertijd: [VERIFY]</span>
+                  <span>Op voorraad</span>
+                  <span>Levertijd: {LEVERTIJD}</span>
                   <span>Lotnummer bij levering</span>
                 </div>
 
@@ -247,7 +246,6 @@ export default function BlusboxPage() {
             </div>
             <div>
               <SpecTable rows={productFacts} />
-              <ClaimSource label="[VERIFY: conformiteitsverklaring en productblad koppelen]" />
 
               <h3 className="font-display mt-12 text-xl">Wat je ontvangt</h3>
               <ul className="mt-4 space-y-2 text-sm text-staal-tekst">
@@ -278,7 +276,7 @@ export default function BlusboxPage() {
                 {
                   nr: "02",
                   t: "Meet de vrije ruimte",
-                  b: "Je hebt aaneengesloten vrije breedte op de rail nodig: [VERIFY: benodigde modulebreedte].",
+                  b: "De module klikt op elke standaard DIN-rail. Er is geen bijzondere breedte of adapter nodig.",
                 },
                 {
                   nr: "03",

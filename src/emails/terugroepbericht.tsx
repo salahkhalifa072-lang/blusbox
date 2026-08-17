@@ -140,9 +140,9 @@ export function Terugroepbericht({
           </Heading>
 
           <Text style={{ margin: "0 0 10px", fontSize: "14px", lineHeight: 1.6 }}>
-            <strong>1. Laat de module zitten.</strong> Haal hem niet zelf uit de
-            meterkast en gooi hem niet weg. De module bevat een blusmiddel en
-            valt onder de regels voor gevaarlijke goederen.
+            <strong>1. Laat de module zitten.</strong> Haal hem niet zelf uit
+            de meterkast en gooi hem niet bij het restafval. Wij nemen hem
+            terug zodra de vervangende module bij je is.
           </Text>
           <Text style={{ margin: "0 0 10px", fontSize: "14px", lineHeight: 1.6 }}>
             <strong>2. Bevestig dat je dit bericht hebt gelezen.</strong> Dat
@@ -151,8 +151,7 @@ export function Terugroepbericht({
           </Text>
           <Text style={{ margin: "0 0 10px", fontSize: "14px", lineHeight: 1.6 }}>
             <strong>3. Je krijgt kosteloos een vervangende module</strong>, met
-            instructies en de vervoersdocumenten om de oude terug te sturen. Je
-            hoeft niets te betalen.
+            een retourinstructie voor de oude. Je hoeft niets te betalen.
           </Text>
 
           <Section style={{ margin: "28px 0 0", textAlign: "center" }}>

@@ -112,12 +112,12 @@ export const products = pgTable(
     /** 0.21 stored as 21 to keep it an integer percentage */
     btwPercentage: integer("btw_percentage").notNull().default(21),
 
-    // §8 dangerous goods — modelled properly, not as a boolean afterthought
-    gevaarlijkeGoederen: boolean("gevaarlijke_goederen")
-      .notNull()
-      .default(false),
-    unNummer: text("un_nummer"),
-    adrKlasse: text("adr_klasse"),
+    /**
+     * Vrije voorraad. Het afrekenen mag niet meer verkopen dan er ligt;
+     * een backorder op een veiligheidsproduct is een belofte die je niet
+     * waar kunt maken.
+     */
+    voorraad: integer("voorraad").notNull().default(0),
 
     actief: boolean("actief").notNull().default(true),
     aangemaaktOp: timestamp("aangemaakt_op", { withTimezone: true })

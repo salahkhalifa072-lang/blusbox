@@ -19,10 +19,9 @@ import {
  * De bestelbevestiging belooft letterlijk "zodra het pakket onderweg is,
  * laten we het weten". Dit is dat bericht.
  *
- * Twee dingen die hier per se in moeten en die een standaard verzendmail
- * niet heeft: dat het pakket als gevaarlijk goed reist (de bezorger kan er
- * naar vragen, en het pakket draagt een label), en dat de bedenktijd pas
- * begint bij ontvangst — niet nu.
+ * Eén ding moet hier per se in en heeft een standaard verzendmail niet:
+ * dat de bedenktijd pas begint bij ontvangst, niet vandaag. Anders rekent
+ * de klant vanaf de verkeerde datum.
  */
 
 export type VerzendberichtProps = {
@@ -146,22 +145,6 @@ export function Verzendbericht({
               {regel}
             </Text>
           ))}
-
-          <Section
-            style={{
-              backgroundColor: "#faf3d4",
-              border: `1px solid ${kleur.signaal}`,
-              borderRadius: "10px",
-              padding: "14px 16px",
-              margin: "24px 0 0",
-            }}
-          >
-            <Text style={{ margin: 0, fontSize: "13px", lineHeight: 1.6 }}>
-              <strong>Het pakket reist als gevaarlijk goed.</strong> Er zit een
-              label op en de vervoersdocumenten gaan mee in de doos. Bewaar die
-              papieren; je hebt ze nodig als je de module ooit terugstuurt.
-            </Text>
-          </Section>
 
           <Hr style={{ borderColor: kleur.rail, margin: "28px 0" }} />
 

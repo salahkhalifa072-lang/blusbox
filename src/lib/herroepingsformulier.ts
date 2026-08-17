@@ -1,4 +1,5 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { bedrijf } from "./bedrijf";
 
 /**
  * The statutory model withdrawal form (§8).
@@ -13,11 +14,19 @@ import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
  * itself instructs the trader to supply.
  */
 
-/** [VERIFY] until the client supplies the company registration details. */
+/**
+ * De gegevens die het formulier zelf vraagt in te vullen.
+ *
+ * Geen vestigingsadres: dat publiceert de klant niet. Het formulier blijft
+ * daarmee bruikbaar — de consument stuurt het naar het e-mailadres, en het
+ * retouradres krijgt hij zodra hij zijn retour aanmeldt. Dat is precies het
+ * moment waarop hij het nodig heeft.
+ */
 export const HANDELAAR = {
-  naam: "[VERIFY: statutaire naam]",
-  adres: "[VERIFY: vestigingsadres]",
-  email: "[VERIFY: e-mailadres]",
+  naam: bedrijf.volledig,
+  kvk: `KvK ${bedrijf.kvk}`,
+  telefoon: bedrijf.telefoon,
+  email: bedrijf.email,
 } as const;
 
 const REGELS: { tekst: string; ruimte: number }[] = [
@@ -137,8 +146,7 @@ export async function maakHerroepingsformulier(): Promise<Uint8Array> {
     // rather than left as blank rules for the consumer to guess at.
     if (tekst.startsWith("— Aan")) {
       schrijf(HANDELAAR.naam, { grootte: 10, font: vet });
-      schrijf(HANDELAAR.adres, { grootte: 10 });
-      schrijf(HANDELAAR.email, { grootte: 10, naRegel: 10 });
+          schrijf(HANDELAAR.email, { grootte: 10, naRegel: 10 });
       continue;
     }
 
@@ -156,7 +164,8 @@ export async function maakHerroepingsformulier(): Promise<Uint8Array> {
   lijn();
   schrijf("Stuur dit formulier naar:", { font: vet, grootte: 10, naRegel: 4 });
   schrijf(HANDELAAR.naam, { grootte: 10 });
-  schrijf(HANDELAAR.adres, { grootte: 10 });
+  schrijf(HANDELAAR.kvk, { grootte: 10 });
+  schrijf(HANDELAAR.telefoon, { grootte: 10 });
   schrijf(HANDELAAR.email, { grootte: 10, naRegel: 14 });
 
   schrijf(
@@ -164,7 +173,7 @@ export async function maakHerroepingsformulier(): Promise<Uint8Array> {
     { grootte: 9, kleur: grijs },
   );
   schrijf(
-    "Let op: de Blusbox-module valt onder een classificatie voor gevaarlijke goederen. Stuur hem daarom nooit ongevraagd terug — je ontvangt retourinstructies na je melding.",
+    "Meld je retour eerst aan, dan ontvang je het retouradres en de instructies. Zo kunnen wij je zending aan je bestelling koppelen en sneller terugbetalen.",
     { grootte: 9, kleur: grijs },
   );
 

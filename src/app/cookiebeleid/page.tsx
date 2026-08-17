@@ -34,26 +34,28 @@ export default function CookiebeleidPage() {
 
           <h2>Analytische cookies</h2>
           <p>
-            Wij willen weten welke pagina&apos;s bezoekers helpen en welke niet.
-            Dat doen wij met een instelling die zo min mogelijk gegevens
-            verzamelt. [VERIFY: gekozen analysedienst en of die privacyvriendelijk
-            is ingericht]
+            Die gebruiken wij niet. Er staat geen bezoekersstatistiek op deze
+            site — geen Google Analytics, geen alternatief. Wij weten dus niet
+            welke pagina&apos;s je bekijkt.
           </p>
 
           <h2>Marketingcookies</h2>
           <p>
-            Alleen na jouw toestemming, en alleen als er daadwerkelijk
-            advertentiecampagnes lopen. [VERIFY: worden er
-            advertentieplatformen gebruikt?]
+            Die gebruiken wij ook niet. Er lopen geen advertentiecampagnes en er
+            staan geen trackers van advertentieplatformen op deze site.
           </p>
 
           <h2>Je keuze aanpassen</h2>
           <p>
-            Je keuze kun je op elk moment wijzigen via de cookie-instellingen.
-            Je kunt cookies ook verwijderen via je browser; functionele cookies
-            worden dan opnieuw geplaatst zodra je de site gebruikt.
-            [VERIFY: link naar cookie-instellingen zodra de consentoplossing is
-            gekoppeld]
+            Omdat wij alleen functionele cookies plaatsen — je winkelwagen en je
+            inlogsessie — is er niets om toestemming voor te vragen en dus ook
+            geen keuze om aan te passen. Je kunt cookies verwijderen via je
+            browser; de functionele cookies worden dan opnieuw geplaatst zodra
+            je de site gebruikt.
+          </p>
+          <p>
+            Gaan wij later wel meten of adverteren, dan vragen wij daar vooraf
+            toestemming voor en past deze pagina zich daarop aan.
           </p>
 
           <h2>Meer weten</h2>

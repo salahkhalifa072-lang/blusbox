@@ -32,9 +32,6 @@ async function main() {
       omschrijving: item.omschrijving,
       prijsExclBtwCenten: item.prijsExclBtwCenten,
       btwPercentage: item.btwPercentage,
-      gevaarlijkeGoederen: item.gevaarlijkeGoederen,
-      unNummer: item.unNummer,
-      adrKlasse: item.adrKlasse,
       actief: item.actief,
     };
 

@@ -129,28 +129,27 @@ describe("wagenberekening", () => {
     expect(overzicht.totalen.verzendkostenCenten).toBe(0);
   });
 
-  it("telt modules voor de vervoersregels", () => {
+  it("telt de modules in de wagen", () => {
     const overzicht = berekenWagen(
       {
         regels: [
           { slug: "blusbox", aantal: 2 },
-          { slug: "installateur-multipack", aantal: 1 },
+          { slug: "vervangmodule", aantal: 1 },
         ],
       },
       { landcode: "NL", isZakelijk: true, btwIdGevalideerd: false },
     );
-    // 2 losse modules + een doos van tien
-    expect(overzicht.aantalModules).toBe(12);
+    expect(overzicht.aantalModules).toBe(3);
   });
 
-  it("blokkeert afrekenen als de zending niet vervoerd kan worden", () => {
+  it("legt geen maximum meer op het aantal", () => {
+    // Er is geen vervoersbeperking; honderd stuks mag gewoon.
     const overzicht = berekenWagen(
-      { regels: [{ slug: "installateur-multipack", aantal: 2 }] },
+      { regels: [{ slug: "blusbox", aantal: 100 }] },
       { landcode: "NL", isZakelijk: true, btwIdGevalideerd: false },
     );
-    // 20 modules > maximum per zending
-    expect(overzicht.verzending.toegestaan).toBe(false);
-    expect(overzicht.afrekenbaar).toBe(false);
+    expect(overzicht.verzending.toegestaan).toBe(true);
+    expect(overzicht.afrekenbaar).toBe(true);
   });
 
   it("blokkeert afrekenen naar een land waar wij niet leveren", () => {

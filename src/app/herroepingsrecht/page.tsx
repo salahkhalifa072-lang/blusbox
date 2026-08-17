@@ -51,8 +51,8 @@ export default function HerroepingsrechtPage() {
               retourinstructies.
             </li>
             <li>
-              Stuur het product binnen veertien dagen na je melding terug.
-              [VERIFY: retouradres]
+              Stuur het product binnen veertien dagen na je melding terug naar
+              het adres dat je bij je bevestiging hebt gekregen.
             </li>
           </ol>
 
@@ -69,14 +69,17 @@ export default function HerroepingsrechtPage() {
             terug hebben ontvangen, of tot jij hebt aangetoond dat je het hebt
             teruggestuurd.
           </p>
-          <p>[VERIFY: wie draagt de kosten van de retourzending]</p>
+          <p>
+            De directe kosten van het terugzenden zijn voor jou. Is het product
+            defect of hebben wij iets verkeerds gestuurd, dan regelen en betalen
+            wij het retour.
+          </p>
 
           <h2>Let op bij verzending</h2>
           <p>
-            Blusbox valt onder een classificatie voor gevaarlijke goederen. Dat
-            betekent dat een retourzending niet zomaar via elke vervoerder of
-            elk pakketpunt kan. Volg daarom altijd de retourinstructies die je
-            bij je melding krijgt.{" "}
+            Meld je retour eerst aan; je ontvangt dan het retouradres en de
+            instructies. Zo kunnen wij je zending aan je bestelling koppelen en
+            sneller terugbetalen.{" "}
             <Link href="/verzending">Meer over verzending</Link>.
           </p>
 

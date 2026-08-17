@@ -23,7 +23,7 @@ const stappen = [
   {
     nr: "02",
     t: "Kies de plaats op de rail",
-    b: "Blusbox klikt op dezelfde DIN-rail als je automaten. Houd de vrije breedte aan die in de handleiding staat: [VERIFY: benodigde modulebreedte].",
+    b: "Blusbox klikt op dezelfde DIN-rail als je automaten. De module is universeel: er is geen bijzondere breedte, beugel of adapter nodig.",
   },
   {
     nr: "03",

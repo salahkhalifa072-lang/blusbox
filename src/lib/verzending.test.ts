@@ -1,13 +1,14 @@
 import { describe, expect, it } from "vitest";
-import {
-  MAX_MODULES_PER_ZENDING,
-  adrPapieren,
-  beoordeelVerzending,
-} from "./verzending";
+import { LEVERTIJD, beoordeelVerzending } from "./verzending";
 
 /**
- * §15: "checkout cannot accept an order it cannot ship." These are the
- * cases that must refuse, and they must refuse in Dutch with a reason.
+ * §15: "het afrekenen mag geen bestelling aannemen die we niet kunnen
+ * leveren." Dit zijn de gevallen die moeten weigeren, en ze moeten in het
+ * Nederlands weigeren met een reden.
+ *
+ * De module draagt geen gevaarlijke-goederenclassificatie, dus er is geen
+ * maximum per zending en geen beperking die uit het product voortkomt. Wat
+ * overblijft is waar we bezorgen.
  */
 
 describe("verzendbeoordeling", () => {
@@ -19,75 +20,51 @@ describe("verzendbeoordeling", () => {
     expect(oordeel.toegestaan).toBe(true);
   });
 
-  it("weigert België met uitleg dat het in voorbereiding is", () => {
+  it("legt geen maximum op het aantal modules", () => {
+    // Er is geen vervoersbeperking; honderd stuks mag net zo goed als één.
+    expect(
+      beoordeelVerzending({
+        bestemming: { landcode: "NL" },
+        aantalModules: 100,
+      }).toegestaan,
+    ).toBe(true);
+  });
+
+  it("weigert België, met een zakelijke route als uitweg", () => {
     const oordeel = beoordeelVerzending({
       bestemming: { landcode: "BE" },
       aantalModules: 1,
     });
     expect(oordeel.toegestaan).toBe(false);
     if (!oordeel.toegestaan) {
-      expect(oordeel.reden).toMatch(/nog niet/i);
-      expect(oordeel.oplossing).toBeTruthy();
-    }
-  });
-
-  it("weigert een ander EU-land, met een zakelijke route als uitweg", () => {
-    const oordeel = beoordeelVerzending({
-      bestemming: { landcode: "DE" },
-      aantalModules: 1,
-    });
-    expect(oordeel.toegestaan).toBe(false);
-    if (!oordeel.toegestaan) {
-      expect(oordeel.reden).toMatch(/gevaarlijke goederen/i);
+      expect(oordeel.reden).toMatch(/alleen in Nederland/i);
       expect(oordeel.oplossing).toMatch(/contact/i);
     }
   });
 
-  it("weigert buiten de EU", () => {
-    const oordeel = beoordeelVerzending({
-      bestemming: { landcode: "US" },
-      aantalModules: 1,
-    });
-    expect(oordeel.toegestaan).toBe(false);
-  });
-
-  it("weigert boven het maximum aantal modules", () => {
-    const oordeel = beoordeelVerzending({
-      bestemming: { landcode: "NL" },
-      aantalModules: MAX_MODULES_PER_ZENDING + 1,
-    });
-    expect(oordeel.toegestaan).toBe(false);
-    if (!oordeel.toegestaan) {
-      // the message must name both numbers, or the customer cannot act
-      expect(oordeel.reden).toContain(String(MAX_MODULES_PER_ZENDING));
-      expect(oordeel.reden).toContain(String(MAX_MODULES_PER_ZENDING + 1));
+  it("noemt geen gevaarlijke goederen meer als reden", () => {
+    // Het product valt daar niet onder; die reden zou onjuist zijn.
+    for (const land of ["BE", "DE", "US"]) {
+      const oordeel = beoordeelVerzending({
+        bestemming: { landcode: land },
+        aantalModules: 1,
+      });
+      if (!oordeel.toegestaan) {
+        expect(oordeel.reden).not.toMatch(/gevaarlijk|ADR|UN-nummer/i);
+      }
     }
   });
 
-  it("staat precies het maximum toe", () => {
+  it("weigert buiten de EU", () => {
     expect(
       beoordeelVerzending({
-        bestemming: { landcode: "NL" },
-        aantalModules: MAX_MODULES_PER_ZENDING,
+        bestemming: { landcode: "US" },
+        aantalModules: 1,
       }).toegestaan,
-    ).toBe(true);
+    ).toBe(false);
   });
 
-  it("meldt het land vóór het aantal", () => {
-    // Splitting the order does not help someone in the wrong country, so
-    // the country problem must be the one reported.
-    const oordeel = beoordeelVerzending({
-      bestemming: { landcode: "US" },
-      aantalModules: 999,
-    });
-    expect(oordeel.toegestaan).toBe(false);
-    if (!oordeel.toegestaan) {
-      expect(oordeel.reden).not.toContain("999");
-    }
-  });
-
-  it("laat een mandje zonder modules overal heen", () => {
-    // A montageset on its own is not hazardous.
+  it("laat een lege wagen overal heen", () => {
     expect(
       beoordeelVerzending({
         bestemming: { landcode: "DE" },
@@ -127,26 +104,9 @@ describe("verzendbeoordeling", () => {
   });
 });
 
-describe("ADR-papieren", () => {
-  it("levert niets bij een zending zonder modules", () => {
-    expect(
-      adrPapieren({ aantalModules: 0, unNummer: "UN0432", adrKlasse: "1.4S" }),
-    ).toBeNull();
-  });
-
-  it("levert de gegevens bij een zending met modules", () => {
-    expect(
-      adrPapieren({ aantalModules: 3, unNummer: "UN0432", adrKlasse: "1.4S" }),
-    ).toEqual({ unNummer: "UN0432", adrKlasse: "1.4S", aantal: 3 });
-  });
-
-  it("verzint geen UN-nummer als dat nog niet bevestigd is", () => {
-    const papieren = adrPapieren({
-      aantalModules: 1,
-      unNummer: null,
-      adrKlasse: null,
-    });
-    expect(papieren?.unNummer).toContain("VERIFY");
-    expect(papieren?.adrKlasse).toContain("VERIFY");
+describe("levertijd", () => {
+  it("staat op één werkdag", () => {
+    // Wat hier staat, staat ook op de productpagina en op /verzending.
+    expect(LEVERTIJD).toBe("1 werkdag");
   });
 });

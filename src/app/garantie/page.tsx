@@ -59,9 +59,11 @@ export default function GarantiePage() {
 
           <h2>Commerciële garantie</h2>
           <p>
-            [VERIFY: geeft Blusbox een aanvullende fabrieks- of
-            handelsgarantie? Zo ja: duur, dekking, voorwaarden en wie de
-            garantie verstrekt.]
+            Wij geven op dit moment geen aanvullende fabrieks- of
+            handelsgarantie bovenop je wettelijke rechten. Dat is geen
+            beperking: de wettelijke conformiteitseis hierboven gaat verder dan
+            de meeste fabrieksgaranties, want die kijkt naar wat je
+            redelijkerwijs mocht verwachten en niet naar een vaste termijn.
           </p>
           <p>
             Een commerciële garantie komt altijd bovenop je wettelijke rechten

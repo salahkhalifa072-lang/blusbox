@@ -60,12 +60,12 @@ export const faq: FaqItem[] = [
   {
     vraag: "Werkt Blusbox ook bij een thuisaccu of omvormer?",
     antwoord:
-      "Blusbox is ontworpen voor elektrische behuizingen. Voor toepassing bij een thuisaccu of omvormerkast geldt een aparte beoordeling van het volume en de plaatsing. [VERIFY: toepassingsadvies thuisaccu/omvormer]",
+      "Blusbox is ontworpen voor elektrische behuizingen zoals de meterkast. Bij een thuisaccu of omvormerkast spelen het volume van de kast en de plaatsing een rol; neem in dat geval contact op, dan kijken we per situatie mee. Wij doen geen toezegging die wij niet kunnen onderbouwen.",
   },
   {
     vraag: "Wat kost verzending?",
     antwoord:
-      "Niets. Verzending is altijd gratis, bij elke bestelling en zonder minimumbedrag — een besparing van € 6,00 per order. Blusbox valt wel onder een gevaarlijke-goederenclassificatie, waardoor niet elke bestemming mogelijk is. Bij het afrekenen zie je direct wat er naar jouw adres verzonden kan worden. [VERIFY: levertijd]",
+      "Niets. Verzending is altijd gratis, bij elke bestelling en zonder minimumbedrag — een besparing van € 6,00 per order. Wij bezorgen binnen Nederland, doorgaans binnen één werkdag.",
     uitgelicht: true,
   },
 ];

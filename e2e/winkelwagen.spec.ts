@@ -141,8 +141,16 @@ test.describe("afrekenen", () => {
     await expect(postcode).toHaveAttribute("aria-describedby", "postcode-fout");
   });
 
-  test("waarschuwt dat de zending een gevaarlijk goed is", async ({ page }) => {
-    // §15: dit mag niet stilletjes verdwijnen bij een herontwerp.
-    await expect(page.getByText(/gevaarlijk goed/i).first()).toBeVisible();
+  test("noemt de verzendbelofte bij het afrekenen", async ({ page }) => {
+    // De belofte op de homepage moet ook waar zijn op het laatste scherm.
+    await expect(page.getByText(/gratis/i).first()).toBeVisible();
+  });
+
+  test("noemt geen gevaarlijke goederen meer", async ({ page }) => {
+    // Het product valt daar niet onder; die tekst mag nergens terugkomen.
+    const inhoud = await page.locator("body").innerText();
+    expect(inhoud).not.toMatch(/gevaarlijk|UN-nummer/i);
+    // Woordgrens, anders matcht "ADR" ook in "bezorgadres".
+    expect(inhoud).not.toMatch(/\bADR\b/);
   });
 });

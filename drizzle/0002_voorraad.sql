@@ -1,0 +1,1 @@
+ALTER TABLE "products" ADD COLUMN "voorraad" integer DEFAULT 0 NOT NULL;

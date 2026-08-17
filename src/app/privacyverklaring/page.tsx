@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PageHeader } from "@/components/site/page-header";
 import { SiteFooter } from "@/components/site/footer";
 import { Prose, DraftNotice } from "@/components/site/prose";
+import { bedrijf } from "@/lib/bedrijf";
 
 export const metadata: Metadata = {
   title: "Privacyverklaring",
@@ -24,10 +25,18 @@ export default function PrivacyverklaringPage() {
           <DraftNotice what="verwerkersovereenkomsten, bewaartermijnen en de definitieve lijst van ontvangers moeten worden ingevuld en door een jurist getoetst." />
 
           <h2>Verwerkingsverantwoordelijke</h2>
-          <p>
-            [VERIFY: statutaire naam, adres, KvK-nummer en contactgegevens voor
-            privacyvragen]
-          </p>
+          <ul>
+            <li>{bedrijf.volledig}</li>
+            <li>KvK-nummer: {bedrijf.kvk}</li>
+            <li>
+              Privacyvragen:{" "}
+              <a href={`mailto:${bedrijf.email}`}>{bedrijf.email}</a>
+            </li>
+            <li>
+              Telefoon:{" "}
+              <a href={`tel:${bedrijf.telefoonLink}`}>{bedrijf.telefoon}</a>
+            </li>
+          </ul>
 
           <h2>Welke gegevens en waarvoor</h2>
           <ul>
@@ -65,7 +74,10 @@ export default function PrivacyverklaringPage() {
             Bestel- en factuurgegevens bewaren wij zolang de wettelijke fiscale
             bewaarplicht dat vereist. Gegevens over geplaatste units bewaren wij
             gedurende de levensduur van de module plus de periode die nodig is
-            om een terugroep te kunnen uitvoeren. [VERIFY: exacte termijnen]
+            om een terugroep te kunnen uitvoeren. Concreet: bestel- en
+            factuurgegevens zeven jaar (fiscale bewaarplicht), gegevens over een
+            geplaatste module tot tien jaar na installatie plus één jaar, en een
+            account zolang je het gebruikt.
           </p>
 
           <h2>Ontvangers</h2>
@@ -73,8 +85,12 @@ export default function PrivacyverklaringPage() {
             Wij delen gegevens uitsluitend met partijen die nodig zijn om te
             kunnen leveren: de betaaldienstverlener, de vervoerder, de
             e-maildienst voor transactionele berichten en onze hostingpartij.
-            Met elk van hen sluiten wij een verwerkersovereenkomst.
-            [VERIFY: namen van de verwerkers]
+            Met elk van hen sluiten wij een verwerkersovereenkomst. Concreet
+            zijn dat Stripe (betalingen), Vercel (hosting) en Neon (database,
+            servers in Frankfurt). Jouw gegevens blijven daarmee binnen de
+            Europese Economische Ruimte, behalve waar Stripe voor
+            fraudebestrijding gegevens buiten de EER verwerkt op grond van
+            standaardcontractbepalingen.
           </p>
 
           <h2>Je rechten</h2>

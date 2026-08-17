@@ -98,7 +98,7 @@ export default async function TerugroepPagina({
               {
                 kop: "Laat de module zitten",
                 regel:
-                  "Haal hem niet zelf uit de meterkast en gooi hem niet bij het afval. De module bevat een blusmiddel en valt onder de regels voor gevaarlijke goederen.",
+                  "Haal hem niet zelf uit de meterkast en gooi hem niet bij het restafval. Wij nemen hem terug zodra de vervangende module bij je is.",
               },
               {
                 kop: "Bevestig dit bericht",
@@ -108,7 +108,7 @@ export default async function TerugroepPagina({
               {
                 kop: "Je ontvangt een vervangende module",
                 regel:
-                  "Kosteloos, met instructies en de vervoersdocumenten om de oude terug te sturen.",
+                  "Kosteloos, met een retourinstructie voor de oude module.",
               },
             ].map((stap, i) => (
               <li

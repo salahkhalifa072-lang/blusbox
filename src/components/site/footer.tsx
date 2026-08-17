@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LogoMark } from "@/components/site/logo";
+import { bedrijf, bedrijfsregel } from "@/lib/bedrijf";
 
 const columns = [
   {
@@ -68,11 +69,20 @@ export function SiteFooter() {
             </nav>
           ))}
         </div>
-        {/* §8: KvK, BTW-id, adres en e-mail verplicht in de footer */}
+        {/* §8: KvK, btw-id en contactgegevens horen hier wettelijk te staan */}
         <div className="data mt-16 border-t border-kastwit/20 pt-6 text-xs text-railstaal">
           <p>
-            Blusbox · [VERIFY: KvK-nummer] · [VERIFY: BTW-id] ·
-            [VERIFY: vestigingsadres] · [VERIFY: e-mailadres]
+            {bedrijfsregel} ·{" "}
+            <a href={`mailto:${bedrijf.email}`} className="hover:text-kastwit">
+              {bedrijf.email}
+            </a>{" "}
+            ·{" "}
+            <a
+              href={`tel:${bedrijf.telefoonLink}`}
+              className="hover:text-kastwit"
+            >
+              {bedrijf.telefoon}
+            </a>
           </p>
           <p className="mt-2">© {new Date().getFullYear()} Blusbox</p>
         </div>

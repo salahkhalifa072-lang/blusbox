@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/site/page-header";
 import { SiteFooter } from "@/components/site/footer";
+import { bedrijf } from "@/lib/bedrijf";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -101,14 +102,14 @@ export default function ContactPage() {
 
           {/* Company details — §8 requires these to be findable */}
           <aside className="h-fit rounded-2xl border border-railstaal/50 p-8">
-            <h2 className="font-display text-2xl">Blusbox</h2>
+            <h2 className="font-display text-2xl">{bedrijf.naam}</h2>
             <dl className="data mt-6 space-y-4 text-sm">
               {[
-                ["E-mail", "[VERIFY: e-mailadres]"],
-                ["Telefoon", "[VERIFY: telefoonnummer]"],
-                ["Adres", "[VERIFY: vestigingsadres]"],
-                ["KvK", "[VERIFY: KvK-nummer]"],
-                ["Btw-id", "[VERIFY: btw-identificatienummer]"],
+                ["E-mail", bedrijf.email],
+                ["Telefoon", bedrijf.telefoon],
+                ["Handelsnaam", bedrijf.volledig],
+                ["KvK", bedrijf.kvk],
+                ["Btw-id", bedrijf.btwId],
               ].map(([k, v]) => (
                 <div key={k}>
                   <dt className="text-xs uppercase tracking-wider text-staal-tekst">

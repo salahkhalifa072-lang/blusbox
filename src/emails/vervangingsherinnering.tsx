@@ -196,10 +196,9 @@ export function Vervangingsherinnering({
               }}
             >
               <Text style={{ margin: 0, fontSize: "13px", lineHeight: 1.6 }}>
-                <strong>Gooi de oude module niet bij het afval.</strong> Hij
-                valt onder de regels voor gevaarlijke goederen. Bij je nieuwe
-                module zitten de instructies en de vervoersdocumenten om de
-                oude terug te sturen.
+                <strong>Gooi de oude module niet bij het restafval.</strong>
+                Hij bevat een blusmiddel. Bij je nieuwe module zit een
+                retourinstructie om de oude naar ons terug te sturen.
               </Text>
             </Section>
           ) : null}

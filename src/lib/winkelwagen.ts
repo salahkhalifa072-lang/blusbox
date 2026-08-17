@@ -106,10 +106,8 @@ export function berekenWagen(
     ];
   });
 
-  const aantalModules = regels.reduce(
-    (som, r) => som + r.item.modulesPerStuk * r.aantal,
-    0,
-  );
+  // Elke regel is één module per stuk; er zijn geen bundels meer.
+  const aantalModules = regels.reduce((som, r) => som + r.aantal, 0);
 
   const totalen = berekenTotalen(
     regels.map((r) => ({
