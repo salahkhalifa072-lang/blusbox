@@ -3,6 +3,7 @@ import { Cel, Leeg, Paneel, Rij, Tabel } from "@/components/dashboard/ui";
 import { formatteerNl } from "@/lib/levensduur";
 import { vereisDashboard } from "@/lib/sessie";
 import { magRecallOpenen } from "@/lib/rollen";
+import Link from "next/link";
 import { sluitRecall } from "../lots/acties";
 import { Verzendknop } from "./verzendknop";
 
@@ -19,7 +20,8 @@ export default async function RecallsPagina() {
         <h1 className="font-display text-3xl">Recalls</h1>
         <p className="mt-1 max-w-2xl text-sm text-staal-tekst">
           Per recall staat vast wie is aangeschreven, wie bericht heeft
-          gekregen en wie heeft bevestigd. Versturen is een aparte handeling:
+          gekregen en wie heeft bevestigd. Klik op een lotnummer voor de
+          afnemers erachter. Versturen is een aparte handeling:
           de lijst wordt bij het openen vastgelegd, zodat een storing bij de
           mailprovider hem niet kan kwijtmaken. Sluit een recall pas als
           iedereen is afgehandeld.
@@ -44,7 +46,14 @@ export default async function RecallsPagina() {
           >
             {recalls.map((r) => (
               <Rij key={r.id}>
-                <Cel mono>{r.lotNummer}</Cel>
+                <Cel>
+                  <Link
+                    href={`/dashboard/recalls/${r.id}`}
+                    className="data underline underline-offset-4 hover:text-blusrood-op-licht"
+                  >
+                    {r.lotNummer}
+                  </Link>
+                </Cel>
                 <Cel>{r.reden}</Cel>
                 <Cel mono>
                   {formatteerNl(r.geopendOp.toISOString().slice(0, 10))}

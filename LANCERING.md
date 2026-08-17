@@ -91,6 +91,8 @@ npm run lint && npx tsc --noEmit && npm test && npm run e2e
 - [ ] `npm test` — 137 unittests groen
 - [ ] `npm run e2e` — 114 tests groen op desktop én mobiel, inclusief de
       toegankelijkheidsaudit op alle publieke routes
+- [ ] Beheerdeel meegetest: `E2E_ADMIN_EMAIL=… E2E_ADMIN_WACHTWOORD=… npm run e2e`
+      geeft 124 tests groen (de tien extra zijn de dashboardschermen)
 - [ ] Lighthouse ≥ 95 op `/`, `/blusbox` en `/hoe-het-werkt` (§12). Meet
       tegen productie, niet lokaal
 - [ ] De site is bruikbaar zonder JavaScript: prijs, tekst en navigatie

@@ -120,5 +120,6 @@ export async function bevestigMetDeHand(formData: FormData) {
 
   await registreerBevestiging(noticeId);
 
-  revalidatePath("/dashboard/recalls");
+  // Ook de detailpagina, want dáár staat de knop.
+  revalidatePath("/dashboard/recalls", "layout");
 }

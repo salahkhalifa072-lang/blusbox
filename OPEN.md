@@ -196,6 +196,26 @@ overal op, met tests voor beide gevallen.
 Schemawijziging: `orders.verzonden_op` en `orders.track_and_trace`
 (migratie `0001`, alleen toevoegingen).
 
+### Recall per afnemer (af)
+
+Een terugroepactie kon niet worden afgesloten als iemand telefonisch
+reageerde: de enige manier om te bevestigen was de knop in de mail. De
+functies om dat met de hand te doen stonden er wel, maar hingen aan geen
+enkel scherm. Er is nu een detailpagina per recall — `/dashboard/recalls/<id>`
+— met per afnemer of het bericht weg is, of er bevestigd is, en een knop om
+dat laatste zelf vast te leggen.
+
+Daarbij kwam een toegankelijkheidsfout boven water die er al langer zat: de
+dashboardtabellen scrollen horizontaal, maar de scrollregio kon geen focus
+krijgen. Met alleen een toetsenbord kwam je dus niet bij de rechterkolommen,
+en daar staan juist de knoppen. Opgelost in `components/dashboard/ui.tsx`.
+
+Dat het zo lang meeging heeft een oorzaak: het beheerdeel zit achter een
+login en zat daarom niet in de geautomatiseerde audit. Dat is nu rechtgezet
+met een aparte Playwright-opzet die één keer inlogt (`e2e/beheer.spec.ts`,
+10 tests). Zonder `E2E_ADMIN_EMAIL` en `E2E_ADMIN_WACHTWOORD` draaien die
+niet mee — de suite blijft dus groen op een verse kloon.
+
 ### Gemeten in stap 11
 
 Toegankelijkheid: axe (WCAG 2.0 + 2.1, A + AA + best practice) draait schoon

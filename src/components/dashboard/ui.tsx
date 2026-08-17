@@ -48,7 +48,21 @@ export function Paneel({
         <h2 className="font-display text-xl">{titel}</h2>
         {actie}
       </div>
-      <div className="overflow-x-auto">{children}</div>
+      {/*
+        tabIndex maakt de horizontale scroll bereikbaar met het toetsenbord.
+        De dashboardtabellen zijn breder dan een smal scherm; zonder dit kun
+        je met alleen een toetsenbord niet bij de rechterkolommen — en daar
+        staan juist de knoppen. Een benoemde regio, anders is het een
+        naamloos focuspunt in de tabvolgorde.
+      */}
+      <div
+        role="region"
+        aria-label={titel}
+        tabIndex={0}
+        className="overflow-x-auto focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-antraciet"
+      >
+        {children}
+      </div>
     </section>
   );
 }
