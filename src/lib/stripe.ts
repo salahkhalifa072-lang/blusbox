@@ -72,8 +72,16 @@ export async function maakCheckoutSessie(opts: {
   const sessie = await stripe.checkout.sessions.create({
     mode: "payment",
     locale: "nl",
-    // iDEAL first: it is how most Dutch customers will pay.
-    payment_method_types: ["ideal", "card", "bancontact"],
+    /*
+     * Bewust géén `payment_method_types`.
+     *
+     * Stond hier eerst hard `["ideal", "card", "bancontact"]`. Dat breekt
+     * het afrekenen volledig zodra één van de drie niet is geactiveerd:
+     * Stripe weigert dan de hele sessie in plaats van die ene methode weg
+     * te laten. Bij het live zetten is dat precies het moment waarop je er
+     * last van krijgt. Laat je het veld weg, dan bepaalt het dashboard wat
+     * er wordt aangeboden en verschijnt iDEAL zodra het daar aanstaat.
+     */
     customer_email: opts.email,
     line_items: opts.regels.map((r) => ({
       quantity: r.aantal,

@@ -42,7 +42,6 @@ anders vermeld:
 | `MAIL_VAN` | `Blusbox <noreply@blusbox.nl>` |
 | `STRIPE_SECRET_KEY` | live-key (`sk_live_…`); gebruik de test-key in Preview |
 | `STRIPE_WEBHOOK_SECRET` | `whsec_…` van het endpoint uit stap 4b |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | `pk_live_…` |
 
 > `AUTH_SECRET` en `STRIPE_SECRET_KEY` horen nergens in de repo. Zet ze
 > uitsluitend in Vercel.
@@ -50,17 +49,29 @@ anders vermeld:
 
 ### 4b. Stripe-webhook registreren
 
-Lokaal draait de webhook via `stripe listen`; in productie moet het endpoint
-in het dashboard staan, met een eigen signing secret.
+**Gedaan op 12 augustus 2026.** De bestemming `blusbox-productie` staat in
+het dashboard op `https://www.blusbox.nl/api/stripe/webhook` en luistert naar
+de vier `checkout.session`-gebeurtenissen die de code afhandelt.
 
-1. Stripe Dashboard → **Developers → Webhooks → Add endpoint**
-2. URL: `https://blusbox.nl/api/stripe/webhook`
-3. Selecteer deze gebeurtenissen:
-   - `checkout.session.completed`
-   - `checkout.session.async_payment_succeeded`
-   - `checkout.session.async_payment_failed`
-   - `checkout.session.expired`
-4. Kopieer het `whsec_…` en zet dat als `STRIPE_WEBHOOK_SECRET` in Vercel
+Wat er nog moet gebeuren om betalen aan te zetten — twee keer plakken in
+Vercel, en dat doe je zelf:
+
+1. **Stripe Dashboard → Developers → API keys → Secret key.** Klik
+   *Reveal*, kopieer de `sk_live_…`. Zet die in Vercel als
+   `STRIPE_SECRET_KEY` voor **Production**.
+2. **Workbench → Webhooks → blusbox-productie → Geheime sleutel voor
+   ondertekening.** Klik op het oogje, kopieer de `whsec_…`. Zet die in
+   Vercel als `STRIPE_WEBHOOK_SECRET` voor **Production**.
+3. Vercel → Deployments → jongste deployment → **Redeploy**. Zonder
+   redeploy pikt de app de nieuwe variabelen niet op.
+
+Daarna één echte bestelling doen met iDEAL en meteen terugbetalen. Controleer
+in het dashboard van de webshop dat de order van `nieuw` naar `betaald`
+springt — gebeurt dat niet, dan klopt het ondertekeningsgeheim niet.
+
+> Betaalmethodes staan **niet** in de code. Wat er op de betaalpagina
+> verschijnt, bepaalt Stripe → Instellingen → Betaalmethoden. iDEAL en
+> kaarten staan aan.
 
 > De laatste drie zijn niet optioneel: iDEAL wordt asynchroon afgewikkeld.
 > Zonder die gebeurtenissen blijft een betaalde bestelling op `nieuw` staan
