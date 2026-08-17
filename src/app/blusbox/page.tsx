@@ -191,7 +191,6 @@ export default function BlusboxPage() {
                       name="aantal"
                       type="number"
                       min={1}
-                      {/* Geen vervoerslimiet meer; de voorraad is de grens */}
                       max={300}
                       defaultValue={1}
                       className="data w-20 rounded-[var(--radius-control)] border border-kastwit/25 bg-transparent px-3 py-3.5 text-center text-sm"
