@@ -1,6 +1,5 @@
 import NextAuth from "next-auth";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
-import Resend from "next-auth/providers/resend";
 import Credentials from "next-auth/providers/credentials";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
@@ -9,7 +8,7 @@ import { verifieerWachtwoord } from "@/lib/wachtwoord";
 import type { Aanspreekvorm, Rol } from "@/db/schema";
 
 /**
- * §3 auth: magic link (Resend) plus credentials.
+ * §3 auth: magic link (MailerSend) plus credentials.
  *
  * The session carries `rol` and `aanspreekvorm` because both are needed on
  * nearly every render — role to pick the right navigation, aanspreekvorm to
@@ -43,10 +42,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     error: "/account",
   },
   providers: [
-    Resend({
-      apiKey: process.env.AUTH_RESEND_KEY,
-      from: process.env.MAIL_VAN,
-    }),
+    /**
+     * Magic link via MailerSend.
+     *
+     * Auth.js heeft geen kant-en-klare MailerSend-provider, dus dit is de
+     * generieke e-mailprovider met een eigen verzendfunctie. Dat is
+     * bovendien netter: één verzendweg voor álle mail, zodat een probleem
+     * met het afzenderdomein zich niet op één plek anders gedraagt.
+     */
+    {
+      id: "mailersend",
+      type: "email",
+      name: "E-mail",
+      from: process.env.MAIL_VAN ?? "Blusbox <info@blusbox.nl>",
+      // Auth.js-standaard; een link die een dag geldig is, is lang genoeg
+      // om een mailtje later op de dag alsnog te openen.
+      maxAge: 24 * 60 * 60,
+      options: {},
+      async sendVerificationRequest({ identifier, url }) {
+        const { stuurInloglink } = await import("@/lib/mail");
+        const resultaat = await stuurInloglink(identifier, url);
+        if (!resultaat.verstuurd) {
+          // Gooien is hier wél juist: de gebruiker staat te wachten op een
+          // mail die niet komt, en moet dat te zien krijgen.
+          throw new Error(`Inloglink niet verstuurd: ${resultaat.reden}`);
+        }
+      },
+    },
     Credentials({
       credentials: {
         email: { label: "E-mailadres", type: "email" },

@@ -76,7 +76,7 @@ export async function verstuurTerugroepberichten(
   let verstuurd = 0;
   const problemen: { email: string; reden: string }[] = [];
 
-  // Bewust één voor één en niet parallel: Resend kent een snelheidslimiet,
+  // Bewust één voor één en niet parallel: MailerSend kent een snelheidslimiet,
   // en bij een terugroepactie is compleet belangrijker dan snel.
   for (const notice of openstaand) {
     const resultaat = await stuurTerugroepbericht({

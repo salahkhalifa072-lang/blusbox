@@ -16,7 +16,7 @@ import type { Actor } from "@/db/queries";
  * negen jaar registreert krijgt daarmee één bericht dat klopt, in plaats van
  * drie waarvan er twee de verkeerde termijn noemen.
  *
- * Draait bewust sequentieel: Resend kent een snelheidslimiet en dit is werk
+ * Draait bewust sequentieel: MailerSend kent een snelheidslimiet en dit is werk
  * dat 's nachts loopt, dus haast is niet nodig. Een adres dat het niet doet
  * wordt niet gestempeld en komt de volgende ronde vanzelf terug.
  */

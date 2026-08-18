@@ -11,8 +11,37 @@ Zonder deze punten mag de webshop niet open.
 | Wat | Waarom | Wie |
 |---|---|---|
 | Juridische teksten laten toetsen | AV, privacyverklaring, cookiebeleid en garantie zijn nu volledig ingevuld, maar niet door een jurist gezien. De "nog niet definitief"-melding staat er nog | jurist |
-| Overstappen op MailerSend | De code praat nu met Resend. Zolang er geen geverifieerd domein is, komt er bij een echte klant geen bevestiging aan | klant + bouw |
+| MailerSend afmaken: domein verifiëren en `MAILERSEND_API_TOKEN` in Vercel | De code praat sinds 18-08 met MailerSend. Zonder geverifieerd domein en token gaat er nog steeds geen mail uit, en krijgt een betalende klant geen bevestiging en geen herroepingsformulier | klant |
 | API-sleutels roteren | Een Stripe-**live**-sleutel en een Resend-sleutel zijn in een chattranscript beland. Rol ze om vóór livegang | klant |
+
+## E-mail: van Resend naar MailerSend (code af)
+
+De verzendlaag praat nu met MailerSend, rechtstreeks tegen hun REST-API in
+plaats van via een SDK — het is één POST, en een pakket erbij zou alleen een
+extra afhankelijkheid zijn om bij te houden. `resend` is uit package.json.
+
+Alle zes de berichten lopen via één weg (`lib/mailtransport.ts`), inclusief
+de inloglink. Auth.js heeft geen MailerSend-provider, dus die magic link is
+nu een eigen e-mailprovider die dezelfde verzendfunctie gebruikt. Dat is
+bovendien netter: één afzenderdomein, en een probleem daarmee gedraagt zich
+niet op één plek anders.
+
+Tien tests op de verzendlaag (`lib/mailtransport.test.ts`). Die dekken vooral
+de dingen die stil misgaan: het uit elkaar halen van "Blusbox <info@…>", en
+dat een fout van MailerSend nooit een uitzondering wordt — de aanroeper zit
+achter een betaling.
+
+**Wat er nog moet gebeuren, en dat kan alleen jij:**
+
+1. Log in op app.mailersend.com en voeg `blusbox.nl` toe als domein.
+2. Zet de DNS-records die MailerSend geeft (SPF, DKIM, en een Return-Path).
+   Let op: het huidige SPF-record is `v=spf1 a mx -all` — dat `-all` weigert
+   álles wat er niet in staat, dus MailerSend moet er expliciet bij.
+3. Maak een API-token (Integrations → API tokens) en zet die in Vercel als
+   `MAILERSEND_API_TOKEN`, omgeving Production.
+4. Zet `MAIL_VAN` op `Blusbox <info@blusbox.nl>` — moet hetzelfde
+   geverifieerde domein zijn.
+5. Redeploy.
 
 ## Betalen (af, met één slag om de arm)
 

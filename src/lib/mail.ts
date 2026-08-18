@@ -1,16 +1,25 @@
-import { Resend } from "resend";
 import { render } from "@react-email/components";
 import { Bestelbevestiging } from "@/emails/bestelbevestiging";
 import { Terugroepbericht } from "@/emails/terugroepbericht";
 import { Vervangingsherinnering } from "@/emails/vervangingsherinnering";
 import { Verzendbericht } from "@/emails/verzendbericht";
 import { Bezorgbericht } from "@/emails/bezorgbericht";
+import { Inloglink } from "@/emails/inloglink";
 import { maakHerroepingsformulier } from "./herroepingsformulier";
 import { euro, verzendwaarde } from "./pricing";
 import { formatteerNl, herroepingUiterlijk } from "./levensduur";
 import { siteUrl } from "./site";
 import { haalBestelling } from "./bestelling";
 import { contactadresVanBestelling } from "@/db/queries";
+import {
+  MailNietGeconfigureerd,
+  mailBeschikbaar,
+  verstuurMail,
+  type MailResultaat,
+} from "./mailtransport";
+
+export { MailNietGeconfigureerd, mailBeschikbaar };
+export type { MailResultaat };
 
 /**
  * Transactional mail (§3).
@@ -21,30 +30,6 @@ import { contactadresVanBestelling } from "@/db/queries";
  * 500 and have Stripe replay the whole event.
  */
 
-export class MailNietGeconfigureerd extends Error {
-  constructor() {
-    super("RESEND_API_KEY ontbreekt; er wordt geen e-mail verstuurd.");
-    this.name = "MailNietGeconfigureerd";
-  }
-}
-
-export function mailBeschikbaar(): boolean {
-  return Boolean(process.env.RESEND_API_KEY);
-}
-
-function client(): Resend {
-  const sleutel = process.env.RESEND_API_KEY;
-  if (!sleutel) throw new MailNietGeconfigureerd();
-  return new Resend(sleutel);
-}
-
-function afzender(): string {
-  return process.env.MAIL_VAN ?? "Blusbox <onboarding@resend.dev>";
-}
-
-export type MailResultaat =
-  | { verstuurd: true; id: string }
-  | { verstuurd: false; reden: string };
 
 /**
  * Order confirmation with the statutory withdrawal form attached.
@@ -101,26 +86,17 @@ export async function stuurBestelbevestiging(
 
   const formulier = await maakHerroepingsformulier();
 
-  try {
-    const { data, error } = await client().emails.send({
-      from: afzender(),
-      to: naar,
-      subject: `Bestelling ${order.ordernummer} bevestigd — Blusbox`,
-      html,
-      attachments: [
-        {
-          filename: "modelformulier-herroeping-blusbox.pdf",
-          content: Buffer.from(formulier).toString("base64"),
-        },
-      ],
-    });
-
-    if (error) return { verstuurd: false, reden: error.message };
-    if (!data?.id) return { verstuurd: false, reden: "Geen bericht-id ontvangen" };
-    return { verstuurd: true, id: data.id };
-  } catch (fout) {
-    return { verstuurd: false, reden: (fout as Error).message };
-  }
+  return verstuurMail({
+    naar,
+    onderwerp: `Bestelling ${order.ordernummer} bevestigd — Blusbox`,
+    html,
+    bijlagen: [
+      {
+        filename: "modelformulier-herroeping-blusbox.pdf",
+        content: Buffer.from(formulier).toString("base64"),
+      },
+    ],
+  });
 }
 
 /**
@@ -152,29 +128,20 @@ export async function stuurTerugroepbericht(opdracht: {
     }),
   );
 
-  try {
-    const { data, error } = await client().emails.send({
-      from: afzender(),
-      to: opdracht.email,
-      // Geen "Blusbox" vooraan: in een volle inbox moet het eerste woord al
-      // duidelijk maken dat dit geen nieuwsbrief is.
-      subject: `Veiligheidswaarschuwing: vervang je Blusbox (lot ${opdracht.lotNummer})`,
-      html,
-      headers: {
-        // Een terugroepbericht is geen bulkmail. Deze vlaggen houden het uit
-        // filters die "list mail" naar het tabblad Reclame duwen.
-        "X-Entity-Ref-ID": opdracht.noticeId,
-        Importance: "high",
-        Priority: "urgent",
-      },
-    });
-
-    if (error) return { verstuurd: false, reden: error.message };
-    if (!data?.id) return { verstuurd: false, reden: "Geen bericht-id ontvangen" };
-    return { verstuurd: true, id: data.id };
-  } catch (fout) {
-    return { verstuurd: false, reden: (fout as Error).message };
-  }
+  return verstuurMail({
+    naar: opdracht.email,
+    // Geen "Blusbox" vooraan: in een volle inbox moet het eerste woord al
+    // duidelijk maken dat dit geen nieuwsbrief is.
+    onderwerp: `Veiligheidswaarschuwing: vervang je Blusbox (lot ${opdracht.lotNummer})`,
+    html,
+    headers: {
+      // Een terugroepbericht is geen bulkmail. Deze vlaggen houden het uit
+      // filters die "list mail" naar het tabblad Reclame duwen.
+      "X-Entity-Ref-ID": opdracht.noticeId,
+      Importance: "high",
+      Priority: "urgent",
+    },
+  });
 }
 
 /**
@@ -212,20 +179,11 @@ export async function stuurVervangingsherinnering(opdracht: {
         ? "Je Blusbox verloopt over een half jaar"
         : "Je Blusbox verloopt over een jaar";
 
-  try {
-    const { data, error } = await client().emails.send({
-      from: afzender(),
-      to: opdracht.email,
-      subject: onderwerp,
-      html,
-    });
-
-    if (error) return { verstuurd: false, reden: error.message };
-    if (!data?.id) return { verstuurd: false, reden: "Geen bericht-id ontvangen" };
-    return { verstuurd: true, id: data.id };
-  } catch (fout) {
-    return { verstuurd: false, reden: (fout as Error).message };
-  }
+  return verstuurMail({
+    naar: opdracht.email,
+    onderwerp,
+    html,
+  });
 }
 
 /** Adresregels zoals ze in de mail moeten staan. */
@@ -273,19 +231,11 @@ export async function stuurVerzendbericht(
     }),
   );
 
-  try {
-    const { data, error } = await client().emails.send({
-      from: afzender(),
-      to: naar,
-      subject: `Je Blusbox is onderweg — ${order.ordernummer}`,
-      html,
-    });
-    if (error) return { verstuurd: false, reden: error.message };
-    if (!data?.id) return { verstuurd: false, reden: "Geen bericht-id ontvangen" };
-    return { verstuurd: true, id: data.id };
-  } catch (fout) {
-    return { verstuurd: false, reden: (fout as Error).message };
-  }
+  return verstuurMail({
+    naar: naar,
+    onderwerp: `Je Blusbox is onderweg — ${order.ordernummer}`,
+    html,
+  });
 }
 
 /**
@@ -319,17 +269,36 @@ export async function stuurBezorgbericht(
     }),
   );
 
-  try {
-    const { data, error } = await client().emails.send({
-      from: afzender(),
-      to: naar,
-      subject: `Je Blusbox is bezorgd — ${order.ordernummer}`,
-      html,
-    });
-    if (error) return { verstuurd: false, reden: error.message };
-    if (!data?.id) return { verstuurd: false, reden: "Geen bericht-id ontvangen" };
-    return { verstuurd: true, id: data.id };
-  } catch (fout) {
-    return { verstuurd: false, reden: (fout as Error).message };
+  return verstuurMail({
+    naar: naar,
+    onderwerp: `Je Blusbox is bezorgd — ${order.ordernummer}`,
+    html,
+  });
+}
+
+/**
+ * §3 inloglink voor de magic-link-provider.
+ *
+ * Staat hier en niet in `auth.ts`, zodat alle uitgaande post via dezelfde
+ * verzendweg loopt: één afzenderdomein, één plek waar een fout zichtbaar
+ * wordt.
+ */
+export async function stuurInloglink(
+  naar: string,
+  url: string,
+): Promise<MailResultaat> {
+  if (!mailBeschikbaar()) {
+    return { verstuurd: false, reden: "MAILERSEND_API_TOKEN ontbreekt" };
   }
+
+  const html = await render(Inloglink({ url, siteUrl }));
+
+  return verstuurMail({
+    naar,
+    onderwerp: "Je inloglink voor Blusbox",
+    html,
+    // Platte tekst erbij: een inlogmail zonder tekstversie wordt vaker als
+    // verdacht aangemerkt, en dit is precies de mail die moet aankomen.
+    tekst: `Inloggen bij Blusbox\n\nOpen deze link om in te loggen. Hij werkt 24 uur.\n\n${url}\n\nZelf geen link aangevraagd? Dan hoef je niets te doen.`,
+  });
 }
