@@ -36,10 +36,19 @@ achter een betaling.
 
 Uitgaand en inkomend zijn twee losse problemen met losse oplossingen.
 
-**Uitgaand — klaar op de DNS-kant.** SPF, DKIM en return-path staan en
-leveren geldige waarden op; `MAIL_VAN` staat in Vercel op
-`Blusbox <info@blusbox.nl>`. Wat nog moet: een plan kiezen in MailerSend
-(gratis = 500 per maand) en een API-token in Vercel zetten.
+**Uitgaand — DNS klaar, account nog niet.** SPF, DKIM en return-path staan
+en leveren geldige waarden op; `MAIL_VAN` staat in Vercel op
+`Blusbox <info@blusbox.nl>`.
+
+Maar het MailerSend-account moet eerst worden **goedgekeurd** — er staat een
+mail "Let's get your account approved!" in de inbox van 12-08. Zonder
+goedkeuring mag er niet naar klanten worden verstuurd; dat is dezelfde val
+als bij Resend. Goedkeuring vraagt een compleet bedrijfsprofiel, en daar
+ontbreken adres, plaats, postcode en land. Website en telefoon zijn
+ingevuld, opslaan lukt pas als de adresvelden erbij staan.
+
+Daarna nog: een plan kiezen (gratis = 500 per maand) en een API-token in
+Vercel zetten als `MAILERSEND_API_TOKEN`.
 
 **Inkomend — er is nog niets.** Nagekeken bij Theory7: `blusbox.nl` staat er
 als domein zónder hostingpakket ("Niet gekoppeld"). De `mail.blusbox.nl` en
