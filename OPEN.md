@@ -11,7 +11,7 @@ Zonder deze punten mag de webshop niet open.
 | Wat | Waarom | Wie |
 |---|---|---|
 | Juridische teksten laten toetsen | AV, privacyverklaring, cookiebeleid en garantie zijn nu volledig ingevuld, maar niet door een jurist gezien. De "nog niet definitief"-melding staat er nog | jurist |
-| **Geen MX-records: `info@blusbox.nl` kan geen post ontvangen** | Dat adres staat in de footer, op /contact, in de voorwaarden, in de privacyverklaring én op het wettelijk herroepingsformulier als dé contactroute. Post daarheen bounct nu | klant |
+| **`info@blusbox.nl` kan geen post ontvangen** | Er is geen postbus en geen MX. Zie "E-mail in twee richtingen" hieronder voor het plan; er moet één gratis account worden aangemaakt en dat kan ik niet | klant |
 | MailerSend: plan kiezen en `MAILERSEND_API_TOKEN` in Vercel zetten | DNS is klaar en verificatie loopt. Zonder token gaat er nog steeds geen mail uit | klant |
 | API-sleutels roteren | Een Stripe-**live**-sleutel en een Resend-sleutel zijn in een chattranscript beland. Rol ze om vóór livegang | klant |
 
@@ -31,6 +31,39 @@ Tien tests op de verzendlaag (`lib/mailtransport.test.ts`). Die dekken vooral
 de dingen die stil misgaan: het uit elkaar halen van "Blusbox <info@…>", en
 dat een fout van MailerSend nooit een uitzondering wordt — de aanroeper zit
 achter een betaling.
+
+### E-mail in twee richtingen
+
+Uitgaand en inkomend zijn twee losse problemen met losse oplossingen.
+
+**Uitgaand — klaar op de DNS-kant.** SPF, DKIM en return-path staan en
+leveren geldige waarden op; `MAIL_VAN` staat in Vercel op
+`Blusbox <info@blusbox.nl>`. Wat nog moet: een plan kiezen in MailerSend
+(gratis = 500 per maand) en een API-token in Vercel zetten.
+
+**Inkomend — er is nog niets.** Nagekeken bij Theory7: `blusbox.nl` staat er
+als domein zónder hostingpakket ("Niet gekoppeld"). De `mail.blusbox.nl` en
+`ftp.blusbox.nl` in de zone zijn restanten van een standaardsjabloon; ze
+wijzen naar `redirect01.theory7.net` en poort 25 staat daar dicht. Het
+domeinbeheer bij Theory7 biedt wel een web-redirect maar géén
+e-mail-doorsturen.
+
+MailerSend lost dit niet op: hun inbound routing wil een aparte subdomein die
+uitsluitend voor inbound wordt gebruikt, en levert af op een webhook — geen
+postbus.
+
+Gekozen richting (klant, 18-08): gratis doorsturen naar Gmail. Dat vraagt één
+externe dienst, bijvoorbeeld ImprovMX (gratis, onbeperkt aliassen naar één
+bestemming). Aanmaken van dat account kan alleen de klant; daarna zet ik de
+twee MX-records.
+
+**Let op bij antwoorden.** Doorsturen regelt alleen binnenkomende post. Wie
+vanuit Gmail antwoordt, antwoordt vanaf het Gmail-adres — op een wettelijke
+contactroute oogt dat rommelig, en met `p=reject` op dit domein kan een
+poging om "namens" info@blusbox.nl te sturen zelfs geweigerd worden. De
+oplossing is gratis: in Gmail "Verzenden als" instellen met de SMTP-relay van
+MailerSend. Dan gaan antwoorden uit als info@blusbox.nl, ondertekend met
+dezelfde DKIM-sleutel, en slagen ze gewoon voor DMARC.
 
 ### DNS gedaan op 18 augustus 2026
 
