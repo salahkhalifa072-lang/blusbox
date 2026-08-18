@@ -12,9 +12,30 @@ Zonder deze punten mag de webshop niet open.
 |---|---|---|
 | Juridische teksten laten toetsen | AV, privacyverklaring, cookiebeleid en garantie zijn nu volledig ingevuld, maar niet door een jurist gezien. De "nog niet definitief"-melding staat er nog | jurist |
 | Overstappen op MailerSend | De code praat nu met Resend. Zolang er geen geverifieerd domein is, komt er bij een echte klant geen bevestiging aan | klant + bouw |
-| Stripe live zetten en de webhook registreren | `stripe listen` werkt alleen lokaal. Zie DEPLOY.md §4b | klant |
-| Stripe-weergavenaam staat op "Aegis supply" | Dat staat op de betaalpagina en het bankafschrift van de klant | klant |
 | API-sleutels roteren | Een Stripe-**live**-sleutel en een Resend-sleutel zijn in een chattranscript beland. Rol ze om vóór livegang | klant |
+
+## Betalen (af, met één slag om de arm)
+
+Getest op de live site op 18 augustus 2026. Het afrekenen opent een echte
+`cs_live_`-sessie met iDEAL, kaart, Klarna en Bancontact; de bestelling komt
+correct in de database met het juiste bedrag en het sessie-ID. De testorder
+is daarna weer verwijderd, zodat de eerste echte klant `BB-2026-000001`
+krijgt.
+
+De restricted key (`rk_live_`) blijkt genoeg rechten te hebben voor Checkout
+Sessions.
+
+`STRIPE_WEBHOOK_SECRET` staat in Vercel en wordt gebruikt: een verzoek met
+een onjuiste handtekening levert in de logs "No signatures found matching
+the expected signature" op, en niet "secret ontbreekt". De
+handtekeningcontrole werkt dus.
+
+**Wat niet bewezen is:** dat dit geheim bij déze webhook-bestemming hoort.
+Dat blijkt pas bij de eerste echte betaling. Ga na die eerste bestelling
+meteen kijken in Stripe → Workbench → Webhooks → blusbox-productie →
+Leveringen: staat daar een 2xx, dan klopt alles. Staat er 400, dan is het
+verkeerde `whsec_` geplakt en blijft de bestelling op `nieuw` staan terwijl
+het geld wel binnen is.
 
 ## Productiedatabase (af)
 

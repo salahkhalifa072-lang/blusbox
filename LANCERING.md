@@ -42,12 +42,14 @@ Zonder deze punten mag een Nederlandse webshop niet verkopen.
 
 ## 3. Betalen
 
-- [ ] Stripe staat in **live**-modus, niet test
-- [ ] De weergavenaam in Stripe is "Blusbox" — die staat op het
-      bankafschrift van de klant
-- [ ] iDEAL, Bancontact en kaart zijn aan
-- [ ] Webhook geregistreerd op `https://www.blusbox.nl/api/stripe/webhook`
-      (zie `DEPLOY.md` §4b) en `STRIPE_WEBHOOK_SECRET` staat in Vercel
+- [x] Stripe staat in live-modus — geverifieerd 18-08-2026 met een echte
+      `cs_live_`-sessie op www.blusbox.nl
+- [x] Weergavenaam is "Blusbox"
+- [x] iDEAL, kaart, Klarna en Bancontact staan aan (dashboard bepaalt dit,
+      niet de code)
+- [x] Webhook `blusbox-productie` geregistreerd, `STRIPE_WEBHOOK_SECRET`
+      staat in Vercel en wordt aantoonbaar gebruikt (een foute handtekening
+      geeft "No signatures found", niet "secret ontbreekt")
 - [ ] Eén echte bestelling gedaan met een echte betaalmethode, en daarna
       terugbetaald
 - [ ] Bij die test: order ging van `nieuw` naar `betaald`, bevestigingsmail
