@@ -11,7 +11,8 @@ Zonder deze punten mag de webshop niet open.
 | Wat | Waarom | Wie |
 |---|---|---|
 | Juridische teksten laten toetsen | AV, privacyverklaring, cookiebeleid en garantie zijn nu volledig ingevuld, maar niet door een jurist gezien. De "nog niet definitief"-melding staat er nog | jurist |
-| MailerSend afmaken: domein verifiëren en `MAILERSEND_API_TOKEN` in Vercel | De code praat sinds 18-08 met MailerSend. Zonder geverifieerd domein en token gaat er nog steeds geen mail uit, en krijgt een betalende klant geen bevestiging en geen herroepingsformulier | klant |
+| **Geen MX-records: `info@blusbox.nl` kan geen post ontvangen** | Dat adres staat in de footer, op /contact, in de voorwaarden, in de privacyverklaring én op het wettelijk herroepingsformulier als dé contactroute. Post daarheen bounct nu | klant |
+| MailerSend: plan kiezen en `MAILERSEND_API_TOKEN` in Vercel zetten | DNS is klaar en verificatie loopt. Zonder token gaat er nog steeds geen mail uit | klant |
 | API-sleutels roteren | Een Stripe-**live**-sleutel en een Resend-sleutel zijn in een chattranscript beland. Rol ze om vóór livegang | klant |
 
 ## E-mail: van Resend naar MailerSend (code af)
@@ -31,17 +32,35 @@ de dingen die stil misgaan: het uit elkaar halen van "Blusbox <info@…>", en
 dat een fout van MailerSend nooit een uitzondering wordt — de aanroeper zit
 achter een betaling.
 
+### DNS gedaan op 18 augustus 2026
+
+Domein stond al in MailerSend, en de DKIM- en Return-Path-records waren al
+gezet. Twee dingen aangepast in de zone bij Theory7:
+
+**Er stonden twee SPF-records naast elkaar.** Het oude `v=spf1 a mx -all`
+én het nieuwe met MailerSend erin. Volgens RFC 7208 is dat een PermError:
+SPF telt dan als mislukt, ongeacht wat er in staat. Dat is ook wat
+MailerSend bedoelde met "your domain has an SPF record but it contains
+errors". Het oude record is verwijderd; er staat er nu precies één.
+
+**DMARC stond op `aspf=s`** (strikte SPF-uitlijning). MailerSend verstuurt
+met een Return-Path op `mta.blusbox.nl`, en dat is niet létterlijk gelijk aan
+`blusbox.nl` — met strikte uitlijning valt SPF dus altijd af. DKIM lijnt wel
+strikt uit, dus DMARC slaagde nog, maar dan op één been: gaat er iets mis met
+de ondertekening, dan wordt de mail bij `p=reject` geweigerd in plaats van in
+de spam gezet. Nu `aspf=r`, zodat SPF ook meetelt. `p=reject` en `adkim=s`
+staan onveranderd.
+
+Terugdraaien is één veld: `aspf=r` weer op `aspf=s`.
+
 **Wat er nog moet gebeuren, en dat kan alleen jij:**
 
-1. Log in op app.mailersend.com en voeg `blusbox.nl` toe als domein.
-2. Zet de DNS-records die MailerSend geeft (SPF, DKIM, en een Return-Path).
-   Let op: het huidige SPF-record is `v=spf1 a mx -all` — dat `-all` weigert
-   álles wat er niet in staat, dus MailerSend moet er expliciet bij.
-3. Maak een API-token (Integrations → API tokens) en zet die in Vercel als
-   `MAILERSEND_API_TOKEN`, omgeving Production.
-4. Zet `MAIL_VAN` op `Blusbox <info@blusbox.nl>` — moet hetzelfde
-   geverifieerde domein zijn.
-5. Redeploy.
+1. Kies een plan in MailerSend (gratis = 500 mails per maand, ruim genoeg om
+   te beginnen). Zonder plan blijft het een trial-account.
+2. Maak een API-token en zet die in Vercel als `MAILERSEND_API_TOKEN`,
+   omgeving Production.
+3. Zet `MAIL_VAN` op `Blusbox <info@blusbox.nl>`.
+4. Redeploy.
 
 ## Betalen (af, met één slag om de arm)
 
