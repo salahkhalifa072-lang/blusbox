@@ -1,7 +1,7 @@
 # Nog open
 
 Levend overzicht van wat nog moet gebeuren. Bijgewerkt tijdens de bouw.
-Laatst bijgewerkt: 12 augustus 2026. De bouwvolgorde uit §14 is af; sindsdien
+Laatst bijgewerkt: 31 augustus 2026. De bouwvolgorde uit §14 is af; sindsdien
 wordt gewerkt aan wat daarna nog openstond.
 
 ## Blokkerend vóór livegang
@@ -12,7 +12,8 @@ Zonder deze punten mag de webshop niet open.
 |---|---|---|
 | Juridische teksten laten toetsen | AV, privacyverklaring, cookiebeleid en garantie zijn nu volledig ingevuld, maar niet door een jurist gezien. De "nog niet definitief"-melding staat er nog | jurist |
 | **`info@blusbox.nl` kan geen post ontvangen** | Er is geen postbus en geen MX. Zie "E-mail in twee richtingen" hieronder voor het plan; er moet één gratis account worden aangemaakt en dat kan ik niet | klant |
-| MailerSend: plan kiezen en `MAILERSEND_API_TOKEN` in Vercel zetten | DNS is klaar en verificatie loopt. Zonder token gaat er nog steeds geen mail uit | klant |
+| `MAILERSEND_API_TOKEN` in Vercel zetten | Domein is geverifieerd en het token staat klaar om aangemaakt te worden. Zonder token gaat er geen mail uit | klant |
+| MailerSend: plan kiezen vóór 14 september | Het account staat op een Professional-trial. Loopt die af zonder keuze, dan stopt het versturen — en dan stopt ook de bestelbevestiging | klant |
 | API-sleutels roteren | Een Stripe-**live**-sleutel en een Resend-sleutel zijn in een chattranscript beland. Rol ze om vóór livegang | klant |
 
 ## E-mail: van Resend naar MailerSend (code af)
@@ -36,19 +37,21 @@ achter een betaling.
 
 Uitgaand en inkomend zijn twee losse problemen met losse oplossingen.
 
-**Uitgaand — DNS klaar, account nog niet.** SPF, DKIM en return-path staan
-en leveren geldige waarden op; `MAIL_VAN` staat in Vercel op
-`Blusbox <info@blusbox.nl>`.
+**Uitgaand — alles klaar op het token na.** SPF, DKIM en return-path staan
+en leveren geldige waarden op. Het domein `blusbox.nl` is op 31-08
+**geverifieerd** ("Domain is verified and ready to use"), en daarmee is de
+goedkeuringsblokkade weg. `MAIL_VAN` staat in Vercel op
+`Blusbox <info@blusbox.nl>` en `MAIL_CONTACT` op `info@blusbox.nl`.
 
-Maar het MailerSend-account moet eerst worden **goedgekeurd** — er staat een
-mail "Let's get your account approved!" in de inbox van 12-08. Zonder
-goedkeuring mag er niet naar klanten worden verstuurd; dat is dezelfde val
-als bij Resend. Goedkeuring vraagt een compleet bedrijfsprofiel, en daar
-ontbreken adres, plaats, postcode en land. Website en telefoon zijn
-ingevuld, opslaan lukt pas als de adresvelden erbij staan.
+Rest: het API-token aanmaken en als `MAILERSEND_API_TOKEN` in Vercel zetten.
 
-Daarna nog: een plan kiezen (gratis = 500 per maand) en een API-token in
-Vercel zetten als `MAILERSEND_API_TOKEN`.
+**Bij het aanmaken van dat token: zet een einddatum.** Het formulier van
+MailerSend laat dat veld leeg, en leeg betekent daar niet "verloopt nooit"
+maar **verloopt over 24 uur**. Een token dat een dag na livegang stilletjes
+ophoudt neemt elke bestelbevestiging mee, zonder dat er iets zichtbaar
+stukgaat: de bestelling komt gewoon binnen, alleen hoort de klant niets. Het
+formulier staat daarom klaar op 31-08-2036, met bereik `blusbox.nl` en
+alleen "Sending access" — meer heeft de webshop niet nodig.
 
 **Inkomend — er is nog niets.** Nagekeken bij Theory7: `blusbox.nl` staat er
 als domein zónder hostingpakket ("Niet gekoppeld"). De `mail.blusbox.nl` en
@@ -97,12 +100,19 @@ Terugdraaien is één veld: `aspf=r` weer op `aspf=s`.
 
 **Wat er nog moet gebeuren, en dat kan alleen jij:**
 
-1. Kies een plan in MailerSend (gratis = 500 mails per maand, ruim genoeg om
-   te beginnen). Zonder plan blijft het een trial-account.
-2. Maak een API-token en zet die in Vercel als `MAILERSEND_API_TOKEN`,
-   omgeving Production.
-3. Zet `MAIL_VAN` op `Blusbox <info@blusbox.nl>`.
-4. Redeploy.
+1. Druk in MailerSend op **Generate token** (formulier staat ingevuld) en
+   kopieer de sleutel. Hij is daarna niet meer op te vragen.
+2. Zet hem in Vercel als `MAILERSEND_API_TOKEN`, omgeving Production, en
+   redeploy. `MAIL_VAN` en `MAIL_CONTACT` staan al goed.
+3. Maak een ImprovMX-account aan voor het doorsturen van inkomende post; dan
+   zet ik de MX-records.
+4. Kies vóór 14 september een MailerSend-plan. De trial loopt dan af; de
+   gratis laag volstaat ruimschoots voor wat een beginnende webshop
+   verstuurt. Kijk het maandaantal na op Plan and billing — dat cijfer is
+   bij MailerSend meermaals gewijzigd.
+
+Het token bewust **niet** via de chat: wat hier langskomt staat in het
+transcript. Zelfde reden als bij de Stripe-sleutels.
 
 ## Betalen (af, met één slag om de arm)
 
@@ -190,6 +200,40 @@ Wat die tests onderweg boven water haalden, en wat daarop is aangepast:
   landmark. De audit van stap 11 draaide alleen op desktopbreedte en zag
   hem daarom niet.
 
+### Mobiel rechtgezet (af, 31 augustus 2026)
+
+Drie klachten van de klant, alle drie terecht.
+
+**De film stond achter de tekst in plaats van erboven.** De hero was één
+laag: video absoluut gepositioneerd, tekst eroverheen, drie scrims om het
+leesbaar te houden. Op een telefoon werd de video daarmee grotendeels
+weggedrukt door de kop. Nu twee opmaken naast elkaar — op smalle schermen
+staat de film gewoon in de flow (`aspect-[4/3]`), na de header en vóór de
+rest; vanaf `lg` is het weer de oude gelaagde hero. De scrims staan op
+`hidden lg:block`, want boven een film die niet meer achter tekst zit
+maken ze het beeld alleen maar grauw.
+
+**De scrubvideo deed niets.** Die video wordt op desktop door de scrollpositie
+gestuurd — 420vh aan scrollhoogte, en `currentTime` volgt. Op een telefoon
+mislukt dat: iOS staat scrubben van een niet-afgespeelde video niet toe, dus
+bleef er een stilstaand beeld staan. Nu detecteert de component de smalle
+breedte (`matchMedia`), slaat het scrubben over en speelt hem gewoon af in
+een lus, gestart en gepauzeerd door een IntersectionObserver zodat hij niet
+onzichtbaar staat te draaien. De voortgangsbalk loopt dan mee op
+`timeupdate` in plaats van op scroll.
+
+**Er was geen menu.** Op smalle schermen stonden alleen logo, wagen en
+bestelknop; de navigatie zat in een `hidden lg:flex`. Er is nu een
+menuknop met een uitklappaneel: sluit bij paginawissel en bij Escape,
+`aria-expanded` en `aria-controls` erop, en de focus gaat terug naar de
+knop. Het paneel is bewust ondoorzichtig — met een doorschijnende
+achtergrond keek je door het menu heen op de bewegende film.
+
+Vijf tests erbij (`e2e/mobiel.spec.ts`), waaronder de enige die er echt toe
+doet: dat de video op mobiel **boven** de `h1` eindigt en op desktop
+overlapt. Dat is precies de regressie die je met het oog niet ziet als je
+alleen op een breed scherm werkt.
+
 ### Terugroepberichten (af)
 
 De hele keten werkt nu: mailsjabloon, versturen per ontvanger, en een
@@ -203,7 +247,7 @@ Een paar keuzes die niet vanzelf spreken:
 - **Eén mail per ontvanger, niet één bcc.** Bcc zou elk adres aan elke
   andere afnemer laten zien, en één slecht adres zou de hele partij
   meenemen.
-- **`verzondenOp` wordt pas gestempeld nadat Resend het bericht heeft
+- **`verzondenOp` wordt pas gestempeld nadat MailerSend het bericht heeft
   aangenomen.** Andersom zou een mislukte verzending eruitzien als
   afgehandeld, en die afnemer krijgt dan nooit meer bericht. Mislukte
   adressen komen met reden in beeld, zodat iemand ze kan nabellen.
@@ -218,10 +262,10 @@ Getest tegen een echte Postgres-engine (`src/db/terugroep.test.ts`, 9 tests):
 niemand krijgt het dubbel, de eerste bevestiging blijft staan, en een
 bevestiging bij de één raakt de ander niet.
 
-**Let op:** versturen kan nu nog niet naar echte klanten. Resend weigert elk
-adres behalve dat van het eigen account zolang `blusbox.nl` niet geverifieerd
-is — dat staat bovenaan bij de blokkerende punten. De code vangt dat netjes
-af: het bericht blijft op "nog te versturen" staan.
+**Let op:** versturen werkt pas zodra `MAILERSEND_API_TOKEN` in Vercel
+staat; dat is het laatste blokkerende punt. De code vangt het ontbreken
+netjes af — het bericht blijft op "nog te versturen" staan en gaat de
+volgende keer alsnog weg. Het domein zelf is sinds 31-08 geverifieerd.
 
 ### Vervangingsherinneringen (af)
 
@@ -255,10 +299,9 @@ Verder:
 Getest in `src/db/herinneringen.test.ts` (9 tests) tegen een echte
 Postgres-engine, plus de termijnlogica in `levensduur.test.ts`.
 
-**Zelfde blokkade als bij de terugroepberichten:** zolang `blusbox.nl` niet
-in Resend geverifieerd is, komt er niets aan bij een echte klant. Een
-mislukte verzending wordt niet afgestempeld, dus de ronde pakt hem de
-volgende dag gewoon weer op.
+**Zelfde blokkade als bij de terugroepberichten:** zonder token in Vercel
+komt er niets aan bij een echte klant. Een mislukte verzending wordt niet
+afgestempeld, dus de ronde pakt hem de volgende dag gewoon weer op.
 
 ### Verzend- en bezorgbericht (af)
 
@@ -270,7 +313,7 @@ punt alleen kijken.
 Nu: twee knoppen per bestelling, met een optioneel zendingnummer, en twee
 berichten. De statuswijziging gaat vóór de mail; blijft de mail steken, dan
 is de bestelling nog steeds verzonden en kan het bericht opnieuw. Andersom
-zou een storing bij Resend de hele afhandeling blokkeren.
+zou een storing bij MailerSend de hele afhandeling blokkeren.
 
 Het bezorgbericht doet meer dan melden dat het pakket er is: het legt de
 einddatum van de bedenktijd vast. Die termijn loopt vanaf ontvangst, dus pas
