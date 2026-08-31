@@ -66,12 +66,31 @@ export function ScrollScrub() {
    */
   const [laadBron, setLaadBron] = useState(false);
   const [paginaGeladen, setPaginaGeladen] = useState(false);
+  /**
+   * Op smalle schermen scrubben we niet, maar spelen we af.
+   *
+   * Scrubben leunt op twee dingen die op een telefoon niet betrouwbaar zijn:
+   * iOS tekent pas een frame uit `currentTime` nadat de video één keer via
+   * een gebaar is afgespeeld, en tijdens een veegbeweging komen scroll-events
+   * pas ná het uitrollen — je ziet dan niets bewegen en daarna een sprong.
+   * Bovendien kost 420vh aan scrollen op een klein scherm onredelijk veel
+   * duimwerk voor tien seconden beeld.
+   */
+  const [smal, setSmal] = useState(false);
   const anim = useRef<number | null>(null);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     setReduced(mq.matches);
     const onChange = (e: MediaQueryListEvent) => setReduced(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px)");
+    setSmal(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => setSmal(e.matches);
     mq.addEventListener("change", onChange);
     return () => mq.removeEventListener("change", onChange);
   }, []);
@@ -105,9 +124,9 @@ export function ScrollScrub() {
     return () => io.disconnect();
   }, [reduced, laadBron, paginaGeladen]);
 
-  // Scroll → progress → video.currentTime
+  // Scroll → progress → video.currentTime. Alleen op brede schermen.
   useEffect(() => {
-    if (reduced) return;
+    if (reduced || smal) return;
     let raf = 0;
     const update = () => {
       raf = 0;
@@ -134,7 +153,36 @@ export function ScrollScrub() {
       window.removeEventListener("resize", onScroll);
       if (raf) cancelAnimationFrame(raf);
     };
-  }, [reduced, ready]);
+  }, [reduced, ready, smal]);
+
+  // Mobiel: afspelen zodra de sectie in beeld staat, pauzeren als hij weg is.
+  useEffect(() => {
+    if (reduced || !smal || !laadBron) return;
+    const video = videoRef.current;
+    if (!video) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) video.play().catch(() => {});
+        else video.pause();
+      },
+      { threshold: 0.4 },
+    );
+    io.observe(video);
+    return () => io.disconnect();
+  }, [reduced, smal, laadBron]);
+
+  // Mobiel: de uitlezing volgt de speelkop in plaats van de scrollpositie,
+  // zodat temperatuur en voortgangsbalk gewoon blijven kloppen.
+  useEffect(() => {
+    if (!smal) return;
+    const video = videoRef.current;
+    if (!video) return;
+    const opTijd = () => {
+      if (video.duration) setProgress(clamp(video.currentTime / video.duration));
+    };
+    video.addEventListener("timeupdate", opTijd);
+    return () => video.removeEventListener("timeupdate", opTijd);
+  }, [smal]);
 
   const scrollToProgress = useCallback((target: number, animate: boolean) => {
     const el = wrapRef.current;
@@ -199,8 +247,12 @@ export function ScrollScrub() {
 
   return (
     <section aria-label="Blusbox in werking" className="bg-antraciet">
-      <div ref={wrapRef} className="relative h-[420vh]">
-        <div className="sticky top-0 flex h-screen items-center overflow-hidden">
+      {/* De hoge scrollbaan en het vastgezette paneel gelden alleen op brede
+          schermen. Op een telefoon is dit een gewone sectie met een video die
+          zichzelf afspeelt; `svh` in plaats van `vh` omdat de adresbalk
+          anders meetelt en het paneel niet past. */}
+      <div ref={wrapRef} className="relative lg:h-[420vh]">
+        <div className="py-12 lg:sticky lg:top-0 lg:flex lg:h-[100svh] lg:items-center lg:overflow-hidden lg:py-0">
           <div className="mx-auto w-full max-w-5xl px-6">
             <div className="relative mx-auto max-w-3xl">
               <video
@@ -213,6 +265,9 @@ export function ScrollScrub() {
                 poster="/media/meterkast-front.jpg"
                 muted
                 playsInline
+                // Alleen zinvol in de afspeelvariant; bij scrubben bepaalt de
+                // scrollpositie de tijd en zou loop niets doen.
+                loop={smal}
                 preload={laadBron ? "auto" : "none"}
                 aria-label={caption}
                 onLoadedMetadata={() => setReady(true)}
@@ -263,22 +318,28 @@ export function ScrollScrub() {
             </div>
 
             <div className="mx-auto mt-5 flex max-w-3xl flex-wrap items-center gap-3">
+              {/* Deze twee verplaatsen de scrollpositie. Op een telefoon
+                  speelt de video zichzelf af, dus daar zouden ze de pagina
+                  verspringen zonder dat er iets aan het beeld verandert. */}
               <button
                 type="button"
                 onClick={play}
-                className="data rounded-full border border-kastwit px-5 py-2 text-xs text-kastwit transition-colors hover:bg-kastwit hover:text-antraciet"
+                className="data hidden rounded-full border border-kastwit px-5 py-2 text-xs text-kastwit transition-colors hover:bg-kastwit hover:text-antraciet lg:inline-block"
               >
                 ▶ Afspelen
               </button>
               <button
                 type="button"
                 onClick={step}
-                className="data rounded-full border border-kastwit/40 px-5 py-2 text-xs text-railstaal transition-colors hover:border-kastwit hover:text-kastwit"
+                className="data hidden rounded-full border border-kastwit/40 px-5 py-2 text-xs text-railstaal transition-colors hover:border-kastwit hover:text-kastwit lg:inline-block"
               >
                 Stap →
               </button>
               <p className="data ml-auto text-[11px] text-railstaal">
-                scroll om af te spelen · beeld is een weergave
+                <span className="lg:hidden">beeld is een weergave</span>
+                <span className="hidden lg:inline">
+                  scroll om af te spelen · beeld is een weergave
+                </span>
               </p>
             </div>
 

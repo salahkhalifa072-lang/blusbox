@@ -43,8 +43,25 @@ export function WagenBadge() {
       aria-label={`Winkelwagen, ${n} ${n === 1 ? "artikel" : "artikelen"}`}
       className="data whitespace-nowrap text-xs text-kastwit/60 transition-colors hover:text-kastwit"
     >
-      {/* Kort op een telefoon, voluit zodra er ruimte is */}
-      <span className="sm:hidden">Wagen ({n})</span>
+      {/* Op een telefoon staan logo, menuknop en bestelknop al in dezelfde
+          balk; daar past geen woord meer bij. Icoon met het aantal dus, en
+          voluit zodra er ruimte is. */}
+      <span className="flex items-center gap-1 sm:hidden">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinecap="square"
+          aria-hidden
+        >
+          <path d="M4 7h16l-1.5 10H5.5L4 7Z" />
+          <path d="M9 7V5a3 3 0 0 1 6 0v2" />
+        </svg>
+        {n}
+      </span>
       <span className="hidden sm:inline">Winkelwagen ({n})</span>
     </Link>
   );

@@ -51,38 +51,53 @@ export default function Home() {
     <>
       <SiteHeader />
       <main>
-        {/* Hero — product centred, headline split to the corners */}
-        <section className="relative min-h-screen overflow-hidden bg-antraciet">
-          <VideoBlock
-            src="/media/hero-banner.mp4"
-            av1Src="/media/hero-banner.av1.mp4"
-            poster="/media/hero-banner.jpg"
-            label="Bewegend beeld van de Blusbox-module"
-            className="absolute inset-0 h-full w-full object-cover"
-            priority
-          />
+        {/*
+          Hero. Twee indelingen, want ze willen verschillende dingen.
+
+          Desktop: de film ligt full-bleed achter de tekst en de zin loopt om
+          het product heen. Dat werkt daar, omdat er ruimte naast de kolom
+          overblijft waar de module zichtbaar is.
+
+          Mobiel: diezelfde opzet begraaft het product volledig. De kolom is
+          de hele breedte, dus de tekst ligt over de module heen en je ziet
+          alleen nog een donkere vlek. Daarom staat de film daar in de flow
+          mét eigen ruimte, onder de kop en boven de rest — je ziet eerst
+          waar het over gaat en leest daarna waarom.
+        */}
+        <section className="relative overflow-hidden bg-antraciet pt-32 lg:min-h-screen lg:pt-0">
+          {/* Op mobiel een blok met eigen hoogte, op lg de achtergrond */}
+          <div className="relative aspect-[4/3] w-full sm:aspect-[16/10] lg:absolute lg:inset-0 lg:aspect-auto lg:h-full">
+            <VideoBlock
+              src="/media/hero-banner.mp4"
+              av1Src="/media/hero-banner.av1.mp4"
+              poster="/media/hero-banner.jpg"
+              label="Bewegend beeld van de Blusbox-module"
+              className="absolute inset-0 h-full w-full object-cover"
+              priority
+            />
+          </div>
           {/* The render is bright — around 80% of its pixels sit above 200 in
               luminance — so the scrims are not decoration. Measured with axe
               plus a per-pixel check of the composited frame: without them the
               copy column drops to ~1:1 against the module. */}
           <div
-            className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(22,24,26,0.4)_0%,rgba(22,24,26,0.82)_55%,var(--antraciet)_100%)]"
+            className="pointer-events-none absolute inset-0 hidden bg-[radial-gradient(ellipse_at_center,rgba(22,24,26,0.4)_0%,rgba(22,24,26,0.82)_55%,var(--antraciet)_100%)] lg:block"
             aria-hidden
           />
           {/* keeps the body copy and cards legible over the bright render */}
           <div
-            className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-antraciet via-antraciet/85 to-transparent"
+            className="pointer-events-none absolute inset-x-0 bottom-0 hidden h-3/5 bg-gradient-to-t from-antraciet via-antraciet/85 to-transparent lg:block"
             aria-hidden
           />
           {/* Only the bottom-left corner, where the small copy lives: 11–16px
               text needs 4.5:1, the display type needs 3:1. Darkening the whole
               frame to satisfy the smallest type would bury the module. */}
           <div
-            className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(22,24,26,0.92)_0%,rgba(22,24,26,0.45)_40%,transparent_72%)]"
+            className="pointer-events-none absolute inset-0 hidden bg-[radial-gradient(ellipse_at_bottom_left,rgba(22,24,26,0.92)_0%,rgba(22,24,26,0.45)_40%,transparent_72%)] lg:block"
             aria-hidden
           />
 
-          <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col justify-between px-6 pb-10 pt-28 sm:pt-32">
+          <div className="relative mx-auto flex max-w-7xl flex-col gap-8 px-6 pb-10 pt-8 lg:min-h-screen lg:justify-between lg:gap-0 lg:pt-32">
             {/* top line */}
             <div>
               {/* One sentence, split around the product. The h1 carries the
@@ -111,12 +126,12 @@ export default function Home() {
                   rather than a band, and is what pulls the red clear of 3:1. */}
               <div className="relative">
                 <div
-                  className="pointer-events-none absolute -inset-x-16 -inset-y-10 bg-[radial-gradient(ellipse_at_center,rgba(22,24,26,0.88)_0%,rgba(22,24,26,0.5)_45%,transparent_72%)]"
+                  className="pointer-events-none absolute -inset-x-16 -inset-y-10 hidden bg-[radial-gradient(ellipse_at_center,rgba(22,24,26,0.88)_0%,rgba(22,24,26,0.5)_45%,transparent_72%)] lg:block"
                   aria-hidden
                 />
                 <p
                   aria-hidden
-                  className="font-display relative text-right text-[clamp(2.75rem,9vw,7.5rem)]"
+                  className="font-display relative text-[clamp(2.75rem,9vw,7.5rem)] lg:text-right"
                 >
                   <span className="text-kastwit">grijpt </span>
                   <span className="text-blusrood-op-donker">Blusbox in</span>

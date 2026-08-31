@@ -2,6 +2,7 @@ import Link from "next/link";
 import { LogoMark } from "@/components/site/logo";
 import { ShippingBanner } from "@/components/site/usp-bar";
 import { WagenBadge } from "@/components/site/wagen-badge";
+import { MobielMenu } from "@/components/site/mobiel-menu";
 
 const nav = [
   { href: "/blusbox", label: "Product" },
@@ -20,7 +21,8 @@ export function SiteHeader() {
       <div className="pointer-events-auto">
         <ShippingBanner />
       </div>
-      <div className="pointer-events-auto mx-4 mt-3 flex max-w-6xl items-center justify-between gap-4 rounded-full border border-kastwit/15 bg-antraciet/70 px-4 py-2.5 backdrop-blur-md sm:mx-6 lg:mx-auto lg:px-5">
+      {/* relative: het mobiele menupaneel hangt hieronder */}
+      <div className="pointer-events-auto relative mx-4 mt-3 flex max-w-6xl items-center justify-between gap-4 rounded-full border border-kastwit/15 bg-antraciet/70 px-4 py-2.5 backdrop-blur-md sm:mx-6 lg:mx-auto lg:px-5">
         <Link
           href="/"
           className="flex items-center gap-2 text-kastwit"
@@ -45,8 +47,9 @@ export function SiteHeader() {
           </ul>
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <WagenBadge />
+          <MobielMenu items={nav} />
           <Link
             href="/blusbox"
             className="rounded-full bg-blusrood-vlak px-4 py-2 text-sm font-medium text-kastwit transition-colors hover:bg-[#9e1b18]"
