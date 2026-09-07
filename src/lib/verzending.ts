@@ -76,8 +76,25 @@ export function beoordeelVerzending(opts: {
   return { toegestaan: true };
 }
 
-/** Landen die het afrekenformulier aanbiedt. */
-export const LANDKEUZE = [
-  { code: "NL", naam: "Nederland" },
-  { code: "BE", naam: "België" },
-] as const;
+/** Nederlandse namen bij de landcodes waar wij ooit op uit kunnen komen. */
+const LANDNAMEN: Record<string, string> = {
+  NL: "Nederland",
+  BE: "België",
+};
+
+/**
+ * Landen die het afrekenformulier aanbiedt.
+ *
+ * Bewust afgeleid van TOEGESTANE_LANDEN en niet apart opgeschreven. Tot
+ * 7 september 2026 stonden hier twee lijsten los van elkaar: het menu bood
+ * België aan terwijl er alleen naar Nederland bezorgd mag worden. Een
+ * Belgische klant kon dus het hele afrekenen doorlopen en betalen voor een
+ * bestelling die volgens onze eigen regels nooit verstuurd kon worden.
+ *
+ * Eén bron betekent dat een land toevoegen nu één regel is — en dat het
+ * onmogelijk is een land aan te bieden waar niet naartoe bezorgd wordt.
+ */
+export const LANDKEUZE = TOEGESTANE_LANDEN.map((code) => ({
+  code,
+  naam: LANDNAMEN[code] ?? code,
+}));

@@ -24,6 +24,7 @@ import {
   stripeBeschikbaar,
 } from "@/lib/stripe";
 import { berekenWagen } from "@/lib/winkelwagen";
+import { beoordeelVerzending } from "@/lib/verzending";
 
 export type AfrekenFout = {
   velden?: Record<string, string>;
@@ -35,8 +36,8 @@ export type AfrekenFout = {
  * Places the order and starts the payment.
  *
  * Validation happens here rather than only in the browser: the form can be
- * bypassed, and this is the last point before money and a dangerous-goods
- * shipment are involved.
+ * bypassed, and this is the last point before money changes hands and a
+ * package is promised.
  */
 export async function rekenAf(
   _vorigeStaat: AfrekenFout | null,
@@ -96,6 +97,18 @@ export async function rekenAf(
   }
 
   const wagen = await leesWagen();
+
+  // Bezorgen wij hier eigenlijk wel naartoe? Het formulier biedt alleen
+  // toegestane landen aan, maar een <select> zegt niets: een POST met een
+  // andere landcode komt hier gewoon binnen. Dit is het laatste punt vóór
+  // de bestelling en de betaling, dus hier hoort de controle.
+  const oordeel = beoordeelVerzending({
+    bestemming: { landcode, postcode },
+    aantalModules: wagen.regels.reduce((som, r) => som + r.aantal, 0),
+  });
+  if (!oordeel.toegestaan) {
+    return { algemeen: oordeel.reden, oplossing: oordeel.oplossing };
+  }
 
   let bestelling;
   try {
