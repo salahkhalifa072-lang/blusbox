@@ -153,3 +153,37 @@
     }
   }
 }
+
+@layer components {
+  /*
+   * Zweefanimatie voor het veilig-betalen-slotje op de productpagina.
+   *
+   * Vier seconden, twee pixels. Bewust nauwelijks zichtbaar: het doel is
+   * dat het element leeft, niet dat het de aandacht wegtrekt van de
+   * bestelknop ernaast. Een grotere uitslag leest als een advertentie.
+   *
+   * Staat stil bij prefers-reduced-motion — een eindeloos bewegend
+   * element is voor wie daar gevoelig voor is geen sier maar hinder.
+   */
+  .zweef {
+    display: inline-flex;
+    animation: zweven 4s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  @keyframes zweven {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-2px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .zweef {
+      animation: none;
+    }
+  }
+}

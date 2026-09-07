@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site/header";
 import { SiteFooter } from "@/components/site/footer";
@@ -7,8 +6,9 @@ import { SectionTitle } from "@/components/site/page-header";
 import { KruimelData } from "@/components/site/gestructureerde-data";
 import { SpecTable } from "@/components/ui/spec-table";
 import { FaqList } from "@/components/ui/accordion";
-import { VideoBlock } from "@/components/ui/video-block";
-import { LogoBadge } from "@/components/site/logo";
+import { Galerij } from "@/components/product/galerij";
+import { AantalKiezer } from "@/components/product/aantal-kiezer";
+import { Betaalmethoden } from "@/components/product/betaalmethoden";
 import { productFacts } from "@/lib/product-facts";
 import { faqUitgelicht } from "@/lib/faq";
 import { LEVERTIJD } from "@/lib/verzending";
@@ -77,68 +77,14 @@ export default function BlusboxPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <main className="pb-24">
-        {/* Gallery + buy column */}
-        <section className="bg-antraciet pb-16 pt-32 text-kastwit sm:pt-36">
-          <div className="mx-auto grid max-w-6xl gap-10 px-6 lg:grid-cols-2 lg:gap-16">
-            <div className="space-y-4">
-              <div className="relative aspect-square overflow-hidden rounded-2xl bg-antraciet-verhoogd">
-                <Image
-                  src="/media/packshot.jpg"
-                  alt="Blusbox-module: matrode behuizing met DIN-railclip en detectiekoord"
-                  fill
-                  priority
-                  sizes="(min-width: 1024px) 50vw, 100vw"
-                  className="object-cover"
-                />
-                <LogoBadge />
-              </div>
-              <div className="relative aspect-video overflow-hidden rounded-2xl bg-antraciet-verhoogd">
-                <VideoBlock
-                  src="/media/meterkast-front.mp4"
-                  poster="/media/meterkast-front.jpg"
-                  label="Fragment: een beginnende brand in de meterkast wordt door de Blusbox-module met aerosol gedoofd"
-                  className="absolute inset-0 h-full w-full object-cover"
-                />
-                <LogoBadge />
-              </div>
+        {/* Galerij + koopblok. Het koopblok is op desktop sticky: bij een
+            pagina van deze lengte scrolde de prijs en de knop uit beeld, en
+            dan moet iemand terug omhoog om te bestellen. */}
+        <section className="bg-antraciet pb-20 pt-32 text-kastwit sm:pt-36">
+          <div className="mx-auto grid max-w-6xl gap-10 px-6 lg:grid-cols-2 lg:items-start lg:gap-16">
+            <Galerij />
 
-              {/* What arrives on the doormat — reassurance before buying */}
-              <div className="grid grid-cols-2 gap-4">
-                <figure>
-                  <div className="relative aspect-square overflow-hidden rounded-2xl bg-antraciet-verhoogd">
-                    <Image
-                      src="/media/verpakking-dicht.jpg"
-                      alt="Gesloten rode Blusbox-verpakking met logo en de tekst blusmodule voor de meterkast"
-                      fill
-                      sizes="(min-width: 1024px) 25vw, 50vw"
-                      className="object-cover"
-                    />
-                  </div>
-                  <figcaption className="data mt-2 text-xs text-railstaal">
-                    De verpakking
-                  </figcaption>
-                </figure>
-                <figure>
-                  <div className="relative aspect-square overflow-hidden rounded-2xl bg-antraciet-verhoogd">
-                    <Image
-                      src="/media/verpakking-open.jpg"
-                      alt="Geopende Blusbox-verpakking: de module met vastzittend lichtblauw detectiekoord, naast een rode kaart met het Blusbox-logo"
-                      fill
-                      sizes="(min-width: 1024px) 25vw, 50vw"
-                      className="object-cover"
-                    />
-                  </div>
-                  <figcaption className="data mt-2 text-xs text-railstaal">
-                    Wat je ontvangt
-                  </figcaption>
-                </figure>
-              </div>
-              <p className="data text-xs text-railstaal">
-                Beeld is een weergave.
-              </p>
-            </div>
-
-            <div>
+            <div className="lg:sticky lg:top-28">
               <p className="data text-xs uppercase tracking-widest text-railstaal">
                 blusmodule · meterkast
               </p>
@@ -152,20 +98,16 @@ export default function BlusboxPage() {
                 stroom, zonder bediening, zonder mens.
               </p>
 
-              {/* Price block */}
               <div className="mt-8 border-t border-kastwit/15 pt-6">
                 <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
-                  <p className="data text-4xl">{prijsIncl}</p>
+                  <p className="data text-3xl">{prijsIncl}</p>
                   <span className="rounded-full bg-blusrood-vlak px-3 py-1 text-xs font-medium">
                     {gratisVerzending.kort}
                   </span>
                 </div>
                 <p className="mt-2 text-sm text-kastwit/60">
-                  Incl. btw ({prijsExcl} excl. btw) · zakelijke staffelprijzen
-                  na inloggen
+                  Incl. btw ({prijsExcl} excl. btw)
                 </p>
-
-                {/* The saving, stated the way a webshop states it */}
                 <p className="data mt-3 text-sm text-kastwit/80">
                   Verzendkosten{" "}
                   <span className="text-railstaal line-through">
@@ -180,58 +122,41 @@ export default function BlusboxPage() {
                   <span>Lotnummer bij levering</span>
                 </div>
 
-                <div className="mt-6 flex flex-wrap items-center gap-3">
-                  <form action={voegToeAanWagen} className="flex gap-3">
-                    <input type="hidden" name="slug" value="blusbox" />
-                    <label htmlFor="aantal" className="sr-only">
-                      Aantal
-                    </label>
-                    <input
-                      id="aantal"
-                      name="aantal"
-                      type="number"
-                      min={1}
-                      max={300}
-                      defaultValue={1}
-                      className="data w-20 rounded-[var(--radius-control)] border border-kastwit/25 bg-transparent px-3 py-3.5 text-center text-sm"
-                    />
-                    <button
-                      type="submit"
-                      className="rounded-full bg-blusrood-vlak px-7 py-3.5 text-sm font-medium text-kastwit transition-colors hover:bg-[#9e1b18]"
-                    >
-                      In winkelwagen
-                    </button>
-                  </form>
-                  <Link
-                    href="/zakelijk"
-                    className="rounded-full border border-kastwit/40 px-7 py-3.5 text-sm transition-colors hover:bg-kastwit hover:text-antraciet"
-                  >
-                    Zakelijk bestellen
-                  </Link>
+                <form action={voegToeAanWagen} className="mt-6">
+                  <input type="hidden" name="slug" value="blusbox" />
+                  <AantalKiezer />
+                </form>
+
+                <Link
+                  href="/zakelijk"
+                  className="mt-4 inline-block rounded-full border border-kastwit/40 px-7 py-3 text-sm transition-colors hover:bg-kastwit hover:text-antraciet"
+                >
+                  Zakelijk bestellen
+                </Link>
+
+                <div className="mt-8 border-t border-kastwit/15 pt-6">
+                  <Betaalmethoden donker />
                 </div>
-                <p className="data mt-3 text-xs text-railstaal">
-                  Altijd gratis verzending · 14 dagen bedenktijd
-                </p>
               </div>
 
-              {/* Reassurance strip */}
-              <ul className="mt-8 grid gap-3 sm:grid-cols-2">
-                {[
-                  gratisVerzending.kort,
-                  "14 dagen herroepingsrecht",
-                  "Vervangingsherinnering na 10 jaar",
-                  "Nederlandse handleiding",
-                ].map((item) => (
-                  <li
-                    key={item}
-                    className="rounded-xl border border-kastwit/15 px-4 py-3 text-sm text-kastwit/75"
-                  >
-                    {item}
-                  </li>
-                ))}
-              </ul>
             </div>
           </div>
+
+          <ul className="mx-auto mt-12 grid max-w-6xl gap-3 px-6 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              gratisVerzending.kort,
+              "14 dagen herroepingsrecht",
+              "Vervangingsherinnering na 10 jaar",
+              "Nederlandse handleiding",
+            ].map((item) => (
+              <li
+                key={item}
+                className="rounded-xl border border-kastwit/15 px-4 py-3 text-sm text-kastwit/75"
+              >
+                {item}
+              </li>
+            ))}
+          </ul>
         </section>
 
         {/* Specs */}
