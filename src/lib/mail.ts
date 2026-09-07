@@ -4,7 +4,6 @@ import { Terugroepbericht } from "@/emails/terugroepbericht";
 import { Vervangingsherinnering } from "@/emails/vervangingsherinnering";
 import { Verzendbericht } from "@/emails/verzendbericht";
 import { Bezorgbericht } from "@/emails/bezorgbericht";
-import { Inloglink } from "@/emails/inloglink";
 import { maakHerroepingsformulier } from "./herroepingsformulier";
 import { euro, verzendwaarde } from "./pricing";
 import { formatteerNl, herroepingUiterlijk } from "./levensduur";
@@ -40,7 +39,7 @@ export async function stuurBestelbevestiging(
   ontvanger?: string,
 ): Promise<MailResultaat> {
   if (!mailBeschikbaar()) {
-    return { verstuurd: false, reden: "RESEND_API_KEY ontbreekt" };
+    return { verstuurd: false, reden: "MAILERSEND_API_TOKEN ontbreekt" };
   }
 
   const gegevens = await haalBestelling(ordernummer);
@@ -114,7 +113,7 @@ export async function stuurTerugroepbericht(opdracht: {
   reden: string;
 }): Promise<MailResultaat> {
   if (!mailBeschikbaar()) {
-    return { verstuurd: false, reden: "RESEND_API_KEY ontbreekt" };
+    return { verstuurd: false, reden: "MAILERSEND_API_TOKEN ontbreekt" };
   }
 
   const html = await render(
@@ -158,7 +157,7 @@ export async function stuurVervangingsherinnering(opdracht: {
   lotNummer: string;
 }): Promise<MailResultaat> {
   if (!mailBeschikbaar()) {
-    return { verstuurd: false, reden: "RESEND_API_KEY ontbreekt" };
+    return { verstuurd: false, reden: "MAILERSEND_API_TOKEN ontbreekt" };
   }
 
   const html = await render(
@@ -209,7 +208,7 @@ export async function stuurVerzendbericht(
   ordernummer: string,
 ): Promise<MailResultaat> {
   if (!mailBeschikbaar()) {
-    return { verstuurd: false, reden: "RESEND_API_KEY ontbreekt" };
+    return { verstuurd: false, reden: "MAILERSEND_API_TOKEN ontbreekt" };
   }
 
   const gegevens = await haalBestelling(ordernummer);
@@ -246,7 +245,7 @@ export async function stuurBezorgbericht(
   ordernummer: string,
 ): Promise<MailResultaat> {
   if (!mailBeschikbaar()) {
-    return { verstuurd: false, reden: "RESEND_API_KEY ontbreekt" };
+    return { verstuurd: false, reden: "MAILERSEND_API_TOKEN ontbreekt" };
   }
 
   const gegevens = await haalBestelling(ordernummer);
@@ -276,29 +275,9 @@ export async function stuurBezorgbericht(
   });
 }
 
-/**
- * §3 inloglink voor de magic-link-provider.
- *
- * Staat hier en niet in `auth.ts`, zodat alle uitgaande post via dezelfde
- * verzendweg loopt: één afzenderdomein, één plek waar een fout zichtbaar
- * wordt.
+/*
+ * Hier stond `stuurInloglink`, voor de magic-link-provider in auth.ts.
+ * Beide zijn op 7 september 2026 verwijderd — zie de toelichting bij
+ * `providers` in auth.ts. Alle overgebleven post is transactioneel en
+ * bevat bewust géén links, alleen het contactadres.
  */
-export async function stuurInloglink(
-  naar: string,
-  url: string,
-): Promise<MailResultaat> {
-  if (!mailBeschikbaar()) {
-    return { verstuurd: false, reden: "MAILERSEND_API_TOKEN ontbreekt" };
-  }
-
-  const html = await render(Inloglink({ url, siteUrl }));
-
-  return verstuurMail({
-    naar,
-    onderwerp: "Je inloglink voor Blusbox",
-    html,
-    // Platte tekst erbij: een inlogmail zonder tekstversie wordt vaker als
-    // verdacht aangemerkt, en dit is precies de mail die moet aankomen.
-    tekst: `Inloggen bij Blusbox\n\nOpen deze link om in te loggen. Hij werkt 24 uur.\n\n${url}\n\nZelf geen link aangevraagd? Dan hoef je niets te doen.`,
-  });
-}

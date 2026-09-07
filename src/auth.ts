@@ -38,37 +38,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   session: { strategy: "jwt" },
   pages: {
     signIn: "/account",
-    verifyRequest: "/account/controleer-je-mail",
+    // Geen `verifyRequest`: die pagina hoort bij een e-mailprovider, en die
+    // is er niet meer. Hij wees bovendien naar /account/controleer-je-mail,
+    // wat nooit bestaan heeft — de magic link liep dus sowieso op een 404.
     error: "/account",
   },
+  /**
+   * Alleen wachtwoordlogin.
+   *
+   * Er zat hier een magic link via MailerSend. Die is er op 7 september 2026
+   * uit gehaald: Chrome zette er een "Gevaarlijke site"-waarschuwing voor.
+   * Niet omdat er iets mis was — Search Console meldde niets en het domein
+   * staat op geen enkele lijst — maar omdat de URL die Auth.js opbouwt het
+   * profiel van phishing heeft: een redirect-parameter, een geheim van 64
+   * tekens en het e-mailadres van de ontvanger, alle drie in de querystring,
+   * aangeklikt vanuit een e-mail.
+   *
+   * Accounts zijn er alleen voor beheerders en installateurs; klanten
+   * bestellen als gast. Wachtwoordlogin dekt dat volledig, dus een tweede
+   * inlogweg die browsers wantrouwen is puur risico zonder opbrengst.
+   *
+   * Wie de magic link terug wil: hij mag dan niet meer als kale GET-link de
+   * mail in. De werkwijze die dat oplost is een korte, schone URL naar een
+   * tussenpagina met één knop, die pas bij de klik server-side inlogt. Dat
+   * lost meteen op dat virusscanners links in mails vooraf openen en het
+   * token verbruiken voordat de ontvanger erbij is.
+   */
   providers: [
-    /**
-     * Magic link via MailerSend.
-     *
-     * Auth.js heeft geen kant-en-klare MailerSend-provider, dus dit is de
-     * generieke e-mailprovider met een eigen verzendfunctie. Dat is
-     * bovendien netter: één verzendweg voor álle mail, zodat een probleem
-     * met het afzenderdomein zich niet op één plek anders gedraagt.
-     */
-    {
-      id: "mailersend",
-      type: "email",
-      name: "E-mail",
-      from: process.env.MAIL_VAN ?? "Blusbox <info@blusbox.nl>",
-      // Auth.js-standaard; een link die een dag geldig is, is lang genoeg
-      // om een mailtje later op de dag alsnog te openen.
-      maxAge: 24 * 60 * 60,
-      options: {},
-      async sendVerificationRequest({ identifier, url }) {
-        const { stuurInloglink } = await import("@/lib/mail");
-        const resultaat = await stuurInloglink(identifier, url);
-        if (!resultaat.verstuurd) {
-          // Gooien is hier wél juist: de gebruiker staat te wachten op een
-          // mail die niet komt, en moet dat te zien krijgen.
-          throw new Error(`Inloglink niet verstuurd: ${resultaat.reden}`);
-        }
-      },
-    },
     Credentials({
       credentials: {
         email: { label: "E-mailadres", type: "email" },
