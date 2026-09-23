@@ -5,7 +5,11 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { orders } from "@/db/schema";
 import { vereisDashboard } from "@/lib/sessie";
-import { stuurBezorgbericht, stuurVerzendbericht } from "@/lib/mail";
+import {
+  stuurBerichtAanKlant,
+  stuurBezorgbericht,
+  stuurVerzendbericht,
+} from "@/lib/mail";
 
 /**
  * §9.5 afhandeling: een bestelling doorzetten naar verzonden of geleverd.
@@ -111,4 +115,47 @@ export async function markeerGeleverd(
       ? `${ordernummer} staat op geleverd, bericht met de bedenktijd verstuurd.`
       : `${ordernummer} staat op geleverd, maar het bericht ging niet weg: ${mail.reden}`,
   };
+}
+
+/**
+ * Een zelfgeschreven bericht aan de klant van één bestelling.
+ *
+ * Het ordernummer bepaalt de ontvanger; het formulier heeft geen
+ * "aan"-veld. Dat is geen vergetelheid maar de begrenzing: hiermee kun je
+ * je eigen klanten aanschrijven over hun eigen bestelling, en niets
+ * anders. Een vrij adresveld zou dit een verzendmachine maken waarmee
+ * iemand met dashboardtoegang post namens blusbox.nl rond kan sturen.
+ *
+ * De ondergrens op de berichtlengte vangt de lege verzending af die je
+ * krijgt als iemand per ongeluk op Enter drukt in het onderwerpveld.
+ */
+export async function stuurKlantbericht(
+  _vorige: AfhandelStaat,
+  formData: FormData,
+): Promise<AfhandelStaat> {
+  await vereisDashboard();
+
+  const ordernummer = String(formData.get("ordernummer") ?? "").trim();
+  const onderwerp = String(formData.get("onderwerp") ?? "").trim();
+  const bericht = String(formData.get("bericht") ?? "").trim();
+
+  if (!ordernummer) return { fase: "fout", melding: "Geen bestelling gekozen." };
+  if (!onderwerp) return { fase: "fout", melding: "Vul een onderwerp in." };
+  if (bericht.length < 10) {
+    return { fase: "fout", melding: "Schrijf eerst een bericht." };
+  }
+
+  const [order] = await db
+    .select({ ordernummer: orders.ordernummer })
+    .from(orders)
+    .where(eq(orders.ordernummer, ordernummer))
+    .limit(1);
+  if (!order) return { fase: "fout", melding: "Bestelling niet gevonden." };
+
+  const mail = await stuurBerichtAanKlant(ordernummer, onderwerp, bericht);
+  if (!mail.verstuurd) {
+    return { fase: "fout", melding: `Niet verstuurd: ${mail.reden}` };
+  }
+
+  return { fase: "klaar", melding: `Bericht verstuurd aan de klant van ${ordernummer}.` };
 }

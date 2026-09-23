@@ -1,6 +1,7 @@
 import { render } from "@react-email/components";
 import { Bestelbevestiging } from "@/emails/bestelbevestiging";
 import { Bestelmelding } from "@/emails/bestelmelding";
+import { Klantbericht } from "@/emails/klantbericht";
 import { Terugroepbericht } from "@/emails/terugroepbericht";
 import { Vervangingsherinnering } from "@/emails/vervangingsherinnering";
 import { Verzendbericht } from "@/emails/verzendbericht";
@@ -9,6 +10,7 @@ import { maakHerroepingsformulier } from "./herroepingsformulier";
 import { euro, verzendwaarde } from "./pricing";
 import { formatteerNl, herroepingUiterlijk } from "./levensduur";
 import { siteUrl } from "./site";
+import { bedrijf } from "./bedrijf";
 import { haalBestelling } from "./bestelling";
 import { contactadresVanBestelling } from "@/db/queries";
 import {
@@ -199,6 +201,73 @@ export async function stuurBestelmelding(
     tekst,
     // Beantwoorden komt bij de klant uit, niet bij ons eigen postvak.
     antwoordNaar: klant !== "onbekend" ? klant : undefined,
+  });
+}
+
+/**
+ * Een zelfgeschreven bericht van de winkelier aan één klant.
+ *
+ * De reden dat dit hier staat en niet in een los mailprogramma: de mail
+ * moet van info@blusbox.nl komen, en dat adres is alleen geverifieerd bij
+ * MailerSend. Vanuit een gewone Gmail versturen namens dat adres kan pas
+ * na het instellen van SMTP-toegang, en dan nog gaat elke verzending
+ * buiten de administratie om. Hier loopt het door dezelfde afzender en
+ * dezelfde controles als de rest.
+ *
+ * Bewust géén ontvangerveld: het adres komt uit de bestelling. Een vrij
+ * invulbaar "aan" zou van het dashboard een verzendmachine maken waarmee
+ * iemand met toegang post namens blusbox.nl de wereld in kan sturen.
+ */
+export async function stuurBerichtAanKlant(
+  ordernummer: string,
+  onderwerp: string,
+  bericht: string,
+): Promise<MailResultaat> {
+  if (!mailBeschikbaar()) {
+    return { verstuurd: false, reden: "MAILERSEND_API_TOKEN ontbreekt" };
+  }
+
+  const schoonOnderwerp = onderwerp.trim();
+  const schoonBericht = bericht.trim();
+  if (!schoonOnderwerp) return { verstuurd: false, reden: "Geen onderwerp" };
+  if (!schoonBericht) return { verstuurd: false, reden: "Geen bericht" };
+
+  const naar = await contactadresVanBestelling(ordernummer);
+  if (!naar) {
+    return { verstuurd: false, reden: "Geen e-mailadres bij deze bestelling" };
+  }
+
+  const html = await render(
+    Klantbericht({
+      ordernummer,
+      bericht: schoonBericht,
+      siteUrl,
+      bedrijf: {
+        volledig: bedrijf.volledig,
+        kvk: bedrijf.kvk,
+        telefoon: bedrijf.telefoon,
+        email: bedrijf.email,
+      },
+    }),
+  );
+
+  // Tekstversie met dezelfde inhoud. Zonder tekstdeel rekenen spamfilters
+  // een bericht aan, en juist deze mail moet aankomen.
+  const tekst = [
+    `Bericht over je bestelling ${ordernummer}`,
+    "",
+    schoonBericht,
+    "",
+    "—",
+    bedrijf.volledig,
+    `${bedrijf.telefoon} · ${bedrijf.email}`,
+  ].join("\n");
+
+  return verstuurMail({
+    naar,
+    onderwerp: schoonOnderwerp,
+    html,
+    tekst,
   });
 }
 

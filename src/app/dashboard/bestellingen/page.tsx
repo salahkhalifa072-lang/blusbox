@@ -3,6 +3,7 @@ import { Cel, Leeg, Paneel, Rij, Status, Tabel } from "@/components/dashboard/ui
 import { euro } from "@/lib/pricing";
 import { formatteerNl } from "@/lib/levensduur";
 import { Afhandelen } from "./afhandelen";
+import { Bericht } from "./bericht";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +34,7 @@ export default async function BestellingenPagina() {
               "Totaal",
               "Geplaatst",
               "Afhandeling",
+              "Bericht",
             ]}
           >
             {bestellingen.map((b) => (
@@ -56,6 +58,9 @@ export default async function BestellingenPagina() {
                     verzonden={b.verzondenOp !== null}
                     geleverd={b.geleverdOp !== null}
                   />
+                </Cel>
+                <Cel>
+                  <Bericht ordernummer={b.ordernummer} email={b.email} />
                 </Cel>
               </Rij>
             ))}
