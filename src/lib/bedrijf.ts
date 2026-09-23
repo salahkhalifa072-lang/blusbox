@@ -31,22 +31,45 @@ export const bedrijfsregel = `${bedrijf.volledig} · KvK ${bedrijf.kvk} · Btw-i
 /**
  * Afzend- en retouradres voor pakketten.
  *
- * LET OP: dit hoort NIET in de footer, op /contact of in de algemene
- * voorwaarden. `bedrijf` hierboven is met opzet adresloos omdat de
- * eigenaar zijn vestigingsadres niet publiceert, en die keuze blijft
- * staan. Dit adres bestaat voor twee dingen waar het onvermijdelijk is:
- * het verzendlabel op de doos, en het retouradres dat een klant krijgt
- * zodra hij een retour aanmeldt.
+ * Uit de omgeving en niet uit de code, omdat deze repository openbaar is.
+ * `bedrijf` hierboven is met opzet adresloos — de eigenaar publiceert zijn
+ * vestigingsadres niet — en een adres dat in een publieke repo staat is
+ * gepubliceerd, ook al rendert geen enkele pagina het.
  *
- * Wie dit op een openbare pagina zet, maakt die keuze ongedaan.
+ * Ontbreekt er een veld, dan geeft dit null terug in plaats van een half
+ * adres. Een verzendlabel met een onvolledige afzender komt niet aan en
+ * gaat ook niet retour; dan is hard falen beter dan doorgaan.
+ *
+ * Zet in Vercel: VERZEND_STRAAT, VERZEND_HUISNUMMER, VERZEND_POSTCODE,
+ * VERZEND_PLAATS.
  */
-export const verzendadres = {
-  naam: bedrijf.naam,
-  straat: "Biezelingsestraat",
-  huisnummer: "22B",
-  postcode: "4421 BM",
-  plaats: "Kapelle",
-  landcode: "NL",
-  telefoon: bedrijf.telefoon,
-  email: bedrijf.email,
-} as const;
+export type Verzendadres = {
+  naam: string;
+  straat: string;
+  huisnummer: string;
+  postcode: string;
+  plaats: string;
+  landcode: string;
+  telefoon: string;
+  email: string;
+};
+
+export function verzendadres(): Verzendadres | null {
+  const straat = process.env.VERZEND_STRAAT?.trim();
+  const huisnummer = process.env.VERZEND_HUISNUMMER?.trim();
+  const postcode = process.env.VERZEND_POSTCODE?.trim();
+  const plaats = process.env.VERZEND_PLAATS?.trim();
+
+  if (!straat || !huisnummer || !postcode || !plaats) return null;
+
+  return {
+    naam: bedrijf.naam,
+    straat,
+    huisnummer,
+    postcode,
+    plaats,
+    landcode: "NL",
+    telefoon: bedrijf.telefoon,
+    email: bedrijf.email,
+  };
+}
