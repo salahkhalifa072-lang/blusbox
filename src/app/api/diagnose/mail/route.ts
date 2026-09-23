@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { bestelmeldingAdres, stuurBestelmelding } from "@/lib/mail";
+import { contactadresVanBestelling } from "@/db/queries";
 import { afzender, verstuurMail } from "@/lib/mailtransport";
 
 /**
@@ -59,6 +60,22 @@ export async function GET(request: Request) {
   // kiest alleen wélke bestelling erin staat. Er gaat hier nooit post naar
   // een klant, hoe het verzoek er ook uitziet.
   const bestelling = new URL(request.url).searchParams.get("bestelling");
+
+  // ?kijk=1 stuurt niets en zegt alleen welk klantadres bij de bestelling
+  // gevonden wordt. Het verzendbericht en het bezorgbericht zoeken dat adres
+  // in de database op en niet bij Stripe; staat het er niet, dan klikt de
+  // winkelier op "verzonden" en vertrekt er stilletjes niets.
+  if (bestelling && new URL(request.url).searchParams.get("kijk")) {
+    const klantadres = await contactadresVanBestelling(bestelling);
+    return NextResponse.json({
+      ok: Boolean(klantadres),
+      stand,
+      bestelling,
+      klantadres,
+      verzonden: null,
+    });
+  }
+
   if (bestelling) {
     const resultaat = await stuurBestelmelding(bestelling);
     return NextResponse.json({
