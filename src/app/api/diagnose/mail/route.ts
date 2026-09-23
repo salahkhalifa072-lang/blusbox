@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { bestelmeldingAdres } from "@/lib/mail";
+import { bestelmeldingAdres, stuurBestelmelding } from "@/lib/mail";
 import { afzender, verstuurMail } from "@/lib/mailtransport";
 
 /**
@@ -48,6 +48,25 @@ export async function GET(request: Request) {
 
   if (!token || !naar) {
     return NextResponse.json({ ok: false, stand, verzonden: null });
+  }
+
+  // Met ?bestelling=BB-... gaat de échte bestelmelding eruit voor een
+  // bestaande bestelling. Dat loopt door dezelfde functie die de webhook
+  // aanroept en leest dezelfde database, dus het bewijst het hele pad —
+  // niet alleen dat er een mail de deur uit kan.
+  //
+  // De ontvanger blijft het eigen bestelmeldingsadres; het ordernummer
+  // kiest alleen wélke bestelling erin staat. Er gaat hier nooit post naar
+  // een klant, hoe het verzoek er ook uitziet.
+  const bestelling = new URL(request.url).searchParams.get("bestelling");
+  if (bestelling) {
+    const resultaat = await stuurBestelmelding(bestelling);
+    return NextResponse.json({
+      ok: resultaat.verstuurd,
+      stand,
+      bestelling,
+      verzonden: resultaat,
+    });
   }
 
   const resultaat = await verstuurMail({
