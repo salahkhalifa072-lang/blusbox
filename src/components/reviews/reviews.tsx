@@ -35,9 +35,11 @@ function Kaart({ review }: { review: Review }) {
         {review.plaats && (
           <span className="data text-xs text-staal-tekst">· {review.plaats}</span>
         )}
-        <span className="data ml-auto text-[11px] text-staal-tekst">
-          {formatteerNl(review.datum.slice(0, 10))}
-        </span>
+        {review.datum && (
+          <span className="data ml-auto text-[11px] text-staal-tekst">
+            {formatteerNl(review.datum.slice(0, 10))}
+          </span>
+        )}
       </div>
 
       {review.geverifieerd && (
