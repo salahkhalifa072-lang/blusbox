@@ -13,7 +13,7 @@ import { hashWachtwoord, wachtwoordProblemen } from "@/lib/wachtwoord";
 async function main() {
   config({ path: [".env.local", ".env"], quiet: true });
 
-  const [email, wachtwoord] = process.argv.slice(2);
+  const [email, wachtwoord] = process.argv.slice(2).filter((a) => a !== "--vraag");
   if (!email || !wachtwoord) {
     console.error(
       "Gebruik: npm run db:admin -- <e-mail> <wachtwoord>\n" +
@@ -26,6 +26,48 @@ async function main() {
   if (problemen.length > 0) {
     console.error("Wachtwoord voldoet niet:", problemen.join(" "));
     process.exit(1);
+  }
+
+  // Draaien met --vraag laat de connection string hier invoeren in plaats
+  // van hem in de opdrachtregel te zetten. Dat scheelt de stap waar het
+  // twee keer op misging — de voorbeeldtekst bleef staan en het script
+  // schreef vrolijk naar de lokale database — en het houdt het
+  // databasewachtwoord uit de shell-geschiedenis.
+  if (process.argv.includes("--vraag")) {
+    const readline = await import("node:readline/promises");
+    const { Writable } = await import("node:stream");
+
+    // Eigen uitvoerstroom die tijdens het invoeren alles wegwerpt. De
+    // connection string bevat het databasewachtwoord en hoort niet in de
+    // terugscroll van een terminal achter te blijven. Het overschrijven van
+    // readline's interne _writeToOutput werkt hier niet betrouwbaar; een
+    // stroom die zelf niets doorlaat wel.
+    let verbergen = false;
+    const uit = new Writable({
+      write(brok, _codering, klaar) {
+        if (!verbergen) process.stdout.write(brok);
+        klaar();
+      },
+    });
+
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: uit,
+      terminal: true,
+    });
+
+    process.stdout.write("Plak de connection string (invoer blijft onzichtbaar): ");
+    verbergen = true;
+    const ingevoerd = (await rl.question("")).trim();
+    verbergen = false;
+    rl.close();
+    process.stdout.write("\n");
+
+    if (!ingevoerd) {
+      console.error("Niets ingevoerd. Niets gedaan.");
+      process.exit(1);
+    }
+    process.env.DATABASE_URL = ingevoerd;
   }
 
   // Tegen welke database schrijven we? Dit script wordt met een
