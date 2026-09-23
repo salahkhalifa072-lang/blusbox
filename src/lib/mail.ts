@@ -2,6 +2,7 @@ import { render } from "@react-email/components";
 import { Bestelbevestiging } from "@/emails/bestelbevestiging";
 import { Bestelmelding } from "@/emails/bestelmelding";
 import { Klantbericht } from "@/emails/klantbericht";
+import { Berichtkopie } from "@/emails/berichtkopie";
 import { Terugroepbericht } from "@/emails/terugroepbericht";
 import { Vervangingsherinnering } from "@/emails/vervangingsherinnering";
 import { Verzendbericht } from "@/emails/verzendbericht";
@@ -268,6 +269,65 @@ export async function stuurBerichtAanKlant(
     onderwerp: schoonOnderwerp,
     html,
     tekst,
+  });
+}
+
+/**
+ * Kopie voor de winkelier van wat er zojuist naar een klant ging.
+ *
+ * Een losse verzending en met opzet geen bcc op de klantmail. Een
+ * bcc-adres reist mee in de kop van het bericht dat de klant ontvangt:
+ * sommige clients tonen het, en bij doorsturen ligt het helemaal open.
+ * Twee mails houden het gescheiden, en dat is precies de bedoeling —
+ * de klant hoort niet te zien dat er meegelezen wordt.
+ *
+ * Mislukt deze kopie, dan is dat vervelend maar niet ernstig: de klant
+ * heeft zijn bericht. De aanroeper meldt het apart en laat de verzending
+ * naar de klant met rust.
+ */
+export async function stuurBerichtkopie(
+  ordernummer: string,
+  klantEmail: string,
+  onderwerp: string,
+  bericht: string,
+): Promise<MailResultaat> {
+  if (!mailBeschikbaar()) {
+    return { verstuurd: false, reden: "MAILERSEND_API_TOKEN ontbreekt" };
+  }
+
+  const naar = bestelmeldingAdres();
+  if (!naar) {
+    return { verstuurd: false, reden: "MAIL_BESTELLINGEN ontbreekt" };
+  }
+
+  const nu = new Date();
+  const verstuurdOp = `${formatteerNl(nu.toISOString().slice(0, 10))} ${nu
+    .toISOString()
+    .slice(11, 16)} UTC`;
+
+  const html = await render(
+    Berichtkopie({ ordernummer, klantEmail, onderwerp, bericht, verstuurdOp }),
+  );
+
+  const tekst = [
+    `Kopie voor jezelf — niet naar de klant.`,
+    `Verstuurd aan ${klantEmail}`,
+    `Bestelling ${ordernummer}`,
+    `Onderwerp: ${onderwerp}`,
+    `Verstuurd op ${verstuurdOp}`,
+    "",
+    "Dit kreeg de klant te lezen:",
+    "",
+    bericht,
+  ].join("\n");
+
+  return verstuurMail({
+    naar,
+    onderwerp: `Kopie · ${klantEmail} · ${onderwerp}`,
+    html,
+    tekst,
+    // Beantwoorden gaat naar de klant, niet naar je eigen postvak.
+    antwoordNaar: klantEmail,
   });
 }
 

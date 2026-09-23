@@ -7,9 +7,11 @@ import { orders } from "@/db/schema";
 import { vereisDashboard } from "@/lib/sessie";
 import {
   stuurBerichtAanKlant,
+  stuurBerichtkopie,
   stuurBezorgbericht,
   stuurVerzendbericht,
 } from "@/lib/mail";
+import { contactadresVanBestelling } from "@/db/queries";
 
 /**
  * §9.5 afhandeling: een bestelling doorzetten naar verzonden of geleverd.
@@ -152,10 +154,31 @@ export async function stuurKlantbericht(
     .limit(1);
   if (!order) return { fase: "fout", melding: "Bestelling niet gevonden." };
 
+  const klantEmail = await contactadresVanBestelling(ordernummer);
+  if (!klantEmail) {
+    return { fase: "fout", melding: "Geen e-mailadres bij deze bestelling." };
+  }
+
   const mail = await stuurBerichtAanKlant(ordernummer, onderwerp, bericht);
   if (!mail.verstuurd) {
     return { fase: "fout", melding: `Niet verstuurd: ${mail.reden}` };
   }
 
-  return { fase: "klaar", melding: `Bericht verstuurd aan de klant van ${ordernummer}.` };
+  // De kopie volgt pas na een geslaagde klantmail, en telt niet mee voor
+  // het slagen ervan: het bericht ís verstuurd, dat kan een mislukte
+  // kopie niet meer ongedaan maken. Wel benoemen, anders denk je straks
+  // dat er niets gestuurd is omdat je niets in je eigen postvak ziet.
+  const kopie = await stuurBerichtkopie(
+    ordernummer,
+    klantEmail,
+    onderwerp,
+    bericht,
+  );
+
+  return {
+    fase: "klaar",
+    melding: kopie.verstuurd
+      ? `Verstuurd aan ${klantEmail}. Kopie staat in je postvak.`
+      : `Verstuurd aan ${klantEmail}. Kopie mislukte: ${kopie.reden}`,
+  };
 }
