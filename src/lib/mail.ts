@@ -1,5 +1,6 @@
 import { render } from "@react-email/components";
 import { Bestelbevestiging } from "@/emails/bestelbevestiging";
+import { Bestelmelding } from "@/emails/bestelmelding";
 import { Terugroepbericht } from "@/emails/terugroepbericht";
 import { Vervangingsherinnering } from "@/emails/vervangingsherinnering";
 import { Verzendbericht } from "@/emails/verzendbericht";
@@ -95,6 +96,109 @@ export async function stuurBestelbevestiging(
         content: Buffer.from(formulier).toString("base64"),
       },
     ],
+  });
+}
+
+/**
+ * Waar de bestelmeldingen heen gaan.
+ *
+ * Eigen variabele en niet MAIL_CONTACT, omdat dit twee verschillende dingen
+ * zijn: MAIL_CONTACT is het adres dat klanten zien en gebruiken, dit is het
+ * postvak waar de winkelier zijn bestellingen wil binnenkrijgen. Die mogen
+ * uit elkaar lopen, en bij Blusbox doen ze dat ook.
+ */
+export function bestelmeldingAdres(): string | undefined {
+  return (
+    process.env.MAIL_BESTELLINGEN ??
+    process.env.MAIL_CONTACT ??
+    undefined
+  );
+}
+
+/**
+ * Bestelmelding naar de winkelier.
+ *
+ * Los van de bestelbevestiging gehouden, en met opzet. Er zijn twee
+ * ontvangers met twee verschillende belangen: de klant wil een bewijs van
+ * zijn aankoop met het herroepingsformulier erbij, de winkelier wil een
+ * werkopdracht. Eén mail met een bcc erop zou betekenen dat de winkelier
+ * het klantendocument krijgt en de klant het interne adres ziet staan.
+ *
+ * Belangrijker nog: als de klantmail struikelt — verkeerd adres, bounce,
+ * een fout in het pdf'je — mag dat er nooit toe leiden dat de winkelier
+ * niets hoort. Daarom roept de webhook ze apart aan en telt een mislukking
+ * van de een niet mee voor de ander.
+ */
+export async function stuurBestelmelding(
+  ordernummer: string,
+  klantEmail?: string,
+): Promise<MailResultaat> {
+  if (!mailBeschikbaar()) {
+    return { verstuurd: false, reden: "MAILERSEND_API_TOKEN ontbreekt" };
+  }
+
+  const naar = bestelmeldingAdres();
+  if (!naar) {
+    return { verstuurd: false, reden: "MAIL_BESTELLINGEN ontbreekt" };
+  }
+
+  const gegevens = await haalBestelling(ordernummer);
+  if (!gegevens) {
+    return { verstuurd: false, reden: `Bestelling ${ordernummer} niet gevonden` };
+  }
+
+  const { order, regels } = gegevens;
+  const klant =
+    klantEmail ?? (await contactadresVanBestelling(ordernummer)) ?? "onbekend";
+
+  const adres = [
+    [order.straat, order.huisnummer].filter(Boolean).join(" "),
+    [order.postcode, order.plaats].filter(Boolean).join("  "),
+    order.landcode,
+  ].filter(Boolean) as string[];
+
+  const html = await render(
+    Bestelmelding({
+      ordernummer: order.ordernummer,
+      klantEmail: klant,
+      regels: regels.map((r) => ({
+        naam: r.naam,
+        aantal: r.aantal,
+        regelBedrag: euro(r.stukprijsExclBtwCenten * r.aantal),
+      })),
+      subtotaal: euro(order.subtotaalExclBtwCenten),
+      btw: order.btwVerlegd ? "btw verlegd" : euro(order.btwBedragCenten),
+      verzendwaarde,
+      totaal: euro(order.totaalInclBtwCenten),
+      adres,
+      geplaatstOp: formatteerNl(order.geplaatstOp.toISOString().slice(0, 10)),
+      siteUrl,
+    }),
+  );
+
+  const aantalTotaal = regels.reduce((som, r) => som + r.aantal, 0);
+
+  // Platte tekst met dezelfde feiten: dit is de versie die een telefoon in
+  // de meldingsregel laat zien, en spamfilters rekenen een bericht zonder
+  // tekstdeel aan.
+  const tekst = [
+    `Nieuwe bestelling ${order.ordernummer}`,
+    `Totaal ${euro(order.totaalInclBtwCenten)} — ${aantalTotaal} stuks`,
+    `Klant: ${klant}`,
+    "",
+    ...regels.map((r) => `${r.aantal}x ${r.naam}`),
+    "",
+    "Bezorgadres:",
+    ...adres,
+  ].join("\n");
+
+  return verstuurMail({
+    naar,
+    onderwerp: `Bestelling ${order.ordernummer} — ${euro(order.totaalInclBtwCenten)} — ${aantalTotaal} stuks`,
+    html,
+    tekst,
+    // Beantwoorden komt bij de klant uit, niet bij ons eigen postvak.
+    antwoordNaar: klant !== "onbekend" ? klant : undefined,
   });
 }
 

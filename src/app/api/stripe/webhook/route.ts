@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { leesWebhookGebeurtenis, naarOrderStatus } from "@/lib/stripe";
 import { markeerBetaald } from "@/lib/bestelling";
-import { stuurBestelbevestiging } from "@/lib/mail";
+import { stuurBestelbevestiging, stuurBestelmelding } from "@/lib/mail";
 
 /**
  * Stripe webhook.
@@ -47,17 +47,43 @@ export async function POST(request: Request) {
         const status = naarOrderStatus(sessie.payment_status);
         await markeerBetaald(orderId, sessie.id, status);
 
-        // Confirmation only once the money is actually in. A failed send
-        // is logged, never rethrown: the payment already succeeded, and a
-        // 500 here would make Stripe replay the whole event.
+        // Mail pas als het geld binnen is. Een mislukte verzending wordt
+        // gelogd en nooit opnieuw gegooid: de betaling is al geslaagd, en
+        // een 500 hier laat Stripe de hele gebeurtenis opnieuw afspelen.
+        //
+        // De twee mails staan bewust naast elkaar in plaats van achter
+        // elkaar. Ze hebben verschillende ontvangers en verschillende
+        // faalredenen — een klant met een adres dat bounct, of een fout in
+        // het pdf'je, mag er niet toe leiden dat de winkelier zijn eigen
+        // bestelling niet te zien krijgt. allSettled, want een afwijzing
+        // van de een mag de ander niet afbreken.
         if (status === "betaald" && ordernummer) {
-          const resultaat = await stuurBestelbevestiging(
-            ordernummer,
-            sessie.customer_details?.email ?? undefined,
-          );
-          if (!resultaat.verstuurd) {
+          const klantEmail = sessie.customer_details?.email ?? undefined;
+
+          const [bevestiging, melding] = await Promise.allSettled([
+            stuurBestelbevestiging(ordernummer, klantEmail),
+            stuurBestelmelding(ordernummer, klantEmail),
+          ]);
+
+          if (bevestiging.status === "rejected") {
             console.error(
-              `Bevestigingsmail voor ${ordernummer} niet verstuurd: ${resultaat.reden}`,
+              `Bevestigingsmail voor ${ordernummer} gooide:`,
+              bevestiging.reason,
+            );
+          } else if (!bevestiging.value.verstuurd) {
+            console.error(
+              `Bevestigingsmail voor ${ordernummer} niet verstuurd: ${bevestiging.value.reden}`,
+            );
+          }
+
+          if (melding.status === "rejected") {
+            console.error(
+              `Bestelmelding voor ${ordernummer} gooide:`,
+              melding.reason,
+            );
+          } else if (!melding.value.verstuurd) {
+            console.error(
+              `Bestelmelding voor ${ordernummer} niet verstuurd: ${melding.value.reden}`,
             );
           }
         }

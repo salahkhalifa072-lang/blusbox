@@ -58,6 +58,11 @@ export async function verstuurMail(opdracht: {
   html: string;
   /** Platte tekst; zonder dit scoort een bericht slechter bij spamfilters */
   tekst?: string;
+  /**
+   * Antwoordadres. Nodig bij post die wij aan onszelf sturen over een klant:
+   * Beantwoorden moet dan bij de klant uitkomen en niet bij ons eigen postvak.
+   */
+  antwoordNaar?: string;
   bijlagen?: Bijlage[];
   /** Eigen kop-velden, bijvoorbeeld om een terugroepbericht te markeren */
   headers?: Record<string, string>;
@@ -72,6 +77,7 @@ export async function verstuurMail(opdracht: {
     html: opdracht.html,
   };
   if (opdracht.tekst) body.text = opdracht.tekst;
+  if (opdracht.antwoordNaar) body.reply_to = { email: opdracht.antwoordNaar };
   if (opdracht.bijlagen?.length) {
     body.attachments = opdracht.bijlagen.map((b) => ({
       filename: b.filename,
