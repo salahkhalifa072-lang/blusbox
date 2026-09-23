@@ -28,6 +28,25 @@ async function main() {
     process.exit(1);
   }
 
+  // Tegen welke database schrijven we? Dit script wordt met een
+  // meegegeven DATABASE_URL tegen productie gedraaid, en de meest
+  // gemaakte fout is dat die niet doorkomt — dan landt de beheerder
+  // ongemerkt in de lokale database en blijft inloggen op de site
+  // mislukken. Alleen de host, nooit het wachtwoord uit de URL.
+  const bron = process.env.DATABASE_URL ?? "";
+  let waar = "onbekend";
+  try {
+    const u = new URL(bron);
+    waar = `${u.hostname}${u.pathname}`;
+  } catch {
+    console.error("DATABASE_URL is geen geldige URL. Niets gedaan.");
+    process.exit(1);
+  }
+  console.log(`Database: ${waar}`);
+  if (/^(localhost|127\.0\.0\.1)$/.test(new URL(bron).hostname)) {
+    console.log("Let op: dit is de lokale database, niet productie.");
+  }
+
   const { db } = await import("./index");
   const { users } = await import("./schema");
   const { credentials } = await import("./auth-schema");
@@ -72,7 +91,24 @@ async function main() {
       set: { wachtwoordHash: hash, bijgewerktOp: new Date() },
     });
 
-  console.log("Wachtwoord ingesteld. Inloggen kan via /account.");
+  // Terugcontrole. "Wachtwoord ingesteld" is een bewering; dit is een
+  // bewijs. Het leest de hash terug langs dezelfde weg als de inlogcode,
+  // zodat een mislukte schrijfactie of een afwijkende hash-instelling hier
+  // aan het licht komt en niet pas op het inlogscherm.
+  const { verifieerWachtwoord } = await import("@/lib/wachtwoord");
+  const [terug] = await db
+    .select({ hash: credentials.wachtwoordHash })
+    .from(credentials)
+    .where(eq(credentials.userId, userId))
+    .limit(1);
+
+  const klopt = terug ? await verifieerWachtwoord(wachtwoord, terug.hash) : false;
+  if (!klopt) {
+    console.error("Opgeslagen, maar de controle mislukte. Niet gebruiken.");
+    process.exit(1);
+  }
+
+  console.log(`Gecontroleerd: inloggen met ${adres} werkt op ${waar}.`);
   process.exit(0);
 }
 
