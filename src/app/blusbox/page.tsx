@@ -9,7 +9,7 @@ import { FaqList } from "@/components/ui/accordion";
 import { Galerij } from "@/components/product/galerij";
 import { AantalKiezer } from "@/components/product/aantal-kiezer";
 import { Betaalmethoden } from "@/components/product/betaalmethoden";
-import { productFacts } from "@/lib/product-facts";
+import { kenmerken, productFacts } from "@/lib/product-facts";
 import { faqUitgelicht } from "@/lib/faq";
 import { LEVERTIJD } from "@/lib/verzending";
 import { voegToeAanWagen } from "@/app/winkelwagen/acties";
@@ -131,6 +131,27 @@ export default function BlusboxPage() {
                   </span>
                 </a>
               )}
+              {/* Kenmerken in het kort, zoals een marktplaats dat onder de
+                  titel doet. Wie hier al afhaakt op "geen stroom nodig"
+                  hoeft de rest van de pagina niet te lezen. */}
+              <ul className="mt-5 flex flex-wrap gap-2">
+                {kenmerken.map((k) => (
+                  <li
+                    key={k}
+                    className="data rounded-full border border-kastwit/20 px-3 py-1 text-[11px] text-kastwit/75"
+                  >
+                    {k}
+                  </li>
+                ))}
+              </ul>
+
+              <a
+                href="#specificaties"
+                className="data mt-3 inline-block text-xs text-railstaal underline underline-offset-4 hover:text-kastwit"
+              >
+                Alle specificaties
+              </a>
+
               <p className="mt-4 text-lg text-kastwit/70">
                 De laatste verdedigingslinie in je meterkast. Bij{" "}
                 <span className="data text-kastwit">170 °C</span> activeert de
@@ -211,7 +232,7 @@ export default function BlusboxPage() {
         </section>
 
         {/* Specs */}
-        <section className="mx-auto max-w-6xl px-6 py-20">
+        <section id="specificaties" className="mx-auto max-w-6xl scroll-mt-24 px-6 py-20">
           <div className="grid gap-12 lg:grid-cols-[1fr_1.4fr]">
             <div>
               <SectionTitle>Specificaties</SectionTitle>
