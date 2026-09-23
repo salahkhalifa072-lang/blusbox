@@ -6,7 +6,7 @@
 export const BTW_TARIEF = 0.21;
 
 /** Consumer price incl. btw, in euro cents to avoid float drift. */
-export const PRIJS_INCL_CENTEN = 3000;
+export const PRIJS_INCL_CENTEN = 2999;
 
 /**
  * Adviesprijs: de prijs die installateurs en wederverkopers voeren.
