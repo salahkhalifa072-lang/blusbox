@@ -8,6 +8,7 @@ import { VideoBlock } from "@/components/ui/video-block";
 import { Reveal } from "@/components/ui/reveal";
 import { LogoBadge } from "@/components/site/logo";
 import { UspBar } from "@/components/site/usp-bar";
+import { Reviews } from "@/components/reviews/reviews";
 import { gratisVerzending, prijsIncl, verzendwaarde } from "@/lib/pricing";
 
 /**
@@ -402,6 +403,9 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* Beoordelingen. Toont zichzelf niet zolang lib/reviews.ts leeg is. */}
+        <Reviews />
 
         {/* Waarom de meterkast */}
         <section>

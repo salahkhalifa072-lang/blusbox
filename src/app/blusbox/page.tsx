@@ -14,12 +14,19 @@ import { faqUitgelicht } from "@/lib/faq";
 import { LEVERTIJD } from "@/lib/verzending";
 import { voegToeAanWagen } from "@/app/winkelwagen/acties";
 import {
+  adviesprijs,
   gratisVerzending,
   prijsExcl,
   prijsIncl,
   verzendwaarde,
+  ADVIESPRIJS_CENTEN,
+  KORTINGSPERCENTAGE,
   PRIJS_INCL_CENTEN,
+  TOON_ADVIESPRIJS,
 } from "@/lib/pricing";
+import { Reviews } from "@/components/reviews/reviews";
+import { Sterren } from "@/components/reviews/sterren";
+import { REVIEWS, gemiddeldeWaardering } from "@/lib/reviews";
 
 export const metadata: Metadata = {
   // absolute: the product name is already the brand name, so the
@@ -51,6 +58,18 @@ const jsonLd = {
     "@type": "Offer",
     price: (PRIJS_INCL_CENTEN / 100).toFixed(2),
     priceCurrency: "EUR",
+    // Wat de site toont moet zijn wat Google leest; lopen die uiteen, dan
+    // is dat een reden voor afkeuring in Search Console.
+    ...(TOON_ADVIESPRIJS
+      ? {
+          priceSpecification: {
+            "@type": "UnitPriceSpecification",
+            priceType: "https://schema.org/ListPrice",
+            price: (ADVIESPRIJS_CENTEN / 100).toFixed(2),
+            priceCurrency: "EUR",
+          },
+        }
+      : {}),
     availability: "https://schema.org/InStock",
     shippingDetails: {
       "@type": "OfferShippingDetails",
@@ -68,6 +87,8 @@ const jsonLd = {
 };
 
 export default function BlusboxPage() {
+  const gemiddelde = gemiddeldeWaardering();
+
   return (
     <>
       <KruimelData kruimels={[{ naam: "Blusbox", pad: "/blusbox" }]} />
@@ -91,6 +112,25 @@ export default function BlusboxPage() {
               <h1 className="font-display mt-4 text-[clamp(2.5rem,6vw,4.5rem)]">
                 Blusbox
               </h1>
+
+              {/* Waardering direct onder de titel. Verdwijnt vanzelf zolang
+                  er geen beoordelingen zijn — een lege sterrenrij of een
+                  nul-score doet meer kwaad dan helemaal niets tonen. */}
+              {gemiddelde !== null && (
+                <a
+                  href="#beoordelingen"
+                  className="mt-3 inline-flex items-center gap-2 text-sm text-kastwit/80 underline-offset-4 hover:underline"
+                >
+                  <Sterren waarde={gemiddelde} />
+                  <span className="data">
+                    {gemiddelde.toString().replace(".", ",")}
+                  </span>
+                  <span className="text-kastwit/60">
+                    · {REVIEWS.length}{" "}
+                    {REVIEWS.length === 1 ? "beoordeling" : "beoordelingen"}
+                  </span>
+                </a>
+              )}
               <p className="mt-4 text-lg text-kastwit/70">
                 De laatste verdedigingslinie in je meterkast. Bij{" "}
                 <span className="data text-kastwit">170 °C</span> activeert de
@@ -99,14 +139,22 @@ export default function BlusboxPage() {
               </p>
 
               <div className="mt-8 border-t border-kastwit/15 pt-6">
-                <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
+                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-2">
                   <p className="data text-3xl">{prijsIncl}</p>
-                  <span className="rounded-full bg-blusrood-vlak px-3 py-1 text-xs font-medium">
-                    {gratisVerzending.kort}
-                  </span>
+                  {TOON_ADVIESPRIJS && (
+                    <>
+                      <span className="data text-lg text-railstaal line-through">
+                        {adviesprijs}
+                      </span>
+                      <span className="rounded-full bg-blusrood-vlak px-3 py-1 text-xs font-medium">
+                        −{KORTINGSPERCENTAGE}%
+                      </span>
+                    </>
+                  )}
                 </div>
                 <p className="mt-2 text-sm text-kastwit/60">
                   Incl. btw ({prijsExcl} excl. btw)
+                  {TOON_ADVIESPRIJS && <> · adviesprijs {adviesprijs}</>}
                 </p>
                 <p className="data mt-3 text-sm text-kastwit/80">
                   Verzendkosten{" "}
@@ -134,6 +182,24 @@ export default function BlusboxPage() {
                   Zakelijk bestellen
                 </Link>
 
+                {/* Vertrouwenspunten binnen het koopblok en niet eronder:
+                    wie twijfelt bij de knop moet ze zien zonder te scrollen.
+                    Alleen dingen die wij waarmaken — geen "dag en nacht
+                    klantenservice" bij een eenmanszaak. */}
+                <ul className="mt-6 space-y-2 border-t border-kastwit/15 pt-6">
+                  {[
+                    gratisVerzending.kort,
+                    `Levertijd ${LEVERTIJD}, verstuurd uit Nederland`,
+                    "14 dagen bedenktijd, retour zonder opgaaf van reden",
+                    "Wettelijke garantie en Nederlandse handleiding",
+                  ].map((punt) => (
+                    <li key={punt} className="flex gap-2 text-sm text-kastwit/75">
+                      <span aria-hidden className="text-blusrood-op-donker">—</span>
+                      <span>{punt}</span>
+                    </li>
+                  ))}
+                </ul>
+
                 <div className="mt-8 border-t border-kastwit/15 pt-6">
                   <Betaalmethoden donker />
                 </div>
@@ -142,21 +208,6 @@ export default function BlusboxPage() {
             </div>
           </div>
 
-          <ul className="mx-auto mt-12 grid max-w-6xl gap-3 px-6 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              gratisVerzending.kort,
-              "14 dagen herroepingsrecht",
-              "Vervangingsherinnering na 10 jaar",
-              "Nederlandse handleiding",
-            ].map((item) => (
-              <li
-                key={item}
-                className="rounded-xl border border-kastwit/15 px-4 py-3 text-sm text-kastwit/75"
-              >
-                {item}
-              </li>
-            ))}
-          </ul>
         </section>
 
         {/* Specs */}
@@ -252,6 +303,13 @@ export default function BlusboxPage() {
             Naar downloads
           </Link>
         </section>
+
+        {/* Beoordelingen. Staan vóór de FAQ: wie twijfelt leest eerst wat
+            anderen vonden en pas daarna de kleine lettertjes. Toont zichzelf
+            niet zolang lib/reviews.ts leeg is. */}
+        <div id="beoordelingen" className="scroll-mt-24">
+          <Reviews titel="Beoordelingen" />
+        </div>
 
         {/* FAQ excerpt */}
         <section className="mx-auto max-w-6xl px-6 pb-4">
