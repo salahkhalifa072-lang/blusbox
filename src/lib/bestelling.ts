@@ -178,10 +178,19 @@ export async function markeerBetaald(
   orderId: string,
   mollieId: string,
   status: "betaald" | "geannuleerd" | "nieuw",
+  klantNaam?: string,
 ) {
-  await db
-    .update(orders)
-    .set({ status, mollieId })
-    .where(eq(orders.id, orderId));
+  // De naam komt van de betaalpagina en is het enige moment waarop we hem
+  // zien; hij staat nergens in ons eigen afrekenformulier. Alleen
+  // wegschrijven als er iets staat, zodat een tweede webhook zonder naam
+  // een eerder vastgelegde naam niet wist.
+  const velden: { status: typeof status; mollieId: string; klantNaam?: string } = {
+    status,
+    mollieId,
+  };
+  const schoon = klantNaam?.trim();
+  if (schoon) velden.klantNaam = schoon;
+
+  await db.update(orders).set(velden).where(eq(orders.id, orderId));
 }
 

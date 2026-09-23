@@ -175,6 +175,13 @@ export const orders = pgTable(
       onDelete: "set null",
     }),
     gastEmail: text("gast_email"),
+    /**
+     * Naam van de klant, zoals Stripe hem bij het afrekenen heeft
+     * opgehaald. Stond hier lang niet in omdat de webshop hem nergens
+     * nodig had — tot er verzendlabels gemaakt moesten worden, en daar is
+     * een naam op verplicht. Blijft leeg bij oudere bestellingen.
+     */
+    klantNaam: text("klant_naam"),
 
     status: orderStatusEnum("status").notNull().default("nieuw"),
 

@@ -84,6 +84,7 @@ export async function bestellingenLijst(limiet = 50) {
       ordernummer: orders.ordernummer,
       status: orders.status,
       email: sql<string>`coalesce(${orders.gastEmail}, '')`,
+      klantNaam: orders.klantNaam,
       totaalCenten: orders.totaalInclBtwCenten,
       landcode: orders.landcode,
       postcode: orders.postcode,

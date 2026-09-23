@@ -98,3 +98,36 @@ export const LANDKEUZE = TOEGESTANE_LANDEN.map((code) => ({
   code,
   naam: LANDNAMEN[code] ?? code,
 }));
+
+/**
+ * Wat er fysiek de deur uit gaat, per module.
+ *
+ * Nodig voor een verzendlabel: een vervoerder wil gewicht en afmetingen
+ * weten voordat hij een zending aanmaakt.
+ *
+ * Over de hoogte: 4 cm klinkt als niets, maar het is precies de maat die
+ * een brievenbuspakje uitsluit — PostNL en DHL houden 3,2 cm aan. Elke
+ * zending is daardoor een gewoon pakket. Dat is geen fout in deze
+ * getallen maar een eigenschap van het product, en het verklaart waarom
+ * de verzendkosten hoger uitvallen dan je bij 40 gram zou verwachten.
+ */
+export const MODULE_PAKKET = {
+  /** Gram, module plus omdoos. */
+  gewichtGram: 40,
+  lengteCm: 10,
+  breedteCm: 6,
+  hoogteCm: 4,
+} as const;
+
+/**
+ * Gewicht van een zending met een gegeven aantal modules.
+ *
+ * Benadering: de verpakking groeit mee, maar niet lineair. Hij is hier
+ * bewust ruim genomen — een zending die zwaarder blijkt dan opgegeven
+ * levert een naheffing op, een zending die lichter is kost niets extra.
+ */
+export function zendingGewichtGram(aantalModules: number): number {
+  const netto = MODULE_PAKKET.gewichtGram * Math.max(1, aantalModules);
+  const omdoos = aantalModules > 1 ? 150 : 0;
+  return netto + omdoos;
+}

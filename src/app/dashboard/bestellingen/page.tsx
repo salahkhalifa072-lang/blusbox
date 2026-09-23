@@ -29,6 +29,7 @@ export default async function BestellingenPagina() {
             koppen={[
               "Bestelnummer",
               "Status",
+              "Klant",
               "E-mail",
               "Bezorging",
               "Totaal",
@@ -43,6 +44,7 @@ export default async function BestellingenPagina() {
                 <Cel>
                   <Status waarde={b.status} />
                 </Cel>
+                <Cel>{b.klantNaam || "—"}</Cel>
                 <Cel>{b.email || "—"}</Cel>
                 <Cel mono>
                   {[b.postcode, b.landcode].filter(Boolean).join(" · ") || "—"}

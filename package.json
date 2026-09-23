@@ -16,7 +16,8 @@
     "db:admin": "tsx src/db/seed-admin.ts",
     "e2e": "playwright test",
     "e2e:ui": "playwright test --ui",
-    "db:admin:prod": "tsx src/db/seed-admin.ts --vraag"
+    "db:admin:prod": "tsx src/db/seed-admin.ts --vraag",
+    "db:migrate:prod": "tsx src/db/migreer.ts"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.3",

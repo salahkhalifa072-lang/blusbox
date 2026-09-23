@@ -34,40 +34,8 @@ async function main() {
   // schreef vrolijk naar de lokale database — en het houdt het
   // databasewachtwoord uit de shell-geschiedenis.
   if (process.argv.includes("--vraag")) {
-    const readline = await import("node:readline/promises");
-    const { Writable } = await import("node:stream");
-
-    // Eigen uitvoerstroom die tijdens het invoeren alles wegwerpt. De
-    // connection string bevat het databasewachtwoord en hoort niet in de
-    // terugscroll van een terminal achter te blijven. Het overschrijven van
-    // readline's interne _writeToOutput werkt hier niet betrouwbaar; een
-    // stroom die zelf niets doorlaat wel.
-    let verbergen = false;
-    const uit = new Writable({
-      write(brok, _codering, klaar) {
-        if (!verbergen) process.stdout.write(brok);
-        klaar();
-      },
-    });
-
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: uit,
-      terminal: true,
-    });
-
-    process.stdout.write("Plak de connection string (invoer blijft onzichtbaar): ");
-    verbergen = true;
-    const ingevoerd = (await rl.question("")).trim();
-    verbergen = false;
-    rl.close();
-    process.stdout.write("\n");
-
-    if (!ingevoerd) {
-      console.error("Niets ingevoerd. Niets gedaan.");
-      process.exit(1);
-    }
-    process.env.DATABASE_URL = ingevoerd;
+    const { vraagVerbinding } = await import("./vraag-verbinding");
+    process.env.DATABASE_URL = await vraagVerbinding();
   }
 
   // Tegen welke database schrijven we? Dit script wordt met een
@@ -75,15 +43,9 @@ async function main() {
   // gemaakte fout is dat die niet doorkomt — dan landt de beheerder
   // ongemerkt in de lokale database en blijft inloggen op de site
   // mislukken. Alleen de host, nooit het wachtwoord uit de URL.
+  const { waarWijst } = await import("./vraag-verbinding");
   const bron = process.env.DATABASE_URL ?? "";
-  let waar = "onbekend";
-  try {
-    const u = new URL(bron);
-    waar = `${u.hostname}${u.pathname}`;
-  } catch {
-    console.error("DATABASE_URL is geen geldige URL. Niets gedaan.");
-    process.exit(1);
-  }
+  const waar = waarWijst(bron);
   console.log(`Database: ${waar}`);
   if (/^(localhost|127\.0\.0\.1)$/.test(new URL(bron).hostname)) {
     console.log("Let op: dit is de lokale database, niet productie.");

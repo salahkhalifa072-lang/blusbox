@@ -153,8 +153,11 @@ export async function stuurBestelmelding(
   const { order, regels } = gegevens;
   const klant =
     klantEmail ?? (await contactadresVanBestelling(ordernummer)) ?? "onbekend";
+  // Naam vóór het adres: dat is de volgorde waarin je een label leest.
+  const naam = order.klantNaam?.trim();
 
   const adres = [
+    naam,
     [order.straat, order.huisnummer].filter(Boolean).join(" "),
     [order.postcode, order.plaats].filter(Boolean).join("  "),
     order.landcode,

@@ -45,7 +45,12 @@ export async function POST(request: Request) {
         if (!orderId) break;
 
         const status = naarOrderStatus(sessie.payment_status);
-        await markeerBetaald(orderId, sessie.id, status);
+        await markeerBetaald(
+          orderId,
+          sessie.id,
+          status,
+          sessie.customer_details?.name ?? undefined,
+        );
 
         // Mail pas als het geld binnen is. Een mislukte verzending wordt
         // gelogd en nooit opnieuw gegooid: de betaling is al geslaagd, en
