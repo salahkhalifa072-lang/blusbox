@@ -251,8 +251,9 @@ hij als te verzenden) en krijgt de winkelier een seintje. Een verlopen
 sessie annuleert een factuur niet.
 
 **Vóór het eerste gebruik:**
-1. Migratie `0005_factuur` draaien (`npm run db:migrate:prod`) — alleen
-   toevoegingen.
+1. ~~Migratie `0005_factuur` draaien~~ — gebeurt nu vanzelf: de build op
+   Vercel (`vercel-build`) voert eerst de migraties uit en stopt als dat
+   mislukt, zodat nieuwe code nooit tegen een oud schema draait.
 2. Het vestigingsadres moet in Vercel staan (`VERZEND_STRAAT`,
    `VERZEND_HUISNUMMER`, `VERZEND_POSTCODE`, `VERZEND_PLAATS`). Art. 35a Wet
    OB eist het adres van de leverancier op de factuur; zonder weigert het
