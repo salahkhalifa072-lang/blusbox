@@ -92,6 +92,7 @@ export async function bestellingenLijst(limiet = 50) {
       verzondenOp: orders.verzondenOp,
       geleverdOp: orders.geleverdOp,
       trackAndTrace: orders.trackAndTrace,
+      balieverkoop: orders.balieverkoop,
     })
     .from(orders)
     .orderBy(desc(orders.geplaatstOp))

@@ -7,11 +7,14 @@ import { Terugroepbericht } from "@/emails/terugroepbericht";
 import { Vervangingsherinnering } from "@/emails/vervangingsherinnering";
 import { Verzendbericht } from "@/emails/verzendbericht";
 import { Bezorgbericht } from "@/emails/bezorgbericht";
+import { Factuurbericht } from "@/emails/factuurbericht";
+import { haalFactuur, type Factuur } from "@/db/facturen";
+import { maakFactuurPdf, vervaldatum } from "./factuur";
 import { maakHerroepingsformulier } from "./herroepingsformulier";
 import { euro, verzendwaarde } from "./pricing";
 import { formatteerNl, herroepingUiterlijk } from "./levensduur";
 import { siteUrl } from "./site";
-import { bedrijf } from "./bedrijf";
+import { bedrijf, verzendadres } from "./bedrijf";
 import { haalBestelling } from "./bestelling";
 import { contactadresVanBestelling } from "@/db/queries";
 import {
@@ -517,3 +520,151 @@ export async function stuurBezorgbericht(
  * `providers` in auth.ts. Alle overgebleven post is transactioneel en
  * bevat bewust géén links, alleen het contactadres.
  */
+
+/** De link in de factuurmail. Naar onze eigen pagina, niet naar Stripe. */
+export function betaalUrl(betaaltoken: string): string {
+  return `${siteUrl}/betalen/${betaaltoken}`;
+}
+
+/**
+ * De factuur als pdf, of een reden waarom dat niet kan.
+ *
+ * Zonder vestigingsadres geen factuur: art. 35a Wet OB eist het, en een
+ * factuur zonder adres is voor een zakelijke klant waardeloos. Het adres
+ * komt uit dezelfde VERZEND_*-variabelen als de verzendlabels, zodat het
+ * niet in deze openbare repository hoeft te staan.
+ */
+export async function factuurPdf(
+  factuur: Factuur,
+): Promise<{ pdf: Uint8Array } | { fout: string }> {
+  const leverancier = verzendadres();
+  if (!leverancier) {
+    return {
+      fout: "Vestigingsadres ontbreekt (VERZEND_STRAAT, VERZEND_HUISNUMMER, VERZEND_POSTCODE, VERZEND_PLAATS). Dat moet wettelijk op de factuur.",
+    };
+  }
+  const betaald = factuur.status !== "nieuw";
+  const pdf = await maakFactuurPdf({
+    factuurnummer: factuur.factuurnummer,
+    ordernummer: factuur.ordernummer,
+    factuurdatum: factuur.factuurdatum,
+    leverdatum: factuur.leverdatum,
+    leverancier,
+    klant: { ...factuur, naam: factuur.klantNaam },
+    totalen: factuur.totalen,
+    betaald,
+    betaalUrl:
+      !betaald && factuur.betaaltoken
+        ? betaalUrl(factuur.betaaltoken)
+        : undefined,
+  });
+  return { pdf };
+}
+
+/**
+ * Factuur van een balieverkoop naar de klant, met de pdf erbij.
+ *
+ * Net als bij het klantbericht is er geen vrij "aan"-veld: het adres komt
+ * uit de bestelling die bij deze factuur is aangemaakt. Opnieuw versturen
+ * gaat dus altijd naar hetzelfde adres.
+ */
+export async function stuurFactuur(
+  factuurnummer: string,
+): Promise<MailResultaat> {
+  if (!mailBeschikbaar()) {
+    return { verstuurd: false, reden: "MAILERSEND_API_TOKEN ontbreekt" };
+  }
+
+  const factuur = await haalFactuur({ factuurnummer });
+  if (!factuur) {
+    return { verstuurd: false, reden: `Factuur ${factuurnummer} niet gevonden` };
+  }
+  if (!factuur.email) {
+    return { verstuurd: false, reden: "Geen e-mailadres bij deze factuur" };
+  }
+  if (factuur.status !== "nieuw") {
+    return { verstuurd: false, reden: "Deze factuur is al betaald" };
+  }
+  if (!factuur.betaaltoken) {
+    return { verstuurd: false, reden: "Geen betaallink bij deze factuur" };
+  }
+
+  const resultaat = await factuurPdf(factuur);
+  if ("fout" in resultaat) return { verstuurd: false, reden: resultaat.fout };
+
+  const totaal = euro(factuur.totalen.totaalInclBtwCenten);
+  const verval = formatteerNl(vervaldatum(factuur.factuurdatum));
+  const link = betaalUrl(factuur.betaaltoken);
+  const aanhef = factuur.klantNaam || "klant";
+
+  const html = await render(
+    Factuurbericht({
+      klantNaam: aanhef,
+      factuurnummer: factuur.factuurnummer,
+      totaal,
+      vervaldatum: verval,
+      betaalUrl: link,
+      bedrijf: {
+        volledig: bedrijf.volledig,
+        kvk: bedrijf.kvk,
+        telefoon: bedrijf.telefoon,
+        email: bedrijf.email,
+      },
+      siteUrl,
+    }),
+  );
+
+  const tekst = [
+    `Beste ${aanhef},`,
+    "",
+    `Bedankt voor je aankoop van de Blusbox. In de bijlage vind je factuur ${factuur.factuurnummer}.`,
+    `Het bedrag van ${totaal} kun je vóór ${verval} betalen via deze link:`,
+    "",
+    link,
+    "",
+    "Vragen over de factuur? Beantwoord deze mail of bel ons.",
+    "",
+    "—",
+    bedrijf.volledig,
+    `${bedrijf.telefoon} · ${bedrijf.email}`,
+  ].join("\n");
+
+  return verstuurMail({
+    naar: factuur.email,
+    onderwerp: `Factuur ${factuur.factuurnummer} van Blusbox — ${totaal}`,
+    html,
+    tekst,
+    bijlagen: [
+      {
+        filename: `factuur-${factuur.factuurnummer}.pdf`,
+        content: Buffer.from(resultaat.pdf).toString("base64"),
+      },
+    ],
+  });
+}
+
+/** Seintje aan de winkelier: een factuur is via de link betaald. */
+export async function stuurFactuurBetaaldMelding(
+  ordernummer: string,
+): Promise<MailResultaat> {
+  if (!mailBeschikbaar()) {
+    return { verstuurd: false, reden: "MAILERSEND_API_TOKEN ontbreekt" };
+  }
+  const naar = bestelmeldingAdres();
+  if (!naar) return { verstuurd: false, reden: "MAIL_BESTELLINGEN ontbreekt" };
+
+  const gegevens = await haalBestelling(ordernummer);
+  if (!gegevens?.order.factuurnummer) {
+    return { verstuurd: false, reden: `Factuur bij ${ordernummer} niet gevonden` };
+  }
+  const { order } = gegevens;
+  const regel = `Factuur ${order.factuurnummer} (${order.klantNaam ?? "onbekend"}) is betaald: ${euro(order.totaalInclBtwCenten)}.`;
+
+  return verstuurMail({
+    naar,
+    onderwerp: `Betaald · factuur ${order.factuurnummer} · ${euro(order.totaalInclBtwCenten)}`,
+    html: `<p>${regel.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</p>`,
+    tekst: regel,
+    antwoordNaar: order.gastEmail ?? undefined,
+  });
+}

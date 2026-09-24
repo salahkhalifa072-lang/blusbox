@@ -33,11 +33,14 @@ export function Afhandelen({
   status,
   verzonden,
   geleverd,
+  balieverkoop = false,
 }: {
   ordernummer: string;
   status: string;
   verzonden: boolean;
   geleverd: boolean;
+  /** Meegenomen aan de balie: er valt niets te verzenden of te bezorgen. */
+  balieverkoop?: boolean;
 }) {
   const [verzendStaat, verzendActie] = useActionState<AfhandelStaat, FormData>(
     markeerVerzonden,
@@ -54,6 +57,12 @@ export function Afhandelen({
   if (status === "nieuw") {
     return (
       <span className="data text-xs text-staal-tekst">wacht op betaling</span>
+    );
+  }
+
+  if (balieverkoop) {
+    return (
+      <span className="data text-xs text-staal-tekst">balieverkoop · meegenomen</span>
     );
   }
 

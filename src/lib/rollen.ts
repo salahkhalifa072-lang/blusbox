@@ -24,6 +24,15 @@ export function magRecallOpenen(rol: Rol): boolean {
   return rol === "admin";
 }
 
+/**
+ * Facturen maken en versturen — admin only. Een factuur is een financieel
+ * document met een doorlopend nummer; een verkeerde is niet weg te gooien,
+ * alleen te crediteren.
+ */
+export function magFactureren(rol: Rol): boolean {
+  return rol === "admin";
+}
+
 /** Lot register and fulfilment: operations does the daily work. */
 export function magLotsBeheren(rol: Rol): boolean {
   return rol === "admin" || rol === "operations";

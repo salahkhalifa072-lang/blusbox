@@ -59,6 +59,7 @@ export default async function BestellingenPagina() {
                     status={b.status}
                     verzonden={b.verzondenOp !== null}
                     geleverd={b.geleverdOp !== null}
+                    balieverkoop={b.balieverkoop}
                   />
                 </Cel>
                 <Cel>
