@@ -57,11 +57,30 @@ export async function POST(request: Request) {
         // alleen een seintje aan de winkelier dat het geld binnen is.
         if (sessie.metadata?.bron === "factuur") {
           if (status !== "betaald") break;
-          const eersteKeer = await markeerFactuurBetaald(orderId, sessie.id);
-          if (eersteKeer && ordernummer) {
-            const melding = await stuurFactuurBetaaldMelding(ordernummer).catch(
+          const uitkomst = await markeerFactuurBetaald(orderId, sessie.id);
+          if (uitkomst !== "herhaald" && ordernummer) {
+            // Bij "dubbel" is de klant twee keer afgeschreven; de melding
+            // zegt dan welke betaling terugbetaald moet worden.
+            const melding = await stuurFactuurBetaaldMelding(
+              ordernummer,
+              uitkomst === "dubbel"
+                ? {
+                    sessieId: sessie.id,
+                    betalingId:
+                      typeof sessie.payment_intent === "string"
+                        ? sessie.payment_intent
+                        : (sessie.payment_intent?.id ?? null),
+                    bedragCenten: sessie.amount_total ?? null,
+                  }
+                : undefined,
+            ).catch(
               (fout: unknown) => ({ verstuurd: false as const, reden: String(fout) }),
             );
+            if (uitkomst === "dubbel") {
+              console.error(
+                `Dubbele betaling op factuur ${ordernummer}: sessie ${sessie.id} moet terugbetaald worden.`,
+              );
+            }
             if (!melding.verstuurd) {
               console.error(
                 `Betaalmelding factuur ${ordernummer} niet verstuurd: ${melding.reden}`,

@@ -134,6 +134,23 @@ export async function maakCheckoutSessie(opts: {
 }
 
 /**
+ * Een openstaande Checkout-sessie laten verlopen, zodat er niet meer mee
+ * betaald kan worden. Best effort: een sessie die al betaald of al
+ * verlopen is laat Stripe met rust, en dat is hier precies goed.
+ */
+export async function laatSessieVerlopen(sessieId: string): Promise<void> {
+  try {
+    const stripe = stripeClient();
+    const sessie = await stripe.checkout.sessions.retrieve(sessieId);
+    if (sessie.status === "open") {
+      await stripe.checkout.sessions.expire(sessieId);
+    }
+  } catch (fout) {
+    console.error(`Sessie ${sessieId} laten verlopen mislukt:`, fout);
+  }
+}
+
+/**
  * Verifies a webhook signature and returns the event.
  *
  * Signature verification is the entire security boundary here: without it

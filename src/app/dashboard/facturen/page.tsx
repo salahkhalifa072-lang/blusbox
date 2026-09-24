@@ -8,6 +8,7 @@ import { formatteerNl } from "@/lib/levensduur";
 import { verzendadres } from "@/lib/bedrijf";
 import { mailBeschikbaar } from "@/lib/mail";
 import { stripeBeschikbaar } from "@/lib/stripe";
+import { datumNl } from "@/lib/factuur";
 import { FactuurFormulier } from "./formulier";
 import { Opnieuw } from "./opnieuw";
 
@@ -28,7 +29,7 @@ export default async function FacturenPagina() {
     !stripeBeschikbaar() && "STRIPE_SECRET_KEY",
   ].filter(Boolean);
 
-  const vandaag = new Date().toISOString().slice(0, 10);
+  const vandaag = datumNl();
 
   return (
     <div className="space-y-6">
@@ -88,7 +89,7 @@ export default async function FacturenPagina() {
                 <Cel mono>{euro(f.totaalCenten)}</Cel>
                 <Cel mono>
                   {f.gefactureerdOp
-                    ? formatteerNl(f.gefactureerdOp.toISOString().slice(0, 10))
+                    ? formatteerNl(datumNl(f.gefactureerdOp))
                     : "—"}
                 </Cel>
                 <Cel>
