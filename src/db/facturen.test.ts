@@ -5,6 +5,7 @@ import {
   FactuurGeweigerd,
   factuurLijst,
   haalFactuur,
+  koppelBetaalsessie,
   maakBalieFactuur,
   markeerFactuurBetaald,
   type BalieFactuurInvoer,
@@ -94,13 +95,33 @@ describe("balieverkoop met factuur", () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const f = await maakBalieFactuur(invoer, db as any);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect(await markeerFactuurBetaald(f.orderId, "cs_1", db as any)).toBe(true);
+    expect(await markeerFactuurBetaald(f.orderId, "cs_1", db as any)).toBe("voldaan");
     // Stripe levert een gebeurtenis soms twee keer: dan niet opnieuw mailen.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect(await markeerFactuurBetaald(f.orderId, "cs_1", db as any)).toBe(false);
+    expect(await markeerFactuurBetaald(f.orderId, "cs_1", db as any)).toBe("herhaald");
+    // Een tweede, andere sessie op dezelfde factuur is een dubbele betaling.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect(await markeerFactuurBetaald(f.orderId, "cs_2", db as any)).toBe("dubbel");
 
     const [order] = await db.select().from(orders).where(eq(orders.id, f.orderId));
     expect(order.status).toBe("geleverd");
+    expect(order.mollieId).toBe("cs_1");
+  });
+
+  it("zet een betaalde factuur nooit terug op openstaand bij een nieuwe sessie", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const f = await maakBalieFactuur(invoer, db as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect(await koppelBetaalsessie(f.orderId, "cs_a", db as any)).toBe(true);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await markeerFactuurBetaald(f.orderId, "cs_a", db as any);
+    // Een tweede tabblad start daarna nog een betaling:
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect(await koppelBetaalsessie(f.orderId, "cs_b", db as any)).toBe(false);
+
+    const [order] = await db.select().from(orders).where(eq(orders.id, f.orderId));
+    expect(order.status).toBe("geleverd");
+    expect(order.mollieId).toBe("cs_a");
   });
 
   it("weigert een factuur zonder regels of met een onbekend artikel", async () => {

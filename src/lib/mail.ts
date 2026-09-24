@@ -544,7 +544,20 @@ export async function factuurPdf(
     };
   }
   const betaald = factuur.status !== "nieuw";
-  const pdf = await maakFactuurPdf({
+  try {
+    return { pdf: await maakPdf(factuur, leverancier, betaald) };
+  } catch (fout) {
+    console.error(`Pdf van factuur ${factuur.factuurnummer} mislukt:`, fout);
+    return { fout: `De pdf kon niet worden gemaakt: ${(fout as Error).message}` };
+  }
+}
+
+function maakPdf(
+  factuur: Factuur,
+  leverancier: NonNullable<ReturnType<typeof verzendadres>>,
+  betaald: boolean,
+) {
+  return maakFactuurPdf({
     factuurnummer: factuur.factuurnummer,
     ordernummer: factuur.ordernummer,
     factuurdatum: factuur.factuurdatum,
@@ -558,7 +571,6 @@ export async function factuurPdf(
         ? betaalUrl(factuur.betaaltoken)
         : undefined,
   });
-  return { pdf };
 }
 
 /**
@@ -622,7 +634,7 @@ export async function stuurFactuur(
     "",
     link,
     "",
-    "Vragen over de factuur? Beantwoord deze mail of bel ons.",
+    `Vragen over de factuur? Bel ons op ${bedrijf.telefoon} of mail naar ${bedrijf.email}, met het factuurnummer erbij.`,
     "",
     "—",
     bedrijf.volledig,
@@ -643,9 +655,70 @@ export async function stuurFactuur(
   });
 }
 
-/** Seintje aan de winkelier: een factuur is via de link betaald. */
+/**
+ * Kopie van een verstuurde factuur voor de eigen administratie, met de pdf.
+ *
+ * Eigen mail en niet stuurBerichtkopie: die zegt "dit kreeg de klant te
+ * lezen" boven de tekst, en bij een factuur is dat niet waar. Hier gaat de
+ * pdf zelf mee — dat is wat de boekhouding wil hebben.
+ */
+export async function stuurFactuurKopie(
+  factuurnummer: string,
+): Promise<MailResultaat> {
+  if (!mailBeschikbaar()) {
+    return { verstuurd: false, reden: "MAILERSEND_API_TOKEN ontbreekt" };
+  }
+  const naar = bestelmeldingAdres();
+  if (!naar) return { verstuurd: false, reden: "MAIL_BESTELLINGEN ontbreekt" };
+
+  const factuur = await haalFactuur({ factuurnummer });
+  if (!factuur) {
+    return { verstuurd: false, reden: `Factuur ${factuurnummer} niet gevonden` };
+  }
+  const resultaat = await factuurPdf(factuur);
+  if ("fout" in resultaat) return { verstuurd: false, reden: resultaat.fout };
+
+  const klant = [factuur.bedrijfsnaam, factuur.klantNaam].filter(Boolean).join(" · ");
+  const totaal = euro(factuur.totalen.totaalInclBtwCenten);
+  const regel = `Factuur ${factuur.factuurnummer} (${klant}, ${totaal}) is verstuurd aan ${factuur.email}. De pdf zit in de bijlage.`;
+
+  return verstuurMail({
+    naar,
+    onderwerp: `Kopie · factuur ${factuur.factuurnummer} · ${klant} · ${totaal}`,
+    html: `<p>${escapeHtml(regel)}</p>`,
+    tekst: regel,
+    antwoordNaar: factuur.email ?? undefined,
+    bijlagen: [
+      {
+        filename: `factuur-${factuur.factuurnummer}.pdf`,
+        content: Buffer.from(resultaat.pdf).toString("base64"),
+      },
+    ],
+  });
+}
+
+function escapeHtml(tekst: string): string {
+  return tekst
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+/**
+ * Seintje aan de winkelier: een factuur is via de link betaald.
+ *
+ * Met `dubbel` is het een waarschuwing: de factuur was al voldaan en de
+ * klant heeft nóg een keer betaald. Die tweede betaling moet in Stripe
+ * worden terugbetaald; de mail zegt welke.
+ */
 export async function stuurFactuurBetaaldMelding(
   ordernummer: string,
+  dubbel?: {
+    sessieId: string;
+    betalingId: string | null;
+    bedragCenten: number | null;
+  },
 ): Promise<MailResultaat> {
   if (!mailBeschikbaar()) {
     return { verstuurd: false, reden: "MAILERSEND_API_TOKEN ontbreekt" };
@@ -658,12 +731,19 @@ export async function stuurFactuurBetaaldMelding(
     return { verstuurd: false, reden: `Factuur bij ${ordernummer} niet gevonden` };
   }
   const { order } = gegevens;
-  const regel = `Factuur ${order.factuurnummer} (${order.klantNaam ?? "onbekend"}) is betaald: ${euro(order.totaalInclBtwCenten)}.`;
+  const klant = order.klantNaam ?? "onbekend";
+  const regel = dubbel
+    ? `Let op: factuur ${order.factuurnummer} (${klant}) was al betaald en is nog een keer betaald${
+        dubbel.bedragCenten !== null ? ` (${euro(dubbel.bedragCenten)})` : ""
+      }. Betaal de tweede betaling terug in Stripe: ${dubbel.betalingId ?? dubbel.sessieId}.`
+    : `Factuur ${order.factuurnummer} (${klant}) is betaald: ${euro(order.totaalInclBtwCenten)}.`;
 
   return verstuurMail({
     naar,
-    onderwerp: `Betaald · factuur ${order.factuurnummer} · ${euro(order.totaalInclBtwCenten)}`,
-    html: `<p>${regel.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</p>`,
+    onderwerp: dubbel
+      ? `Dubbel betaald · factuur ${order.factuurnummer} · terugbetalen`
+      : `Betaald · factuur ${order.factuurnummer} · ${euro(order.totaalInclBtwCenten)}`,
+    html: `<p>${escapeHtml(regel)}</p>`,
     tekst: regel,
     antwoordNaar: order.gastEmail ?? undefined,
   });

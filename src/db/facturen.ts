@@ -5,6 +5,7 @@ import { orderLines, orders, products } from "./schema";
 import { volgendOrdernummer } from "./nummers";
 import {
   berekenFactuur,
+  datumNl,
   volgendFactuurnummer,
   type FactuurTotalen,
 } from "@/lib/factuur";
@@ -68,8 +69,38 @@ export async function maakBalieFactuur(
   }
 
   const nu = new Date();
-  const jaar = nu.getFullYear();
+  // Het jaar van de factuurdatum, niet van de serverklok: op oudejaarsnacht
+  // na middernacht is het in UTC nog het oude jaar.
+  const jaar = Number(datumNl(nu).slice(0, 4));
 
+  // Twee facturen tegelijk kunnen hetzelfde volgnummer uitrekenen. De unieke
+  // index laat er één winnen; de ander rolt terug en probeert het opnieuw
+  // met het volgende nummer. Zo blijft de reeks doorlopend zonder gat.
+  for (let poging = 1; ; poging++) {
+    try {
+      return await maakInTransactie(db, invoer, regels, nu, jaar);
+    } catch (fout) {
+      if (poging < 3 && isUniekConflict(fout)) continue;
+      throw fout;
+    }
+  }
+}
+
+function isUniekConflict(fout: unknown): boolean {
+  for (let f = fout as { code?: string; cause?: unknown } | undefined; f; ) {
+    if (f.code === "23505") return true;
+    f = f.cause as typeof f;
+  }
+  return false;
+}
+
+function maakInTransactie(
+  db: Db,
+  invoer: BalieFactuurInvoer,
+  regels: BalieFactuurInvoer["regels"],
+  nu: Date,
+  jaar: number,
+): Promise<AangemaakteFactuur> {
   return db.transaction(async (tx) => {
     const gevonden = await tx
       .select({
@@ -172,6 +203,8 @@ export type Factuur = {
   ordernummer: string;
   factuurnummer: string;
   betaaltoken: string | null;
+  /** Laatst aangemaakte Checkout-sessie, of die waarmee betaald is */
+  stripeSessie: string | null;
   status: string;
   email: string | null;
   klantNaam: string;
@@ -232,6 +265,7 @@ export async function haalFactuur(
     ordernummer: order.ordernummer,
     factuurnummer: order.factuurnummer,
     betaaltoken: order.betaaltoken,
+    stripeSessie: order.mollieId,
     status: order.status,
     email: order.gastEmail,
     klantNaam: order.klantNaam ?? "",
@@ -240,10 +274,8 @@ export async function haalFactuur(
     huisnummer: order.huisnummer ?? "",
     postcode: order.postcode ?? "",
     plaats: order.plaats ?? "",
-    factuurdatum: order.gefactureerdOp.toISOString().slice(0, 10),
-    leverdatum: (order.geleverdOp ?? order.gefactureerdOp)
-      .toISOString()
-      .slice(0, 10),
+    factuurdatum: datumNl(order.gefactureerdOp),
+    leverdatum: datumNl(order.geleverdOp ?? order.gefactureerdOp),
     totalen,
   };
 }
@@ -268,17 +300,14 @@ export async function factuurLijst(limiet = 100, handle?: Db) {
 }
 
 /**
- * Betaling binnen via de factuurlink.
+ * Een nieuwe betaalsessie aan een openstaande factuur hangen.
  *
- * Status gaat naar "geleverd" en niet naar "betaald": de klant heeft de
- * module al. Op "betaald" zou de bestelling in het dashboard als te
- * verzenden verschijnen, en dan gaat er een verzendbericht uit voor een
- * pakket dat nooit bestaat.
- *
- * Geeft terug of dit de eerste keer was, zodat de webhook bij een
- * herhaalde levering van Stripe niet opnieuw mailt.
+ * Alleen zolang de factuur open is, en alleen het sessie-id — nooit de
+ * status. Eerder ging dit via markeerBetaald(…, "nieuw"), en dat zette de
+ * status hard terug: kwam de webhook van een eerdere betaling net
+ * daartussen, dan sprong een betaalde factuur weer op openstaand.
  */
-export async function markeerFactuurBetaald(
+export async function koppelBetaalsessie(
   orderId: string,
   sessieId: string,
   handle?: Db,
@@ -286,8 +315,50 @@ export async function markeerFactuurBetaald(
   const db = handle ?? (await appDb());
   const bijgewerkt = await db
     .update(orders)
-    .set({ status: "geleverd", mollieId: sessieId })
+    .set({ mollieId: sessieId })
     .where(sql`${orders.id} = ${orderId} and ${orders.status} = 'nieuw'`)
     .returning({ id: orders.id });
   return bijgewerkt.length > 0;
+}
+
+export type FactuurBetaling =
+  /** Eerste betaling: factuur is nu voldaan */
+  | "voldaan"
+  /** Dezelfde betaling nog eens gemeld door Stripe; niets te doen */
+  | "herhaald"
+  /** Een tweede, andere betaling op een al voldane factuur: terugbetalen */
+  | "dubbel";
+
+/**
+ * Betaling binnen via de factuurlink.
+ *
+ * Status gaat naar "geleverd" en niet naar "betaald": de klant heeft de
+ * module al. Op "betaald" zou de bestelling in het dashboard als te
+ * verzenden verschijnen, en dan gaat er een verzendbericht uit voor een
+ * pakket dat nooit bestaat.
+ *
+ * "dubbel" is het geval van twee tabbladen: beide een betaalpagina open,
+ * beide afgerekend. Stripe weet niet dat het om dezelfde factuur gaat, dus
+ * dat moet hier worden opgemerkt, anders is de klant stil twee keer
+ * afgeschreven.
+ */
+export async function markeerFactuurBetaald(
+  orderId: string,
+  sessieId: string,
+  handle?: Db,
+): Promise<FactuurBetaling> {
+  const db = handle ?? (await appDb());
+  const bijgewerkt = await db
+    .update(orders)
+    .set({ status: "geleverd", mollieId: sessieId })
+    .where(sql`${orders.id} = ${orderId} and ${orders.status} = 'nieuw'`)
+    .returning({ id: orders.id });
+  if (bijgewerkt.length > 0) return "voldaan";
+
+  const [order] = await db
+    .select({ sessie: orders.mollieId })
+    .from(orders)
+    .where(eq(orders.id, orderId))
+    .limit(1);
+  return order?.sessie === sessieId ? "herhaald" : "dubbel";
 }

@@ -93,21 +93,30 @@ export function FactuurFormulier({
   }
 
   const f = staat.fase === "fout" ? (staat.velden ?? {}) : {};
+  // React zet een formulier na een server action terug op de
+  // standaardwaarden. Bij een fout worden die daarom het ingevulde, en de
+  // key dwingt dat de velden die nieuwe waarden echt overnemen.
+  const w = staat.fase === "fout" ? (staat.waarden ?? {}) : {};
+  const terug = (k: string, standaard?: string | number) => w[k] ?? standaard;
 
   return (
-    <form action={actie} className="grid gap-6 p-5 lg:grid-cols-2">
+    <form
+      key={JSON.stringify(w)}
+      action={actie}
+      className="grid gap-6 p-5 lg:grid-cols-2"
+    >
       <fieldset className="space-y-3">
         <legend className="font-medium">Klant</legend>
-        <Veld naam="klantNaam" label="Naam" required autoComplete="off" fout={f.klantNaam} />
-        <Veld naam="bedrijfsnaam" label="Bedrijfsnaam (optioneel)" autoComplete="off" />
-        <Veld naam="email" label="E-mail" type="email" required autoComplete="off" fout={f.email} />
+        <Veld naam="klantNaam" defaultValue={terug("klantNaam")} label="Naam" required autoComplete="off" fout={f.klantNaam} />
+        <Veld naam="bedrijfsnaam" defaultValue={terug("bedrijfsnaam")} label="Bedrijfsnaam (optioneel)" autoComplete="off" />
+        <Veld naam="email" defaultValue={terug("email")} label="E-mail" type="email" required autoComplete="off" fout={f.email} />
         <div className="grid grid-cols-[1fr_7rem] gap-3">
-          <Veld naam="straat" label="Straat" required fout={f.straat} />
-          <Veld naam="huisnummer" label="Huisnr." required fout={f.huisnummer} />
+          <Veld naam="straat" defaultValue={terug("straat")} label="Straat" required fout={f.straat} />
+          <Veld naam="huisnummer" defaultValue={terug("huisnummer")} label="Huisnr." required fout={f.huisnummer} />
         </div>
         <div className="grid grid-cols-[8rem_1fr] gap-3">
-          <Veld naam="postcode" label="Postcode" required fout={f.postcode} />
-          <Veld naam="plaats" label="Plaats" required fout={f.plaats} />
+          <Veld naam="postcode" defaultValue={terug("postcode")} label="Postcode" required fout={f.postcode} />
+          <Veld naam="plaats" defaultValue={terug("plaats")} label="Plaats" required fout={f.plaats} />
         </div>
       </fieldset>
 
@@ -118,7 +127,7 @@ export function FactuurFormulier({
           label="Datum van verkoop"
           type="date"
           required
-          defaultValue={vandaag}
+          defaultValue={terug("leverdatum", vandaag)}
           max={vandaag}
           fout={f.leverdatum}
         />
@@ -128,17 +137,19 @@ export function FactuurFormulier({
             <Veld
               naam={`aantal-${a.slug}`}
               label="Aantal"
+              aria-label={`Aantal ${a.naam}`}
               type="number"
               min={0}
               max={500}
-              defaultValue={a.slug === artikelen[0].slug ? 1 : 0}
+              defaultValue={terug(`aantal-${a.slug}`, a.slug === artikelen[0].slug ? 1 : 0)}
               fout={f[`aantal-${a.slug}`]}
             />
             <Veld
               naam={`prijs-${a.slug}`}
               label="€ p/st incl."
+              aria-label={`Prijs per stuk incl. btw, ${a.naam}`}
               inputMode="decimal"
-              defaultValue={a.prijs}
+              defaultValue={terug(`prijs-${a.slug}`, a.prijs)}
               fout={f[`prijs-${a.slug}`]}
             />
           </div>

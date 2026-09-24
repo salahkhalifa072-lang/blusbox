@@ -1,9 +1,12 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { haalFactuur } from "@/db/facturen";
-import { markeerBetaald } from "@/lib/bestelling";
-import { maakCheckoutSessie, stripeBeschikbaar } from "@/lib/stripe";
+import { haalFactuur, koppelBetaalsessie } from "@/db/facturen";
+import {
+  laatSessieVerlopen,
+  maakCheckoutSessie,
+  stripeBeschikbaar,
+} from "@/lib/stripe";
 import { siteUrl } from "@/lib/site";
 
 /**
@@ -27,6 +30,11 @@ export async function startBetaling(formData: FormData) {
   if (!factuur) redirect(terug);
   if (factuur.status !== "nieuw") redirect(terug);
   if (!stripeBeschikbaar()) redirect(`${terug}?fout=betalen`);
+
+  // Een eerdere betaalpagina van deze factuur (ander tabblad, gisteren
+  // geopend) eerst dichtzetten. Anders kan de klant op beide afrekenen en
+  // is hij twee keer afgeschreven.
+  if (factuur.stripeSessie) await laatSessieVerlopen(factuur.stripeSessie);
 
   let url: string | null = null;
   try {
@@ -54,8 +62,15 @@ export async function startBetaling(formData: FormData) {
       annuleerUrl: `${siteUrl}${terug}`,
       bron: "factuur",
     });
-    await markeerBetaald(factuur.orderId, sessie.id, "nieuw");
-    url = sessie.url;
+    // Alleen koppelen zolang de factuur nog open is. Is hij net betaald
+    // (andere sessie, webhook kwam tussendoor), dan deze sessie weer
+    // sluiten en terug naar de pagina, die dan "betaald" toont.
+    if (await koppelBetaalsessie(factuur.orderId, sessie.id)) {
+      url = sessie.url;
+    } else {
+      await laatSessieVerlopen(sessie.id);
+      url = terug;
+    }
   } catch (fout) {
     console.error(`Betaling factuur ${factuur.factuurnummer} starten mislukt:`, fout);
   }

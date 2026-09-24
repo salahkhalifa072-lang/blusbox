@@ -32,7 +32,8 @@ async function main() {
   const { drizzle } = await import("drizzle-orm/postgres-js");
   const { migrate } = await import("drizzle-orm/postgres-js/migrator");
 
-  const sql = postgres(url, { max: 1 });
+  // onnotice stil: "schema bestaat al" bij elke build is ruis in de log.
+  const sql = postgres(url, { max: 1, onnotice: () => {} });
   try {
     await migrate(drizzle(sql), { migrationsFolder: "./drizzle" });
     console.log(`Migraties bijgewerkt op ${new URL(url).hostname}.`);

@@ -15,6 +15,17 @@ import { formatteerNl, type IsoDatum } from "./levensduur";
  * voor een zakelijke afnemer geen factuur waarop hij btw kan aftrekken.
  */
 
+/**
+ * Kalenderdatum in Nederland. De server draait in UTC: een factuur die om
+ * kwart over twaalf 's nachts wordt gemaakt, kreeg anders de datum van
+ * gisteren, en een datum op een factuur hoort te kloppen.
+ */
+export function datumNl(moment: Date = new Date()): IsoDatum {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Amsterdam",
+  }).format(moment);
+}
+
 /** Consumenten krijgen twee weken; de AV geven zakelijke afnemers er dertig. */
 export const BETAALTERMIJN_DAGEN = 14;
 
@@ -118,11 +129,49 @@ export type FactuurGegevens = {
   betaalUrl?: string;
 };
 
+/**
+ * Tekst terugbrengen tot wat het standaardlettertype kan tekenen.
+ *
+ * Helvetica in een pdf kent alleen WinAnsi: ü en é wel, Ş, ł of ı niet.
+ * pdf-lib gooit dan een fout, en die viel pas ná het aanmaken van de
+ * factuur — een klant die Şükrü heet kreeg dus een factuurnummer zonder
+ * factuur. Nu valt een onbekende letter terug op zijn basisletter (Ş → S,
+ * ł → l) en alleen als die er ook niet is op een vraagteken.
+ */
+const VERVANG: Record<string, string> = {
+  ı: "i", ł: "l", Ł: "L", đ: "d", Đ: "D", ø: "o", Ø: "O", ß: "ss",
+  "—": "-", "–": "-", "’": "'", "‘": "'", "“": '"', "”": '"', "…": "...",
+};
+
+export function maakTekenbaar(tekst: string, font: PDFFont): string {
+  const kan = new Set(font.getCharacterSet());
+  let uit = "";
+  for (const teken of tekst) {
+    const code = teken.codePointAt(0)!;
+    if (kan.has(code)) {
+      uit += teken;
+      continue;
+    }
+    const vervanging =
+      VERVANG[teken] ?? teken.normalize("NFD").replace(/\p{M}/gu, "");
+    uit += [...vervanging].every((c) => kan.has(c.codePointAt(0)!))
+      ? vervanging
+      : "?";
+  }
+  return uit;
+}
+
+/** 3511AB → 3511 AB, zoals een Nederlandse postcode op papier hoort. */
+export function toonPostcode(postcode: string): string {
+  const m = postcode.replace(/\s+/g, "").toUpperCase().match(/^(\d{4})([A-Z]{2})$/);
+  return m ? `${m[1]} ${m[2]}` : postcode;
+}
+
 /** Zelfde eenvoudige woordafbreking als het herroepingsformulier. */
 function breekAf(tekst: string, font: PDFFont, grootte: number, breedte: number) {
   const regels: string[] = [];
   let huidig = "";
-  for (const woord of tekst.split(" ")) {
+  for (const woord of maakTekenbaar(tekst, font).split(" ")) {
     const kandidaat = huidig ? `${huidig} ${woord}` : woord;
     if (font.widthOfTextAtSize(kandidaat, grootte) > breedte && huidig) {
       regels.push(huidig);
@@ -158,8 +207,9 @@ export async function maakFactuurPdf(f: FactuurGegevens): Promise<Uint8Array> {
   ) => {
     const font = o.font ?? gewoon;
     const grootte = o.grootte ?? 10;
-    const breedte = font.widthOfTextAtSize(t, grootte);
-    pagina.drawText(t, {
+    const veilig = maakTekenbaar(t, font);
+    const breedte = font.widthOfTextAtSize(veilig, grootte);
+    pagina.drawText(veilig, {
       x: o.rechts ? x - breedte : x,
       y,
       size: grootte,
@@ -220,7 +270,7 @@ export async function maakFactuurPdf(f: FactuurGegevens): Promise<Uint8Array> {
     k.bedrijfsnaam || null,
     k.bedrijfsnaam ? `t.a.v. ${k.naam}` : k.naam,
     `${k.straat} ${k.huisnummer}`,
-    `${k.postcode} ${k.plaats}`,
+    `${toonPostcode(k.postcode)} ${k.plaats}`,
   ].filter((r): r is string => Boolean(r))) {
     tekst(r, marge, y);
     y -= 14;

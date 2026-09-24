@@ -8,7 +8,7 @@ import {
   maakBalieFactuur,
   type BalieFactuurInvoer,
 } from "@/db/facturen";
-import { stuurBerichtkopie, stuurFactuur } from "@/lib/mail";
+import { stuurFactuur, stuurFactuurKopie } from "@/lib/mail";
 import { verzendadres } from "@/lib/bedrijf";
 import {
   geldigEmail,
@@ -18,11 +18,17 @@ import {
 } from "@/lib/adres";
 import { catalogus } from "@/lib/catalogus";
 import { euro } from "@/lib/pricing";
-import { leesBedrag } from "@/lib/factuur";
+import { datumNl, leesBedrag } from "@/lib/factuur";
 
 export type FactuurStaat =
   | { fase: "leeg" }
-  | { fase: "fout"; melding: string; velden?: Record<string, string> }
+  | {
+      fase: "fout";
+      melding: string;
+      velden?: Record<string, string>;
+      /** Wat er was ingevuld, zodat een typfout niet het hele formulier wist */
+      waarden?: Record<string, string>;
+    }
   | { fase: "klaar"; melding: string; factuurnummer: string };
 
 /**
@@ -43,6 +49,10 @@ export async function maakEnVerstuurFactuur(
 
   const lees = (k: string) => String(formData.get(k) ?? "").trim();
   const velden: Record<string, string> = {};
+  const waarden: Record<string, string> = {};
+  for (const [k, v] of formData.entries()) {
+    if (typeof v === "string" && !k.startsWith("$")) waarden[k] = v;
+  }
 
   const klantNaam = lees("klantNaam");
   const email = lees("email");
@@ -60,7 +70,7 @@ export async function maakEnVerstuurFactuur(
   if (!plaats) velden.plaats = "Vul de plaats in.";
   if (!/^\d{4}-\d{2}-\d{2}$/.test(leverdatum)) {
     velden.leverdatum = "Kies de datum van de verkoop.";
-  } else if (leverdatum > new Date().toISOString().slice(0, 10)) {
+  } else if (leverdatum > datumNl()) {
     velden.leverdatum = "De leverdatum ligt in de toekomst.";
   }
 
@@ -81,10 +91,19 @@ export async function maakEnVerstuurFactuur(
     regels.push({ slug: item.slug, aantal, stukprijsInclBtwCenten: prijs });
   }
   if (regels.length === 0 && Object.keys(velden).length === 0) {
-    return { fase: "fout", melding: "Vul bij minstens één artikel een aantal in." };
+    return {
+      fase: "fout",
+      melding: "Vul bij minstens één artikel een aantal in.",
+      waarden,
+    };
   }
   if (Object.keys(velden).length > 0) {
-    return { fase: "fout", melding: "Controleer de gemarkeerde velden.", velden };
+    return {
+      fase: "fout",
+      melding: "Controleer de gemarkeerde velden.",
+      velden,
+      waarden,
+    };
   }
 
   // Vóór het aanmaken, niet pas bij het mailen: anders ligt er een
@@ -93,6 +112,7 @@ export async function maakEnVerstuurFactuur(
   if (!verzendadres()) {
     return {
       fase: "fout",
+      waarden,
       melding:
         "Het vestigingsadres ontbreekt in de instellingen (VERZEND_STRAAT, VERZEND_HUISNUMMER, VERZEND_POSTCODE, VERZEND_PLAATS in Vercel). Dat moet wettelijk op de factuur.",
     };
@@ -112,7 +132,9 @@ export async function maakEnVerstuurFactuur(
       regels,
     });
   } catch (fout) {
-    if (fout instanceof FactuurGeweigerd) return { fase: "fout", melding: fout.message };
+    if (fout instanceof FactuurGeweigerd) {
+      return { fase: "fout", melding: fout.message, waarden };
+    }
     throw fout;
   }
 
@@ -128,7 +150,7 @@ export async function maakEnVerstuurFactuur(
     };
   }
 
-  await stuurKopie(factuur.factuurnummer, factuur.ordernummer, email, factuur.totaalInclBtwCenten);
+  await stuurKopie(factuur.factuurnummer);
 
   return {
     fase: "klaar",
@@ -138,18 +160,8 @@ export async function maakEnVerstuurFactuur(
 }
 
 /** Kopie voor de eigen administratie; mislukken is geen fout voor de klant. */
-async function stuurKopie(
-  factuurnummer: string,
-  ordernummer: string,
-  email: string,
-  totaal: number,
-) {
-  const kopie = await stuurBerichtkopie(
-    ordernummer,
-    email,
-    `Factuur ${factuurnummer} — ${euro(totaal)}`,
-    `Factuur ${factuurnummer} met betaallink is verstuurd. De pdf staat in het dashboard onder Facturen.`,
-  );
+async function stuurKopie(factuurnummer: string) {
+  const kopie = await stuurFactuurKopie(factuurnummer);
   if (!kopie.verstuurd) {
     console.error(`Kopie van factuur ${factuurnummer} niet verstuurd: ${kopie.reden}`);
   }

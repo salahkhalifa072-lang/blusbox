@@ -133,7 +133,8 @@ export function Factuurbericht({
             Werkt de knop niet? Open dan deze link: {betaalUrl}
           </Text>
           <Text style={alinea}>
-            Vragen over de factuur? Beantwoord deze mail of bel ons.
+            Vragen over de factuur? Bel ons op {bedrijf.telefoon} of mail naar{" "}
+            {bedrijf.email}, met het factuurnummer erbij.
           </Text>
 
           <Hr style={{ borderColor: kleur.rail, margin: "28px 0 16px" }} />
