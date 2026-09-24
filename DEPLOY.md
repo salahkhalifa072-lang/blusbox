@@ -27,6 +27,11 @@ Draai daarna de migratie tegen de productiedatabase:
 DATABASE_URL="<productie-connection-string>" npm run db:migrate
 ```
 
+Sinds september 2026 hoeft dat niet meer met de hand bij een nieuwe
+migratie: Vercel draait `npm run vercel-build`, en dat voert eerst
+`src/db/migreer-bij-build.ts` uit. Mislukt de migratie, dan mislukt de
+build en blijft de vorige versie online.
+
 ## 3. Environment variables in Vercel
 
 Project → Settings → Environment Variables, alle drie de omgevingen tenzij

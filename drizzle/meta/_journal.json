@@ -36,6 +36,13 @@
       "when": 1790190831108,
       "tag": "0004_klantnaam",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790245456160,
+      "tag": "0005_factuur",
+      "breakpoints": true
     }
   ]
 }

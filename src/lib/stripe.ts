@@ -66,6 +66,12 @@ export async function maakCheckoutSessie(opts: {
   annuleerUrl: string;
   /** Set for reverse-charged EU business orders, for the receipt. */
   btwVerlegd?: boolean;
+  /**
+   * "factuur" voor een betaling via de link in een factuurmail. De webhook
+   * handelt die anders af: geen bestelbevestiging, en een verlopen sessie
+   * annuleert niets — de klant kan de link later opnieuw openen.
+   */
+  bron?: "webshop" | "factuur";
 }): Promise<{ id: string; url: string | null }> {
   const stripe = stripeClient();
 
@@ -97,21 +103,30 @@ export async function maakCheckoutSessie(opts: {
     // Shipping is free on every order (§8), so it is stated rather than
     // charged — a zero-cost shipping option makes that explicit on the
     // Stripe page too.
-    shipping_options: [
-      {
-        shipping_rate_data: {
-          type: "fixed_amount",
-          fixed_amount: { amount: 0, currency: "eur" },
-          display_name: "Gratis verzending",
-        },
-      },
-    ],
+    //
+    // Niet bij een factuur: die klant heeft de module al meegenomen, en
+    // "gratis verzending" op de betaalpagina zou suggereren dat er nog een
+    // pakket komt.
+    ...(opts.bron === "factuur"
+      ? {}
+      : {
+          shipping_options: [
+            {
+              shipping_rate_data: {
+                type: "fixed_amount" as const,
+                fixed_amount: { amount: 0, currency: "eur" },
+                display_name: "Gratis verzending",
+              },
+            },
+          ],
+        }),
     success_url: opts.succesUrl,
     cancel_url: opts.annuleerUrl,
     metadata: {
       ordernummer: opts.ordernummer,
       orderId: opts.orderId,
       btwVerlegd: opts.btwVerlegd ? "ja" : "nee",
+      bron: opts.bron ?? "webshop",
     },
   });
 

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { signOut } from "@/auth";
 import { vereisDashboard } from "@/lib/sessie";
 import { LogoMark } from "@/components/site/logo";
+import { magFactureren } from "@/lib/rollen";
 
 /**
  * §9.7 — every dashboard route passes through this guard. The check is
@@ -12,6 +13,7 @@ import { LogoMark } from "@/components/site/logo";
 const nav = [
   { href: "/dashboard", label: "Overzicht" },
   { href: "/dashboard/bestellingen", label: "Bestellingen" },
+  { href: "/dashboard/facturen", label: "Facturen", alleenFactureren: true },
   { href: "/dashboard/lots", label: "Lotregister" },
   { href: "/dashboard/units", label: "Geplaatste units" },
   { href: "/dashboard/activeringen", label: "Activeringen" },
@@ -45,7 +47,9 @@ export default async function DashboardLayout({
 
           <nav aria-label="Dashboard" className="flex-1">
             <ul className="flex flex-wrap gap-x-1 gap-y-1">
-              {nav.map((item) => (
+              {nav
+                .filter((item) => !item.alleenFactureren || magFactureren(actor.rol))
+                .map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}

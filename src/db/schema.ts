@@ -214,9 +214,33 @@ export const orders = pgTable(
     geleverdOp: timestamp("geleverd_op", { withTimezone: true }),
     /** Zendingnummer van de vervoerder, gaat mee in de verzendmail */
     trackAndTrace: text("track_and_trace"),
+
+    /**
+     * Verkocht aan de balie: de klant heeft de module al in handen, er gaat
+     * niets de deur uit en er is geen bedenktijd (geen koop op afstand).
+     * De betaling volgt achteraf, via de factuur.
+     */
+    balieverkoop: boolean("balieverkoop").notNull().default(false),
+    /** Alleen bij een zakelijke afnemer; staat dan op de factuur */
+    bedrijfsnaam: text("bedrijfsnaam"),
+    /**
+     * F-2026-0001. Een eigen reeks naast de ordernummers: art. 35a Wet OB
+     * vraagt een doorlopend nummer, en de ordernummers hebben gaten van
+     * bestellingen die nooit betaald zijn.
+     */
+    factuurnummer: text("factuurnummer"),
+    gefactureerdOp: timestamp("gefactureerd_op", { withTimezone: true }),
+    /**
+     * Willekeurig en niet te raden; staat in de betaallink in de factuurmail.
+     * Het ordernummer daarvoor gebruiken zou iedereen elke open factuur
+     * laten bekijken door een nummer op te hogen.
+     */
+    betaaltoken: text("betaaltoken"),
   },
   (t) => [
     uniqueIndex("orders_ordernummer_uniek").on(t.ordernummer),
+    uniqueIndex("orders_factuurnummer_uniek").on(t.factuurnummer),
+    uniqueIndex("orders_betaaltoken_uniek").on(t.betaaltoken),
     index("orders_user_idx").on(t.userId),
     index("orders_status_idx").on(t.status),
     index("orders_gast_email_idx").on(t.gastEmail),

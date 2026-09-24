@@ -2,7 +2,12 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { leesWebhookGebeurtenis, naarOrderStatus } from "@/lib/stripe";
 import { markeerBetaald } from "@/lib/bestelling";
-import { stuurBestelbevestiging, stuurBestelmelding } from "@/lib/mail";
+import {
+  stuurBestelbevestiging,
+  stuurBestelmelding,
+  stuurFactuurBetaaldMelding,
+} from "@/lib/mail";
+import { markeerFactuurBetaald } from "@/db/facturen";
 
 /**
  * Stripe webhook.
@@ -45,6 +50,26 @@ export async function POST(request: Request) {
         if (!orderId) break;
 
         const status = naarOrderStatus(sessie.payment_status);
+
+        // Betaling van een balieverkoop via de factuurlink. Geen
+        // bestelbevestiging met herroepingsformulier (er is geen koop op
+        // afstand) en geen bestelmelding (er valt niets te verzenden) —
+        // alleen een seintje aan de winkelier dat het geld binnen is.
+        if (sessie.metadata?.bron === "factuur") {
+          if (status !== "betaald") break;
+          const eersteKeer = await markeerFactuurBetaald(orderId, sessie.id);
+          if (eersteKeer && ordernummer) {
+            const melding = await stuurFactuurBetaaldMelding(ordernummer).catch(
+              (fout: unknown) => ({ verstuurd: false as const, reden: String(fout) }),
+            );
+            if (!melding.verstuurd) {
+              console.error(
+                `Betaalmelding factuur ${ordernummer} niet verstuurd: ${melding.reden}`,
+              );
+            }
+          }
+          break;
+        }
         await markeerBetaald(
           orderId,
           sessie.id,
@@ -99,7 +124,10 @@ export async function POST(request: Request) {
       case "checkout.session.expired": {
         const sessie = gebeurtenis.data.object as Stripe.Checkout.Session;
         const orderId = sessie.metadata?.orderId;
-        if (orderId) {
+        // Een factuur blijft openstaan als één betaalpoging strandt of
+        // verloopt: de link in de mail maakt bij de volgende klik gewoon
+        // een nieuwe sessie.
+        if (orderId && sessie.metadata?.bron !== "factuur") {
           await markeerBetaald(orderId, sessie.id, "geannuleerd");
         }
         break;

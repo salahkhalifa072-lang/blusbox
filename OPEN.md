@@ -234,6 +234,32 @@ doet: dat de video op mobiel **boven** de `h1` eindigt en op desktop
 overlapt. Dat is precies de regressie die je met het oog niet ziet als je
 alleen op een breed scherm werkt.
 
+### Facturen voor balieverkoop (af, 24 september 2026)
+
+Voor een klant die de module ter plaatse meeneemt en achteraf betaalt:
+`/dashboard/facturen` (alleen admin). Klantgegevens, aantallen en de
+afgesproken prijs incl. btw invullen; de webshop legt het vast als bestelling
+(met regels, dus ook zichtbaar in een terugroepactie), geeft een eigen
+doorlopend nummer `F-2026-0001` en mailt de factuur als pdf vanaf
+info@blusbox.nl.
+
+De betaallink in de mail gaat naar `/betalen/<token>` en niet rechtstreeks
+naar Stripe: een Checkout-sessie verloopt na 24 uur, een factuur heeft er
+veertien dagen voor. Elke klik op "Betaal" maakt een verse sessie. Na
+betaling gaat de bestelling op geleverd (niet op betaald, anders verschijnt
+hij als te verzenden) en krijgt de winkelier een seintje. Een verlopen
+sessie annuleert een factuur niet.
+
+**Vóór het eerste gebruik:**
+1. ~~Migratie `0005_factuur` draaien~~ — gebeurt nu vanzelf: de build op
+   Vercel (`vercel-build`) voert eerst de migraties uit en stopt als dat
+   mislukt, zodat nieuwe code nooit tegen een oud schema draait.
+2. Het vestigingsadres moet in Vercel staan (`VERZEND_STRAAT`,
+   `VERZEND_HUISNUMMER`, `VERZEND_POSTCODE`, `VERZEND_PLAATS`). Art. 35a Wet
+   OB eist het adres van de leverancier op de factuur; zonder weigert het
+   formulier. Het adres komt daarmee wél op elke factuur te staan, dus bij
+   de klant.
+
 ### Terugroepberichten (af)
 
 De hele keten werkt nu: mailsjabloon, versturen per ontvanger, en een

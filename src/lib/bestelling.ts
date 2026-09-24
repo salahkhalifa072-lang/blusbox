@@ -1,7 +1,8 @@
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { orderLines, orders, products } from "@/db/schema";
 import { berekenWagen, type Winkelwagen } from "./winkelwagen";
+import { volgendOrdernummer } from "@/db/nummers";
 
 
 /**
@@ -33,25 +34,6 @@ export class BestellingGeweigerd extends Error {
     super(message);
     this.name = "BestellingGeweigerd";
   }
-}
-
-/**
- * BB-2026-000123. The counter is per calendar year and derived from the
- * highest existing number, inside the same transaction as the insert, so
- * two simultaneous checkouts cannot claim the same number.
- */
-async function volgendOrdernummer(tx: typeof db, jaar: number): Promise<string> {
-  const prefix = `BB-${jaar}-`;
-  const [rij] = await tx
-    .select({
-      hoogste: sql<string | null>`max(${orders.ordernummer})`,
-    })
-    .from(orders)
-    .where(sql`${orders.ordernummer} like ${prefix + "%"}`);
-
-  const vorig = rij?.hoogste ? Number(rij.hoogste.slice(prefix.length)) : 0;
-  const volgend = (Number.isFinite(vorig) ? vorig : 0) + 1;
-  return prefix + String(volgend).padStart(6, "0");
 }
 
 export type AangemaakteBestelling = {
