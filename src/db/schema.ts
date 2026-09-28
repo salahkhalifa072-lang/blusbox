@@ -30,6 +30,7 @@ export const rolEnum = pgEnum("rol", [
   "admin",
   "operations",
   "installateur",
+  "affiliate",
   "klant",
 ]);
 
@@ -120,6 +121,17 @@ export const products = pgTable(
     voorraad: integer("voorraad").notNull().default(0),
 
     actief: boolean("actief").notNull().default(true),
+
+    /**
+     * Geen affiliatecommissie over dit product. Bedoeld voor artikelen met
+     * een te dunne marge om er nog twintig procent af te halen. Staat hier
+     * en niet in de affiliate-instellingen omdat het een eigenschap van het
+     * product is, niet van het programma.
+     */
+    commissieUitgesloten: boolean("commissie_uitgesloten")
+      .notNull()
+      .default(false),
+
     aangemaaktOp: timestamp("aangemaakt_op", { withTimezone: true })
       .notNull()
       .defaultNow(),

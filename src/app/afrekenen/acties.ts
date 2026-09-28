@@ -25,6 +25,7 @@ import {
 } from "@/lib/stripe";
 import { berekenWagen } from "@/lib/winkelwagen";
 import { beoordeelVerzending } from "@/lib/verzending";
+import { koppelAffiliateAanBestelling } from "@/lib/affiliate/koppelen";
 
 export type AfrekenFout = {
   velden?: Record<string, string>;
@@ -135,6 +136,25 @@ export async function rekenAf(
       return { algemeen: fout.message, oplossing: fout.oplossing };
     }
     throw fout;
+  }
+
+  /*
+   * De affiliate vastleggen, nu de bestelling bestaat.
+   *
+   * Hier en niet bij de betaling: op dit moment is de cookie van de
+   * bezoeker nog binnen bereik. De Stripe-webhook komt van Stripe zelf en
+   * heeft geen enkele cookie van de klant, dus daar valt niets meer te
+   * koppelen. De commissie zelf ontstaat wél pas bij de bevestigde
+   * betaling — een bestelling die blijft steken hoort niets op te leveren.
+   *
+   * Mislukt dit, dan gaat het afrekenen gewoon door. Een klant die niet
+   * kan betalen omdat een affiliateboeking hapert is een veel groter
+   * probleem dan een gemiste commissie.
+   */
+  try {
+    await koppelAffiliateAanBestelling(bestelling.id);
+  } catch (fout) {
+    console.error("Affiliate niet gekoppeld:", (fout as Error).message);
   }
 
   // Order exists and is reserved. If payment cannot start, the customer

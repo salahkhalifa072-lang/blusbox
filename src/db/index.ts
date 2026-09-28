@@ -2,6 +2,7 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema";
 import * as authSchema from "./auth-schema";
+import * as affiliateSchema from "./affiliate-schema";
 
 /**
  * Database handle.
@@ -17,7 +18,7 @@ import * as authSchema from "./auth-schema";
  * any real query outside the build still needs a real URL.
  */
 
-const volledigSchema = { ...schema, ...authSchema };
+const volledigSchema = { ...schema, ...authSchema, ...affiliateSchema };
 
 const isBuildFase = process.env.NEXT_PHASE === "phase-production-build";
 const url = process.env.DATABASE_URL;
@@ -46,3 +47,4 @@ export const db = drizzle(client, { schema: volledigSchema });
 
 export * from "./schema";
 export * from "./auth-schema";
+export * from "./affiliate-schema";

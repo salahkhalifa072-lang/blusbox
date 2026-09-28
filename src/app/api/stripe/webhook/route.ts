@@ -8,6 +8,14 @@ import {
   stuurFactuurBetaaldMelding,
 } from "@/lib/mail";
 import { markeerFactuurBetaald } from "@/db/facturen";
+import {
+  draaiCommissieTerug,
+  maakCommissieVoorBestelling,
+} from "@/db/affiliate";
+import {
+  gebeurtenisAlVerwerkt,
+  orderIdViaBetaling,
+} from "@/lib/affiliate/webhook";
 
 /**
  * Stripe webhook.
@@ -36,6 +44,22 @@ export async function POST(request: Request) {
     // Bad signature or missing secret: never retryable, never trusted.
     console.error("Stripe-webhook geweigerd:", (fout as Error).message);
     return NextResponse.json({ ok: false }, { status: 400 });
+  }
+
+  /*
+   * Idempotentie, vóór alles.
+   *
+   * Stripe levert bij twijfel opnieuw af: na een time-out, na een 500, of
+   * gewoon omdat het kan. Zonder grendel zou dezelfde betaling een tweede
+   * commissie opleveren en een tweede bestelbevestiging versturen. Het
+   * invoegen van het event-id is die grendel; mislukt het invoegen, dan is
+   * dit een herhaling en zijn we klaar.
+   *
+   * Bewust ná de handtekeningcontrole: anders kan iemand met verzonnen
+   * event-id's de tabel volschrijven.
+   */
+  if (await gebeurtenisAlVerwerkt(gebeurtenis.id, gebeurtenis.type)) {
+    return NextResponse.json({ ontvangen: true, herhaling: true });
   }
 
   try {
@@ -106,6 +130,26 @@ export async function POST(request: Request) {
         // het pdf'je, mag er niet toe leiden dat de winkelier zijn eigen
         // bestelling niet te zien krijgt. allSettled, want een afwijzing
         // van de een mag de ander niet afbreken.
+        if (status === "betaald") {
+          // Commissie pas nu: de toeschrijving is bij het afrekenen
+          // vastgelegd, maar een bestelling die nooit betaald wordt hoort
+          // niets op te leveren. Fouten hier mogen de bevestigingsmail
+          // niet tegenhouden — de klant heeft betaald en wacht op bericht.
+          try {
+            const uitkomst = await maakCommissieVoorBestelling(orderId);
+            if (uitkomst.gemaakt) {
+              console.log(
+                `Affiliatecommissie ${ordernummer ?? orderId}: € ${(uitkomst.bedragCenten / 100).toFixed(2)}`,
+              );
+            }
+          } catch (fout) {
+            console.error(
+              "Affiliatecommissie aanmaken mislukt:",
+              (fout as Error).message,
+            );
+          }
+        }
+
         if (status === "betaald" && ordernummer) {
           const klantEmail = sessie.customer_details?.email ?? undefined;
 
@@ -148,7 +192,48 @@ export async function POST(request: Request) {
         // een nieuwe sessie.
         if (orderId && sessie.metadata?.bron !== "factuur") {
           await markeerBetaald(orderId, sessie.id, "geannuleerd");
+          await draaiCommissieTerug({
+            orderId,
+            reden: "Betaling geannuleerd of verlopen",
+          }).catch((fout: unknown) =>
+            console.error("Commissie terugdraaien mislukt:", fout),
+          );
         }
+        break;
+      }
+
+      /*
+       * Terugbetalingen en terugboekingen.
+       *
+       * Stripe koppelt deze events aan de betaling, niet aan onze
+       * bestelling, dus het ordernummer komt uit de metadata van de
+       * bijbehorende Checkout-sessie. Zonder die koppeling weten we niet
+       * welke commissie het betreft en doen we liever niets dan het
+       * verkeerde.
+       */
+      case "charge.refunded":
+      case "charge.dispute.created": {
+        const lading = gebeurtenis.data.object as
+          | Stripe.Charge
+          | Stripe.Dispute;
+        const betalingId =
+          typeof lading.payment_intent === "string"
+            ? lading.payment_intent
+            : (lading.payment_intent?.id ?? null);
+        if (!betalingId) break;
+
+        const orderId = await orderIdViaBetaling(betalingId);
+        if (!orderId) break;
+
+        await draaiCommissieTerug({
+          orderId,
+          reden:
+            gebeurtenis.type === "charge.refunded"
+              ? "Terugbetaling via Stripe"
+              : "Terugboeking (chargeback)",
+        }).catch((fout: unknown) =>
+          console.error("Commissie terugdraaien mislukt:", fout),
+        );
         break;
       }
 

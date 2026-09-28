@@ -43,6 +43,13 @@
       "when": 1790245456160,
       "tag": "0005_factuur",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790588451165,
+      "tag": "0006_affiliateprogramma",
+      "breakpoints": true
     }
   ]
 }
