@@ -17,8 +17,13 @@
  * ooit een foto onder een naam belandt op gevoel — dan is het weer een
  * verzinsel, alleen in beeldvorm.
  *
- * Eén opname per beoordeling. installatie-3.webp, installatie-4.webp en
- * installatie-5.webp staan daardoor ongebruikt in public/media/klant/.
+ * Eén opname per beoordeling.
+ *
+ * De teksten staan er zoals ze zijn aangeleverd. Alleen een hoofdletter,
+ * een punt en één doorgeslagen letter zijn rechtgezet ("klinkt" → "klikt",
+ * anders leest die zin als onzin). Verder niets gladgestreken: een
+ * beoordeling die klinkt als reclametekst gelooft niemand, en juist de
+ * eigen formulering maakt hem echt.
  *
  * Wat bij het klaarmaken is weggehaald: op een van de foto's stond een
  * sticker met straatnaam en postcode van het installatiebedrijf. Die is
@@ -126,6 +131,50 @@ export const REVIEWS: Review[] = [
         soort: "foto",
         src: "/media/klant/installatie-7.webp",
         alt: "Schneider-groepenkast met Blusbox op de rail naast de hoofdschakelaar",
+      },
+    ],
+  },
+  {
+    naam: "Maarten de Vries",
+    sterren: 5,
+    kop: "Better safe than sorry",
+    tekst: "Top product en snel geleverd, better safe than sorry!",
+    media: [
+      {
+        soort: "foto",
+        src: "/media/klant/installatie-3.webp",
+        alt: "Holec-groepenkast met Blusbox, met de groepenverklaring ernaast op de wand",
+      },
+    ],
+  },
+  {
+    naam: "Lisanne",
+    // Vier sterren: deze tekst zegt waaróm ze hem kocht, niet dat het
+    // product uitblinkt. Er als vijfde ster bij zetten wat er niet staat
+    // is precies hoe een reviewblok ongeloofwaardig wordt.
+    sterren: 4,
+    kop: "Na het NOS-bericht meteen besteld",
+    tekst:
+      "Mijn meterkast zat vol spullen en na het artikel van NOS over branden in meterkast direct zo een blusbox aangeschaft.",
+    media: [
+      {
+        soort: "foto",
+        src: "/media/klant/installatie-4.webp",
+        alt: "Houten meterkast met slimme meter, met de Blusbox onderaan de groepenkast",
+      },
+    ],
+  },
+  {
+    naam: "Jaydon Z.",
+    sterren: 5,
+    kop: "Zo tussen de schakelaars geklikt",
+    tekst:
+      "Snelle levering en makkelijk geplaatst, je klikt gewoon je meterkast open en plaatst hem tussen een schakelaar.",
+    media: [
+      {
+        soort: "foto",
+        src: "/media/klant/installatie-5.webp",
+        alt: "Hager-groepenkast met Blusbox naast de groepen voor warmtepomp en schuur",
       },
     ],
   },

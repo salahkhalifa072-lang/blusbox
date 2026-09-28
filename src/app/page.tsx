@@ -70,15 +70,16 @@ export default function Home() {
         */}
         <section className="relative overflow-hidden bg-antraciet pt-32 lg:pt-0">
           <div className="relative mx-auto max-w-7xl lg:grid lg:min-h-screen lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:gap-12 lg:px-6 lg:pb-12 lg:pt-32">
-            {/* object-[50%_25%]: in het vierkant blijven het gezicht, de
-                module en beide koorden in beeld. Op lg is het vak zelf
-                staand en past de hele film erin. */}
+            {/* De uitsnede houdt het gezicht, de module en beide koorden in
+                beeld: 25% in het vierkant op mobiel, 34% in het lagere
+                4:3-vak op tablet, anders valt het onderste koord weg. Op lg
+                is het vak zelf staand en past de hele film erin. */}
             <div className="relative aspect-square w-full sm:aspect-[4/3] lg:order-2 lg:aspect-[9/16] lg:h-[min(76vh,46rem)] lg:w-auto lg:overflow-hidden lg:rounded-3xl lg:border lg:border-kastwit/10">
               <VideoBlock
                 src="/media/hero-plaatsing.mp4"
                 poster="/media/hero-plaatsing.jpg"
                 label="Een man klikt de Blusbox-module in de meterkast op de DIN-rail, in lijn naast een installatieautomaat"
-                className="absolute inset-0 h-full w-full object-cover object-[50%_25%] lg:object-center"
+                className="absolute inset-0 h-full w-full object-cover object-[50%_25%] sm:object-[50%_34%] lg:object-center"
                 priority
               />
             </div>

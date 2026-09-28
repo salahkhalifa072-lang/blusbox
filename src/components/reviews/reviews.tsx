@@ -100,7 +100,14 @@ function Kaart({ review }: { review: Review }) {
 export function Reviews({
   reviews = REVIEWS,
   titel = "Wat kopers zeggen",
-  maxAantal = 6,
+  /**
+   * Standaard komt alles in beeld. Hier stond 6, en toen er een zevende
+   * en achtste bijkwamen verdwenen die zonder melding — het gemiddelde
+   * telde ze wel mee, de kaarten toonden ze niet. Een limiet die je moet
+   * onthouden is een limiet die je vergeet; geef hem mee wanneer je hem
+   * nodig hebt.
+   */
+  maxAantal,
 }: {
   reviews?: Review[];
   titel?: string;
@@ -156,14 +163,15 @@ export function Reviews({
         </div>
 
         <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {reviews.slice(0, maxAantal).map((r, i) => (
+          {(maxAantal ? reviews.slice(0, maxAantal) : reviews).map((r, i) => (
             <Kaart key={`${r.naam}-${i}`} review={r} />
           ))}
         </ul>
 
         <p className="mt-6 max-w-2xl text-xs text-staal-tekst">
           Beoordelingen komen van mensen die de Blusbox bij ons gekocht
-          hebben. Wij plaatsen ze ongewijzigd en verwijderen geen kritiek.
+          hebben. Wij korten ze niet in, schrijven ze niet om en
+          verwijderen geen kritiek.
         </p>
       </div>
     </section>
