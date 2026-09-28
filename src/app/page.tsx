@@ -9,6 +9,7 @@ import { Reveal } from "@/components/ui/reveal";
 import { LogoBadge } from "@/components/site/logo";
 import { UspBar } from "@/components/site/usp-bar";
 import { InDePraktijk } from "@/components/home/in-de-praktijk";
+import { Prijsblok } from "@/components/product/prijsblok";
 import { Reviews } from "@/components/reviews/reviews";
 import { gratisVerzending, prijsIncl, verzendwaarde } from "@/lib/pricing";
 
@@ -107,14 +108,15 @@ export default function Home() {
                   below the module and hidden from the accessibility tree. */}
               <h1 className="font-display text-[clamp(2.75rem,9vw,7.5rem)]">
                 <span aria-hidden className="text-blusrood-op-donker">
-                  Als alles
+                  Blusbox,
                 </span>
                 <br aria-hidden />
                 <span aria-hidden className="text-kastwit">
-                  al is misgegaan
+                  de meest vertrouwde
                 </span>
                 <span className="sr-only">
-                  Als alles al is misgegaan, grijpt Blusbox in.
+                  Blusbox, de meest vertrouwde brandblusser voor in de
+                  meterkast!
                 </span>
               </h1>
             </div>
@@ -131,12 +133,16 @@ export default function Home() {
                   className="pointer-events-none absolute -inset-x-16 -inset-y-10 hidden bg-[radial-gradient(ellipse_at_center,rgba(22,24,26,0.88)_0%,rgba(22,24,26,0.5)_45%,transparent_72%)] lg:block"
                   aria-hidden
                 />
+                {/* Kleiner dan de bovenhelft: dit is met vijf woorden ruim
+                    twee keer zo lang als de "grijpt Blusbox in" die hier
+                    stond, en op dezelfde graadmeter liep het over drie
+                    regels dwars door het productbeeld heen. */}
                 <p
                   aria-hidden
-                  className="font-display relative text-[clamp(2.75rem,9vw,7.5rem)] lg:text-right"
+                  className="font-display relative text-[clamp(1.75rem,5.5vw,4.25rem)] lg:text-right"
                 >
-                  <span className="text-kastwit">grijpt </span>
-                  <span className="text-blusrood-op-donker">Blusbox in</span>
+                  <span className="text-kastwit">brandblusser voor in de </span>
+                  <span className="text-blusrood-op-donker">meterkast!</span>
                 </p>
               </div>
 
@@ -147,16 +153,26 @@ export default function Home() {
                     <span className="data text-kastwit">170 °C</span> vanzelf
                     ingrijpt. Geen stroom. Geen bediening. Geen mens.
                   </p>
-                  {/* The promise sits in a filled badge rather than red text:
-                      it survives whatever frame is behind it, and it is how
-                      the PDP already states it. */}
-                  <p className="data mt-5 flex flex-wrap items-center gap-x-2 gap-y-2 text-sm text-kastwit">
-                    <span>{prijsIncl}</span>
-                    <span className="text-kastwit/70">incl. btw</span>
-                    <span className="rounded-full bg-blusrood-vlak px-3 py-1 text-xs font-medium">
-                      {gratisVerzending.kort}
-                    </span>
-                  </p>
+                  {/* Prijs, adviesprijs en het verschil — hetzelfde blok als
+                      op de productpagina, zodat de twee pagina's niet elk een
+                      eigen voorstelling van de prijs geven.
+
+                      De gevulde rode badge is nu het kortingscijfer en niet
+                      meer de verzendbelofte. Twee gevulde badges naast elkaar
+                      vechten om dezelfde aandacht, en van die twee is het
+                      prijsverschil de reden om door te klikken; gratis
+                      verzending staat bovendien in de balk erboven én in de
+                      kaartenrij direct hieronder. Omlijnd blijft hij leesbaar
+                      op elk beeld dat erachter staat. */}
+                  <div className="mt-5">
+                    <Prijsblok />
+                    <p className="data mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-2 text-xs text-kastwit/70">
+                      <span>incl. btw · t.o.v. adviesprijs</span>
+                      <span className="rounded-full border border-kastwit/30 px-3 py-1">
+                        {gratisVerzending.kort}
+                      </span>
+                    </p>
+                  </div>
                   <div className="mt-5 flex flex-wrap gap-3">
                     <Link
                       href="/blusbox"

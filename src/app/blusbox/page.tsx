@@ -9,6 +9,7 @@ import { FaqList } from "@/components/ui/accordion";
 import { Galerij } from "@/components/product/galerij";
 import { AantalKiezer } from "@/components/product/aantal-kiezer";
 import { Betaalmethoden } from "@/components/product/betaalmethoden";
+import { Prijsblok } from "@/components/product/prijsblok";
 import { kenmerken, productFacts } from "@/lib/product-facts";
 import { faqUitgelicht } from "@/lib/faq";
 import { LEVERTIJD } from "@/lib/verzending";
@@ -20,7 +21,6 @@ import {
   prijsIncl,
   verzendwaarde,
   ADVIESPRIJS_CENTEN,
-  KORTINGSPERCENTAGE,
   PRIJS_INCL_CENTEN,
   TOON_ADVIESPRIJS,
 } from "@/lib/pricing";
@@ -160,19 +160,7 @@ export default function BlusboxPage() {
               </p>
 
               <div className="mt-8 border-t border-kastwit/15 pt-6">
-                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-2">
-                  <p className="data text-3xl">{prijsIncl}</p>
-                  {TOON_ADVIESPRIJS && (
-                    <>
-                      <span className="data text-lg text-railstaal line-through">
-                        {adviesprijs}
-                      </span>
-                      <span className="rounded-full bg-blusrood-vlak px-3 py-1 text-xs font-medium">
-                        −{KORTINGSPERCENTAGE}%
-                      </span>
-                    </>
-                  )}
-                </div>
+                <Prijsblok formaat="groot" />
                 <p className="mt-2 text-sm text-kastwit/60">
                   Incl. btw ({prijsExcl} excl. btw)
                   {TOON_ADVIESPRIJS && <> · adviesprijs {adviesprijs}</>}
