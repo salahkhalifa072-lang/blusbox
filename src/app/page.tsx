@@ -8,6 +8,7 @@ import { VideoBlock } from "@/components/ui/video-block";
 import { Reveal } from "@/components/ui/reveal";
 import { LogoBadge } from "@/components/site/logo";
 import { UspBar } from "@/components/site/usp-bar";
+import { InDePraktijk } from "@/components/home/in-de-praktijk";
 import { Reviews } from "@/components/reviews/reviews";
 import { gratisVerzending, prijsIncl, verzendwaarde } from "@/lib/pricing";
 
@@ -282,6 +283,11 @@ export default function Home() {
             </ButtonLink>
           </div>
         </section>
+
+        {/* Module in de hand en in de kast. Staat hier omdat de sectie
+            hierboven vertelt dát hij op de rail klikt, en dit laat zien hoe
+            klein dat ding dan is. */}
+        <InDePraktijk />
 
         {/* What arrives on the doormat. Sits here on purpose: it follows the
             product and carries the shipping promise into the buying moment. */}
