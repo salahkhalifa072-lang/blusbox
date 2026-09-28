@@ -220,6 +220,15 @@ export default function BlusboxPage() {
         </section>
 
         {/* Specs */}
+        {/* Beoordelingen boven de specificaties. Wie op deze hoogte van de
+            pagina nog leest, twijfelt — en dan weegt wat een ander ervan
+            vond zwaarder dan een tabel met waarden. De specificaties zijn
+            voor wie al overtuigd is en wil controleren of het past.
+            Toont zichzelf niet zolang lib/reviews.ts leeg is. */}
+        <div id="beoordelingen" className="scroll-mt-24">
+          <Reviews titel="Beoordelingen" />
+        </div>
+
         <section id="specificaties" className="mx-auto max-w-6xl scroll-mt-24 px-6 py-20">
           <div className="grid gap-12 lg:grid-cols-[1fr_1.4fr]">
             <div>
@@ -312,13 +321,6 @@ export default function BlusboxPage() {
             Naar downloads
           </Link>
         </section>
-
-        {/* Beoordelingen. Staan vóór de FAQ: wie twijfelt leest eerst wat
-            anderen vonden en pas daarna de kleine lettertjes. Toont zichzelf
-            niet zolang lib/reviews.ts leeg is. */}
-        <div id="beoordelingen" className="scroll-mt-24">
-          <Reviews titel="Beoordelingen" />
-        </div>
 
         {/* FAQ excerpt */}
         <section className="mx-auto max-w-6xl px-6 pb-4">

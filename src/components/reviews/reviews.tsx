@@ -6,6 +6,7 @@ import {
 } from "@/lib/reviews";
 import { formatteerNl } from "@/lib/levensduur";
 import { Sterren } from "./sterren";
+import { Klantmedia } from "./klantmedia";
 
 /**
  * Beoordelingen: gemiddelde, verdeling en de reacties zelf.
@@ -119,6 +120,8 @@ export function Reviews({
           Beoordelingen komen van mensen die de Blusbox bij ons gekocht
           hebben. Wij plaatsen ze ongewijzigd en verwijderen geen kritiek.
         </p>
+
+        <Klantmedia />
       </div>
     </section>
   );
