@@ -16,6 +16,7 @@ const columns = [
     title: "Zakelijk",
     links: [
       { href: "/zakelijk", label: "Voor bedrijven" },
+      { href: "/affiliate", label: "Partnerprogramma" },
       { href: "/installateurs", label: "Voor installateurs" },
     ],
   },

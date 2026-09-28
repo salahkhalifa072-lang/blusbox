@@ -18,6 +18,7 @@ const nav = [
   { href: "/dashboard/units", label: "Geplaatste units" },
   { href: "/dashboard/activeringen", label: "Activeringen" },
   { href: "/dashboard/retouren", label: "Retouren" },
+  { href: "/dashboard/affiliates", label: "Affiliates" },
   { href: "/dashboard/recalls", label: "Recalls" },
 ];
 

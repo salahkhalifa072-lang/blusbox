@@ -6,6 +6,7 @@ import {
   affiliateCommissies,
   affiliateInstellingen,
   affiliateKlikken,
+  affiliateUitbetalingen,
   affiliates,
 } from "./affiliate-schema";
 import { orderLines, orders, products, users } from "./schema";
@@ -48,7 +49,26 @@ const VALTERUG: Instellingen = {
  * wanneer een beheerder iets wijzigt.
  */
 export async function haalInstellingen(): Promise<Instellingen> {
-  const [rij] = await db.select().from(affiliateInstellingen).limit(1);
+  let rij;
+  try {
+    [rij] = await db.select().from(affiliateInstellingen).limit(1);
+  } catch (fout) {
+    /*
+     * De tabel bestaat nog niet.
+     *
+     * De build zet code neer, de migratie zet het schema — en die twee
+     * gebeuren niet op hetzelfde moment. In dat gat draait er nieuwe code
+     * tegen een oud schema, en dan hoort een pagina terug te vallen op de
+     * standaardwaarden in plaats van een foutpagina te tonen. Hetzelfde
+     * gat kostte eerder al een werkend dashboard toen er een kolom werd
+     * toegevoegd voordat de migratie gedraaid was.
+     */
+    console.error(
+      "Affiliate-instellingen niet leesbaar, standaarden gebruikt:",
+      (fout as Error).message,
+    );
+    return VALTERUG;
+  }
   if (!rij) return VALTERUG;
   return {
     standaardPercentageBp: rij.standaardPercentageBp,
@@ -524,4 +544,91 @@ export async function auditlogRegels(limiet = 200) {
     .leftJoin(users, eq(users.id, affiliateAuditlog.actorUserId))
     .orderBy(desc(affiliateAuditlog.aangemaaktOp))
     .limit(limiet);
+}
+
+/**
+ * Per affiliate: wat er klaarstaat om uit te betalen.
+ *
+ * Alleen goedgekeurde commissies die nog niet aan een uitbetaling hangen.
+ * Zonder die tweede voorwaarde zou een commissie die al in een concept-
+ * uitbetaling zit hier opnieuw meetellen, en dan maak je hem twee keer over.
+ */
+export async function uitbetaalbaarPerAffiliate() {
+  return db
+    .select({
+      affiliateId: affiliates.id,
+      slug: affiliates.slug,
+      naam: users.name,
+      email: users.email,
+      uitbetaalRekening: affiliates.uitbetaalRekening,
+      aantal: sql<number>`count(*)::int`,
+      bedragCenten: sql<number>`coalesce(sum(${affiliateCommissies.bedragCenten}), 0)::int`,
+    })
+    .from(affiliateCommissies)
+    .innerJoin(affiliates, eq(affiliates.id, affiliateCommissies.affiliateId))
+    .innerJoin(users, eq(users.id, affiliates.userId))
+    .where(
+      and(
+        eq(affiliateCommissies.status, "goedgekeurd"),
+        sql`${affiliateCommissies.uitbetalingId} is null`,
+      ),
+    )
+    .groupBy(affiliates.id, affiliates.slug, users.name, users.email, affiliates.uitbetaalRekening);
+}
+
+/** De uitbetalingen, nieuwste eerst. */
+export async function uitbetalingenVoorBeheer(limiet = 50) {
+  return db
+    .select({
+      id: affiliateUitbetalingen.id,
+      bedragCenten: affiliateUitbetalingen.bedragCenten,
+      status: affiliateUitbetalingen.status,
+      referentie: affiliateUitbetalingen.referentie,
+      aangemaaktOp: affiliateUitbetalingen.aangemaaktOp,
+      uitbetaaldOp: affiliateUitbetalingen.uitbetaaldOp,
+      slug: affiliates.slug,
+      naam: users.name,
+    })
+    .from(affiliateUitbetalingen)
+    .innerJoin(affiliates, eq(affiliates.id, affiliateUitbetalingen.affiliateId))
+    .innerJoin(users, eq(users.id, affiliates.userId))
+    .orderBy(desc(affiliateUitbetalingen.aangemaaktOp))
+    .limit(limiet);
+}
+
+/**
+ * Signalen die om een menselijke blik vragen.
+ *
+ * Bewust géén automatische blokkade: één zwak signaal is geen fraude, en
+ * een eerlijke affiliate die zijn eigen familie helpt verdient geen
+ * afgesloten account op basis van een telling. Dit is een lijstje om naar
+ * te kijken, meer niet.
+ */
+export async function verdachteSignalen() {
+  const veelKlikkenEenBron = await db
+    .select({
+      slug: affiliates.slug,
+      bronHash: affiliateKlikken.bronHash,
+      aantal: sql<number>`count(*)::int`,
+    })
+    .from(affiliateKlikken)
+    .innerJoin(affiliates, eq(affiliates.id, affiliateKlikken.affiliateId))
+    .where(sql`${affiliateKlikken.aangemaaktOp} > now() - interval '7 days'`)
+    .groupBy(affiliates.slug, affiliateKlikken.bronHash)
+    .having(sql`count(*) > 100`)
+    .limit(20);
+
+  const nulConversie = await db
+    .select({
+      slug: affiliates.slug,
+      klikken: sql<number>`count(*)::int`,
+    })
+    .from(affiliateKlikken)
+    .innerJoin(affiliates, eq(affiliates.id, affiliateKlikken.affiliateId))
+    .where(sql`${affiliateKlikken.aangemaaktOp} > now() - interval '30 days'`)
+    .groupBy(affiliates.slug)
+    .having(sql`count(*) > 500`)
+    .limit(20);
+
+  return { veelKlikkenEenBron, nulConversie };
 }
