@@ -260,10 +260,15 @@ export default function Home() {
           <div className="mt-12 grid gap-4 sm:grid-cols-3">
             <Reveal>
               <figure>
+                {/* Staand beeld in een vierkant vak: object-cover snijdt
+                    boven en onder de lege ruimte weg en laat de module
+                    volledig staan. Het merkteken rechtsonder in de foto
+                    valt daarbij buiten beeld, en dat is precies goed —
+                    LogoBadge zet er al een van de site zelf overheen. */}
                 <div className="relative aspect-square overflow-hidden rounded-2xl bg-kastwit-dim">
                   <Image
-                    src="/media/packshot.jpg"
-                    alt="Blusbox module, matrood, met DIN-railclip en detectiekoord"
+                    src="/media/module-packshot.webp"
+                    alt="Blusbox-module: rode behuizing met DIN-railclip, twee blauwe detectiekoorden en pictogrammen met levensduur, dichtheid en activeringstemperatuur"
                     fill
                     sizes="(min-width: 640px) 33vw, 100vw"
                     className="object-cover"
