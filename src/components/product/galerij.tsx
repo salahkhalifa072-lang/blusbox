@@ -36,8 +36,8 @@ type Beeld =
 const BEELDEN: Beeld[] = [
   {
     soort: "foto",
-    src: "/media/packshot.jpg",
-    alt: "Blusbox-module: matrode behuizing met DIN-railclip en detectiekoord",
+    src: "/media/module-packshot.webp",
+    alt: "Blusbox-module: rode behuizing met DIN-railclip, twee blauwe detectiekoorden en pictogrammen met levensduur, dichtheid en activeringstemperatuur",
     label: "Module",
   },
   {

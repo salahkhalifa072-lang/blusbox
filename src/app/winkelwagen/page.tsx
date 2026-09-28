@@ -72,7 +72,7 @@ export default async function WinkelwagenPage() {
               >
                 <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-kastwit-dim">
                   <Image
-                    src="/media/packshot.jpg"
+                    src="/media/module-packshot.webp"
                     alt=""
                     fill
                     sizes="96px"
