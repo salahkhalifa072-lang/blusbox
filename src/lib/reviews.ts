@@ -17,17 +17,8 @@
  * ooit een foto onder een naam belandt op gevoel — dan is het weer een
  * verzinsel, alleen in beeldvorm.
  *
- * Eén opname per beoordeling. Drie bestanden staan daardoor stil in
- * public/media/klant/, en ze horen bij een klant die al een kaart heeft:
- *
- *   installatie-5.webp  — Sophie de Vries
- *   installatie-3.webp  — Nadia El Amrani
- *   installatie-4.webp  — Lisa van den Berg
- *
- * Verplaats ze niet naar een nieuwe naam om een extra kaart te vullen.
- * Dat is precies waar deze module tegen beschermt: de foto is dan echt,
- * maar de bewering wie hem gemaakt heeft niet. Een nieuwe kaart hoort een
- * nieuwe klant te zijn, met eigen woorden en eigen beeld.
+ * Eén opname per beoordeling. installatie-3.webp, installatie-4.webp en
+ * installatie-5.webp staan daardoor ongebruikt in public/media/klant/.
  *
  * Wat bij het klaarmaken is weggehaald: op een van de foto's stond een
  * sticker met straatnaam en postcode van het installatiebedrijf. Die is
