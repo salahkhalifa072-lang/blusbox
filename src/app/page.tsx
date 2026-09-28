@@ -106,17 +106,20 @@ export default function Home() {
               {/* One sentence, split around the product. The h1 carries the
                   whole line for assistive tech; the closing half is painted
                   below the module and hidden from the accessibility tree. */}
-              <h1 className="font-display text-[clamp(2.75rem,9vw,7.5rem)]">
+              {/* leading-[1.05] tegen de 0.88 die .font-display meegeeft.
+                  Die strakke zetting is gemaakt voor losse woorden onder
+                  elkaar; met twee volle regels liepen de stokken van de
+                  onderste regel tegen de staarten van de bovenste. */}
+              <h1 className="font-display text-[clamp(2.75rem,9vw,7.5rem)] leading-[1.05]">
                 <span aria-hidden className="text-blusrood-op-donker">
                   Blusbox,
                 </span>
                 <br aria-hidden />
                 <span aria-hidden className="text-kastwit">
-                  de meest vertrouwde
+                  dé brandblusser
                 </span>
                 <span className="sr-only">
-                  Blusbox, de meest vertrouwde brandblusser voor in de
-                  meterkast!
+                  Blusbox, dé brandblusser voor in de meterkast!
                 </span>
               </h1>
             </div>
@@ -133,15 +136,11 @@ export default function Home() {
                   className="pointer-events-none absolute -inset-x-16 -inset-y-10 hidden bg-[radial-gradient(ellipse_at_center,rgba(22,24,26,0.88)_0%,rgba(22,24,26,0.5)_45%,transparent_72%)] lg:block"
                   aria-hidden
                 />
-                {/* Kleiner dan de bovenhelft: dit is met vijf woorden ruim
-                    twee keer zo lang als de "grijpt Blusbox in" die hier
-                    stond, en op dezelfde graadmeter liep het over drie
-                    regels dwars door het productbeeld heen. */}
                 <p
                   aria-hidden
-                  className="font-display relative text-[clamp(1.75rem,5.5vw,4.25rem)] lg:text-right"
+                  className="font-display relative text-[clamp(2.75rem,9vw,7.5rem)] leading-[1.05] lg:text-right"
                 >
-                  <span className="text-kastwit">brandblusser voor in de </span>
+                  <span className="text-kastwit">voor in de </span>
                   <span className="text-blusrood-op-donker">meterkast!</span>
                 </p>
               </div>
