@@ -29,8 +29,13 @@ type Beeld =
       poster: string;
       alt: string;
       label: string;
-      /** Echte opname, geen weergave. Bepaalt het bijschrift onderaan. */
-      echt?: boolean;
+      /**
+       * Bijschrift onderaan de galerij. Stond eerst als vlag `echt`, maar
+       * dat kende maar twee uitkomsten: "test" of "weergave". Een opname
+       * bij een klant is geen van beide, en die als test wegzetten haalt
+       * er juist het overtuigende uit.
+       */
+      bijschrift?: string;
     };
 
 const BEELDEN: Beeld[] = [
@@ -46,7 +51,7 @@ const BEELDEN: Beeld[] = [
     poster: "/media/plaatsing-meterkast.jpg",
     alt: "Opname van een test: de module wordt op de DIN-rail geklikt, in de kast ontstaat brand, de module gaat af en dooft het vuur",
     label: "Plaatsing",
-    echt: true,
+    bijschrift: "Opname van een test.",
   },
   {
     soort: "video",
@@ -141,8 +146,8 @@ export function Galerij() {
       </ul>
 
       <p className="data mt-3 text-xs text-railstaal">
-        {BEELDEN[actief].soort === "video" && BEELDEN[actief].echt
-          ? "Opname van een test."
+        {BEELDEN[actief].soort === "video"
+          ? (BEELDEN[actief].bijschrift ?? "Beeld is een weergave.")
           : "Beeld is een weergave."}
       </p>
     </div>

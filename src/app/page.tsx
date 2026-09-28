@@ -283,16 +283,21 @@ export default function Home() {
             <Reveal delay={80} className="sm:col-span-2">
               <figure>
                 <div className="relative aspect-square overflow-hidden rounded-2xl bg-kastwit-dim sm:aspect-auto sm:h-full">
+                  {/* Was meterkast-front.mp4, maar dat fragment draait even
+                      verderop al in de scroll-animatie. Twee keer hetzelfde
+                      beeld op één pagina laat de tweede keer als vulling
+                      lezen. Dit is echte opname bij een klant, dus ook geen
+                      "beeld is een weergave" eronder. */}
                   <VideoBlock
-                    src="/media/meterkast-front.mp4"
-                    poster="/media/meterkast-front.jpg"
-                    label="Fragment: een beginnende brand in de meterkast wordt door de Blusbox-module met aerosol gedoofd"
+                    src="/media/klant/installatie.mp4"
+                    poster="/media/klant/installatie.jpg"
+                    label="Opname bij een klant: de module wordt op de DIN-rail geklikt, het detectiekoord wordt langs de groepen gelegd en de kast gaat dicht"
                     className="absolute inset-0 h-full w-full object-cover"
                   />
                   <LogoBadge />
                 </div>
                 <figcaption className="data px-1 py-3 text-xs text-staal-tekst">
-                  In de meterkast · beeld is een weergave
+                  Geplaatst bij een klant · echte opname
                 </figcaption>
               </figure>
             </Reveal>
