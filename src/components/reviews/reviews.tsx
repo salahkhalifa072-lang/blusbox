@@ -4,9 +4,10 @@ import {
   sterrenVerdeling,
   type Review,
 } from "@/lib/reviews";
+import Image from "next/image";
+import { VideoBlock } from "@/components/ui/video-block";
 import { formatteerNl } from "@/lib/levensduur";
 import { Sterren } from "./sterren";
-import { Klantmedia } from "./klantmedia";
 
 /**
  * Beoordelingen: gemiddelde, verdeling en de reacties zelf.
@@ -18,6 +19,12 @@ import { Klantmedia } from "./klantmedia";
  * De verdeling per sterrenaantal staat er bewust bij, ook als hij niet
  * vleiend is. Een rij van alleen maar vijven leest als gekocht; een paar
  * vieren ertussen maakt het geheel geloofwaardiger dan een perfecte score.
+ *
+ * Het beeld van klanten stond eerst als losse groep onder de kaarten,
+ * omdat toen niet bekend was wie wat had aangeleverd. Nu dat wel bekend
+ * is hangt elke opname onder de naam van wie hem maakte — een foto van je
+ * eigen meterkast naast je eigen woorden weegt zwaarder dan dezelfde foto
+ * in een anonieme verzameling.
  */
 
 function Kaart({ review }: { review: Review }) {
@@ -30,6 +37,44 @@ function Kaart({ review }: { review: Review }) {
       <p className="mt-2 flex-1 text-sm leading-relaxed text-staal-tekst">
         {review.tekst}
       </p>
+
+      {/* Beeld van deze klant, tussen de tekst en de naam. Boven de tekst
+          zou het de beoordeling overstemmen; onder de naam leest het als
+          losse decoratie in plaats van als onderbouwing van wat er staat.
+
+          Eén item vult de hele breedte, twee staan naast elkaar. Vierkant,
+          want de aangeleverde opnames zijn deels staand en deels liggend
+          en een rij met wisselende hoogtes maakt het raster rommelig. */}
+      {review.media && review.media.length > 0 && (
+        <ul className="mt-4 grid grid-cols-2 gap-2">
+          {review.media.map((m) => (
+            <li
+              key={m.src}
+              className={review.media!.length === 1 ? "col-span-2" : undefined}
+            >
+              <div className="relative aspect-square overflow-hidden rounded-lg bg-kastwit-dim">
+                {m.soort === "video" ? (
+                  <VideoBlock
+                    src={m.src}
+                    poster={m.poster}
+                    label={m.alt}
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                ) : (
+                  <Image
+                    src={m.src}
+                    alt={m.alt}
+                    fill
+                    sizes="(min-width: 1024px) 180px, (min-width: 640px) 25vw, 45vw"
+                    loading="lazy"
+                    className="object-cover"
+                  />
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
 
       <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-railstaal/40 pt-3">
         <span className="data text-xs text-antraciet">{review.naam}</span>
@@ -120,8 +165,6 @@ export function Reviews({
           Beoordelingen komen van mensen die de Blusbox bij ons gekocht
           hebben. Wij plaatsen ze ongewijzigd en verwijderen geen kritiek.
         </p>
-
-        <Klantmedia />
       </div>
     </section>
   );
