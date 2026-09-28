@@ -9,6 +9,7 @@ import { Reveal } from "@/components/ui/reveal";
 import { LogoBadge } from "@/components/site/logo";
 import { UspBar } from "@/components/site/usp-bar";
 import { InDePraktijk } from "@/components/home/in-de-praktijk";
+import { InHetNieuws } from "@/components/home/in-het-nieuws";
 import { Prijsblok } from "@/components/product/prijsblok";
 import { Reviews } from "@/components/reviews/reviews";
 import { gratisVerzending, prijsIncl, verzendwaarde } from "@/lib/pricing";
@@ -218,6 +219,12 @@ export default function Home() {
             </Reveal>
           </div>
         </section>
+
+        {/* Berichtgeving over meterkastbranden. Staat vlak boven "Een
+            module. Geen aansluiting.": eerst waaróm het probleem bestaat,
+            daarna pas wat wij eraan doen. Andersom leest het als een
+            verkooppraatje met een krantenknipsel eronder. */}
+        <InHetNieuws />
 
         {/* Product imagery */}
         <section className="mx-auto max-w-6xl px-6 py-24">
