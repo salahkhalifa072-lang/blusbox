@@ -19,6 +19,7 @@ import {
 } from "@/db/affiliate";
 import { beoordeelSlug, haaltDrempel } from "@/lib/affiliate/rekenen";
 import { euro } from "@/lib/pricing";
+import { stuurAfwijzing, stuurGoedkeuring } from "@/lib/affiliate/mail";
 
 /**
  * Beheeracties voor het affiliateprogramma.
@@ -98,8 +99,30 @@ export async function beoordeelAanvraag(
     details: affiliate.slug,
   });
 
+  /*
+   * Bericht aan de partner. Los van de statuswijziging: die is al
+   * opgeslagen, en een mailserver die even niet meewerkt mag niet
+   * betekenen dat de goedkeuring zelf terugdraait. Wel melden in de
+   * uitkomst, anders denk je dat er bericht uit is terwijl dat niet zo is.
+   */
+  const mail =
+    besluit === "goedgekeurd"
+      ? await stuurGoedkeuring(affiliateId).catch((f: unknown) => ({
+          verstuurd: false as const,
+          reden: String(f),
+        }))
+      : await stuurAfwijzing(affiliateId).catch((f: unknown) => ({
+          verstuurd: false as const,
+          reden: String(f),
+        }));
+
   revalidatePath("/dashboard/affiliates");
-  return { fase: "klaar", melding: `${affiliate.slug} is ${besluit}.` };
+  return {
+    fase: "klaar",
+    melding: mail.verstuurd
+      ? `${affiliate.slug} is ${besluit}. Bericht verstuurd.`
+      : `${affiliate.slug} is ${besluit}. Let op: bericht niet verstuurd (${mail.reden}).`,
+  };
 }
 
 /* ------------------------------------------------------ slug en tarief */

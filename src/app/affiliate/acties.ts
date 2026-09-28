@@ -8,6 +8,7 @@ import { users } from "@/db/schema";
 import { hashWachtwoord, wachtwoordProblemen } from "@/lib/wachtwoord";
 import { beoordeelSlug, slugVoorstel } from "@/lib/affiliate/rekenen";
 import { haalInstellingen, schrijfAuditregel } from "@/db/affiliate";
+import { stuurAanmeldbevestiging } from "@/lib/affiliate/mail";
 
 /**
  * Aanmelden als affiliate.
@@ -176,6 +177,19 @@ export async function meldAan(
     actie: "aanmelding_ontvangen",
     details: `${naam} (${slugKeuze})`,
   }).catch(() => {});
+
+  // Bevestiging aan de aanvrager. Best effort: de aanmelding staat al
+  // opgeslagen, en die hoort niet te verdwijnen omdat een mail hapert.
+  const [nieuweAffiliate] = await db
+    .select({ id: affiliates.id })
+    .from(affiliates)
+    .where(eq(affiliates.slug, slugKeuze))
+    .limit(1);
+  if (nieuweAffiliate) {
+    await stuurAanmeldbevestiging(nieuweAffiliate.id).catch((fout: unknown) =>
+      console.error("Aanmeldbevestiging niet verstuurd:", fout),
+    );
+  }
 
   return {
     fase: "klaar",
