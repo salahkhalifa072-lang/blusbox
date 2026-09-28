@@ -17,6 +17,18 @@
  * ooit een foto onder een naam belandt op gevoel — dan is het weer een
  * verzinsel, alleen in beeldvorm.
  *
+ * Eén opname per beoordeling. Drie bestanden staan daardoor stil in
+ * public/media/klant/, en ze horen bij een klant die al een kaart heeft:
+ *
+ *   installatie-5.webp  — Sophie de Vries
+ *   installatie-3.webp  — Nadia El Amrani
+ *   installatie-4.webp  — Lisa van den Berg
+ *
+ * Verplaats ze niet naar een nieuwe naam om een extra kaart te vullen.
+ * Dat is precies waar deze module tegen beschermt: de foto is dan echt,
+ * maar de bewering wie hem gemaakt heeft niet. Een nieuwe kaart hoort een
+ * nieuwe klant te zijn, met eigen woorden en eigen beeld.
+ *
  * Wat bij het klaarmaken is weggehaald: op een van de foto's stond een
  * sticker met straatnaam en postcode van het installatiebedrijf. Die is
  * eruit gesneden vóór publicatie. Controleer dat opnieuw bij elke foto die
@@ -68,11 +80,6 @@ export const REVIEWS: Review[] = [
         poster: "/media/klant/installatie.jpg",
         alt: "Opname van een installatie: de module wordt op de DIN-rail geklikt, het detectiekoord wordt langs de groepen gelegd en de kast gaat dicht",
       },
-      {
-        soort: "foto",
-        src: "/media/klant/installatie-5.webp",
-        alt: "Hager-groepenkast met Blusbox naast de groepen voor warmtepomp en schuur",
-      },
     ],
   },
   {
@@ -101,11 +108,6 @@ export const REVIEWS: Review[] = [
         src: "/media/klant/installatie-1.webp",
         alt: "Meterkast met Blusbox tussen de installatieautomaten, naast een waarschuwingssticker voor zonnepanelen",
       },
-      {
-        soort: "foto",
-        src: "/media/klant/installatie-3.webp",
-        alt: "Holec-groepenkast met Blusbox, met de groepenverklaring ernaast op de wand",
-      },
     ],
   },
   {
@@ -133,11 +135,6 @@ export const REVIEWS: Review[] = [
         soort: "foto",
         src: "/media/klant/installatie-7.webp",
         alt: "Schneider-groepenkast met Blusbox op de rail naast de hoofdschakelaar",
-      },
-      {
-        soort: "foto",
-        src: "/media/klant/installatie-4.webp",
-        alt: "Houten meterkast met slimme meter, met de Blusbox onderaan de groepenkast",
       },
     ],
   },
