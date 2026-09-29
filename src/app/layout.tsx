@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Anton, Manrope, Geist_Mono } from "next/font/google";
 import { siteUrl } from "@/lib/site";
 import { OrganisatieData } from "@/components/site/gestructureerde-data";
+import { Meting } from "@/components/meting/meting";
 import "./globals.css";
 
 /**
@@ -84,6 +85,7 @@ export default function RootLayout({
       <body className="bg-kastwit text-antraciet antialiased">
         <OrganisatieData />
         {children}
+        <Meting />
       </body>
     </html>
   );

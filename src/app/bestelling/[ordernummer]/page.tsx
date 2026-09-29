@@ -6,6 +6,8 @@ import { SiteFooter } from "@/components/site/footer";
 import { haalBestelling } from "@/lib/bestelling";
 import { euro, verzendwaarde } from "@/lib/pricing";
 import { formatteerNl } from "@/lib/levensduur";
+import { Aankoop } from "@/components/meting/aankoop";
+import { isBetaald } from "@/lib/meting";
 
 export const metadata: Metadata = {
   title: "Bestelling",
@@ -59,8 +61,22 @@ export default async function BestellingPage({
   const { order, regels } = gegevens;
   const status = statusTekst[order.status] ?? statusTekst.nieuw;
 
+  /*
+   * De conversie telt pas als er betaald is. De bevestigingspagina bestaat
+   * al daarvoor — wie afhaakt op het betaalscherm komt hier ook terecht —
+   * en zou anders als verkoop meetellen.
+   */
+  const aantalModules = regels.reduce((som, r) => som + r.aantal, 0);
+
   return (
     <>
+      {isBetaald(order.status) && (
+        <Aankoop
+          ordernummer={order.ordernummer}
+          waardeCenten={order.subtotaalExclBtwCenten}
+          aantal={aantalModules}
+        />
+      )}
       <PageHeader
         eyebrow={`bestelnummer ${order.ordernummer}`}
         title={status.kop}
