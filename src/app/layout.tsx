@@ -40,6 +40,21 @@ export const metadata: Metadata = {
     icon: "/icon.png",
     apple: "/icon.png",
   },
+  /*
+   * Eigendomsbewijs voor Search Console en Merchant Center.
+   *
+   * Uit een omgevingsvariabele en niet hard in de code: de code is van
+   * het Google-account van de eigenaar, en dit is een openbare
+   * repository. Bovendien hoeft er zo niets herschreven te worden als
+   * die ooit verandert — de tag verschijnt zodra de variabele in Vercel
+   * staat, en blijft weg zolang dat niet zo is.
+   *
+   * Zonder geverifieerd domein weigert Merchant Center de productfeed,
+   * dus dit is geen bijzaak maar een voorwaarde.
+   */
+  ...(process.env.GOOGLE_SITE_VERIFICATION
+    ? { verification: { google: process.env.GOOGLE_SITE_VERIFICATION } }
+    : {}),
   // §11: nl-NL now, with nl-BE ready to switch on when we ship to Belgium.
   alternates: {
     canonical: "/",
