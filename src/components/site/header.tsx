@@ -8,6 +8,7 @@ const nav = [
   { href: "/blusbox", label: "Product" },
   { href: "/hoe-het-werkt", label: "Hoe het werkt" },
   { href: "/zakelijk", label: "Zakelijk" },
+  { href: "/affiliate", label: "Partner" },
   { href: "/veelgestelde-vragen", label: "Vragen" },
 ];
 

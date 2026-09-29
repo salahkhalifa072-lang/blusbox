@@ -9,7 +9,8 @@ import { Reveal } from "@/components/ui/reveal";
 import { LogoBadge } from "@/components/site/logo";
 import { UspBar } from "@/components/site/usp-bar";
 import { InDePraktijk } from "@/components/home/in-de-praktijk";
-import { InHetNieuws } from "@/components/home/in-het-nieuws";
+import { NieuwsEnModule } from "@/components/home/nieuws-en-module";
+import { Partnerband } from "@/components/home/partnerband";
 import { Prijsblok } from "@/components/product/prijsblok";
 import { Reviews } from "@/components/reviews/reviews";
 import { gratisVerzending, prijsIncl, verzendwaarde } from "@/lib/pricing";
@@ -220,80 +221,14 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Berichtgeving over meterkastbranden. Staat vlak boven "Een
-            module. Geen aansluiting.": eerst waaróm het probleem bestaat,
-            daarna pas wat wij eraan doen. Andersom leest het als een
-            verkooppraatje met een krantenknipsel eronder. */}
-        <InHetNieuws />
+        {/* Het nieuwsbericht en het product in één blok: dit is het
+            probleem, dit is wat wij eraan doen. Uit elkaar namen ze bijna
+            twee schermen voor één gedachte. */}
+        <NieuwsEnModule />
 
-        {/* Product imagery */}
-        <section className="mx-auto max-w-6xl px-6 py-24">
-          <Reveal>
-            <h2 className="font-display max-w-3xl text-[clamp(2rem,5vw,3.5rem)]">
-              Eén module.
-              <span className="accent-dim"> Geen aansluiting.</span>
-            </h2>
-            <p className="mt-4 max-w-xl text-staal-tekst">
-              Blusbox klikt op de DIN-rail naast je hoofdschakelaar en
-              aardlekschakelaar. Het detectiekoord doet de rest — tien jaar
-              lang, zonder stroom.
-            </p>
-          </Reveal>
-          <div className="mt-12 grid gap-4 sm:grid-cols-3">
-            <Reveal>
-              <figure>
-                {/* Staand beeld in een vierkant vak: object-cover snijdt
-                    boven en onder de lege ruimte weg en laat de module
-                    volledig staan. Het merkteken rechtsonder in de foto
-                    valt daarbij buiten beeld, en dat is precies goed —
-                    LogoBadge zet er al een van de site zelf overheen. */}
-                <div className="relative aspect-square overflow-hidden rounded-2xl bg-kastwit-dim">
-                  <Image
-                    src="/media/module-packshot.webp"
-                    alt="Blusbox-module: rode behuizing met DIN-railclip, twee blauwe detectiekoorden en pictogrammen met levensduur, dichtheid en activeringstemperatuur"
-                    fill
-                    sizes="(min-width: 640px) 33vw, 100vw"
-                    className="object-cover"
-                  />
-                  <LogoBadge />
-                </div>
-                <figcaption className="data px-1 py-3 text-xs text-staal-tekst">
-                  De module
-                </figcaption>
-              </figure>
-            </Reveal>
-            <Reveal delay={80} className="sm:col-span-2">
-              <figure>
-                <div className="relative aspect-square overflow-hidden rounded-2xl bg-kastwit-dim sm:aspect-auto sm:h-full">
-                  {/* Was meterkast-front.mp4, maar dat fragment draait even
-                      verderop al in de scroll-animatie. Twee keer hetzelfde
-                      beeld op één pagina laat de tweede keer als vulling
-                      lezen. Dit is echte opname bij een klant, dus ook geen
-                      "beeld is een weergave" eronder. */}
-                  <VideoBlock
-                    src="/media/klant/installatie.mp4"
-                    poster="/media/klant/installatie.jpg"
-                    label="Opname bij een klant: de module wordt op de DIN-rail geklikt, het detectiekoord wordt langs de groepen gelegd en de kast gaat dicht"
-                    className="absolute inset-0 h-full w-full object-cover"
-                  />
-                  <LogoBadge />
-                </div>
-                <figcaption className="data px-1 py-3 text-xs text-staal-tekst">
-                  Geplaatst bij een klant · echte opname
-                </figcaption>
-              </figure>
-            </Reveal>
-          </div>
-          <div className="mt-8">
-            <ButtonLink href="/blusbox" className="rounded-full">
-              Bekijk Blusbox
-            </ButtonLink>
-          </div>
-        </section>
-
-        {/* Module in de hand en in de kast. Staat hier omdat de sectie
-            hierboven vertelt dát hij op de rail klikt, en dit laat zien hoe
-            klein dat ding dan is. */}
+        {/* Module in de hand en in de kast, bij echte klanten. Staat na
+            het gecombineerde blok hierboven: dat legt uit wat het is, dit
+            laat zien hoe klein het is en waar het hangt. */}
         <InDePraktijk />
 
         {/* What arrives on the doormat. Sits here on purpose: it follows the
@@ -445,6 +380,11 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* Partnerprogramma. Onderaan en smal: dit is niet waarvoor
+            iemand de site bezoekt, en bovenaan zou het concurreren met de
+            bestelknop. */}
+        <Partnerband />
 
         {/* Spec strip */}
         <section aria-label="Kerngegevens" className="hairline-t hairline-b">
