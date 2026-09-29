@@ -88,7 +88,7 @@ export default async function AffiliateBeheerPagina() {
         {aanvragen.length === 0 ? (
           <Leeg tekst="Geen openstaande aanvragen." />
         ) : (
-          <Tabel koppen={["Aangemeld", "Naam", "E-mail", "Link", "Land", "Besluit"]}>
+          <Tabel koppen={["Aangemeld", "Wie", "Aanvraag", "Besluit"]}>
             {aanvragen.map((a) => (
               <Rij key={a.id}>
                 <Cel mono>{datum(a.aangemaaktOp)}</Cel>
@@ -99,10 +99,31 @@ export default async function AffiliateBeheerPagina() {
                       {a.bedrijfsnaam}
                     </span>
                   )}
+                  <span className="block text-xs text-staal-tekst">
+                    {a.email}
+                  </span>
+                  <span className="data block text-xs text-staal-tekst">
+                    /r/{a.slug} · {a.landcode}
+                  </span>
                 </Cel>
-                <Cel>{a.email}</Cel>
-                <Cel mono>/r/{a.slug}</Cel>
-                <Cel mono>{a.landcode}</Cel>
+                {/*
+                  Waar je het besluit op neemt. Hier stond niets, en een
+                  goedkeurknop zonder de aanvraag ernaast is geen
+                  beoordeling maar een gok.
+                */}
+                <Cel>
+                  <p className="max-w-prose whitespace-pre-line text-sm leading-relaxed">
+                    {a.promotiemethode}
+                  </p>
+                  {(a.website || a.kanalen) && (
+                    <p className="mt-2 text-xs text-staal-tekst">
+                      {a.website && (
+                        <span className="data block break-all">{a.website}</span>
+                      )}
+                      {a.kanalen && <span className="block">{a.kanalen}</span>}
+                    </p>
+                  )}
+                </Cel>
                 <Cel>
                   <AanvraagKnoppen
                     affiliateId={a.id}

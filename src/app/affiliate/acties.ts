@@ -8,7 +8,10 @@ import { users } from "@/db/schema";
 import { hashWachtwoord, wachtwoordProblemen } from "@/lib/wachtwoord";
 import { beoordeelSlug, slugVoorstel } from "@/lib/affiliate/rekenen";
 import { haalInstellingen, schrijfAuditregel } from "@/db/affiliate";
-import { stuurAanmeldbevestiging } from "@/lib/affiliate/mail";
+import {
+  stuurAanmeldbevestiging,
+  stuurAanvraagmeldingNaarBeheer,
+} from "@/lib/affiliate/mail";
 
 /**
  * Aanmelden als affiliate.
@@ -186,9 +189,39 @@ export async function meldAan(
     .where(eq(affiliates.slug, slugKeuze))
     .limit(1);
   if (nieuweAffiliate) {
-    await stuurAanmeldbevestiging(nieuweAffiliate.id).catch((fout: unknown) =>
-      console.error("Aanmeldbevestiging niet verstuurd:", fout),
-    );
+    /*
+     * Twee berichten, allebei vrijblijvend. Naast de bevestiging aan de
+     * aanvrager gaat er een melding naar het postvak waar ook de
+     * bestellingen binnenkomen: zonder die melding blijft een aanvraag
+     * staan tot iemand uit zichzelf het dashboard opent, en dan is de
+     * partner al afgehaakt.
+     *
+     * Naast elkaar en niet na elkaar, zodat een trage mailserver de
+     * aanvrager niet twee keer laat wachten.
+     */
+    const [bevestiging, melding] = await Promise.allSettled([
+      stuurAanmeldbevestiging(nieuweAffiliate.id),
+      stuurAanvraagmeldingNaarBeheer(nieuweAffiliate.id),
+    ]);
+
+    /*
+     * Een mislukte verzending komt hier niet als fout binnen maar als
+     * `{ verstuurd: false }`. Alleen `.catch()` gebruiken laat zo'n
+     * mislukking dus geruisloos verdwijnen — en bij de melding aan beheer
+     * is dat de ergst denkbare uitkomst: dan ligt er een aanvraag waar
+     * niemand van weet, wat precies de klacht is die dit bericht moest
+     * oplossen.
+     */
+    for (const [wat, uitkomst] of [
+      ["Aanmeldbevestiging", bevestiging],
+      ["Melding aan beheer", melding],
+    ] as const) {
+      if (uitkomst.status === "rejected") {
+        console.error(`${wat} mislukt:`, uitkomst.reason);
+      } else if (!uitkomst.value.verstuurd) {
+        console.error(`${wat} niet verstuurd: ${uitkomst.value.reden}`);
+      }
+    }
   }
 
   return {

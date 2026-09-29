@@ -3,6 +3,7 @@ import { overzichtCijfers, bestellingenLijst } from "@/db/dashboard";
 import { Cel, Leeg, Paneel, Rij, Status, Tabel, Tegel } from "@/components/dashboard/ui";
 import { euro } from "@/lib/pricing";
 import { formatteerNl } from "@/lib/levensduur";
+import { metingActief } from "@/lib/meting";
 
 export const dynamic = "force-dynamic";
 
@@ -67,10 +68,21 @@ export default async function DashboardOverzicht() {
           waarde={String(cijfers.activeringen)}
           toelichting="Gemelde inzetten in het veld"
         />
+        {/*
+          Deze tegel vertelt waaróm er geen cijfer staat. Zodra er wél
+          gemeten wordt staat het cijfer bij Google en niet hier, en dan
+          moet er iets anders staan dan "wij meten niet" — anders wijst het
+          dashboard je de verkeerde kant op als je je afvraagt waar je
+          conversie blijft.
+        */}
         <Tegel
           label="Conversie"
           waarde="—"
-          toelichting="Er staat geen bezoekersstatistiek op de site"
+          toelichting={
+            metingActief
+              ? "Staat in Google Ads en Analytics, niet hier"
+              : "Er staat geen bezoekersstatistiek op de site"
+          }
         />
       </div>
 

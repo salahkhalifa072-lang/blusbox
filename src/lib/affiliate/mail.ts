@@ -6,6 +6,7 @@ import { verstuurMail, type MailResultaat } from "@/lib/mailtransport";
 import { siteUrl } from "@/lib/site";
 import { bedrijf } from "@/lib/bedrijf";
 import { haalInstellingen } from "@/db/affiliate";
+import { bestelmeldingAdres } from "@/lib/mail";
 
 /**
  * Berichten aan affiliates.
@@ -19,6 +20,21 @@ import { haalInstellingen } from "@/db/affiliate";
  * tussen twee bedrijven; een nieuwsbriefachtig sjabloon maakt het minder
  * geloofwaardig, niet meer.
  */
+
+/**
+ * HTML-tekens onschadelijk maken.
+ *
+ * De promotietekst en de bedrijfsnaam zijn door een onbekende ingevuld.
+ * Die gaan hier rechtstreeks een mail in die jij opent, dus een `<` moet
+ * een `<` blijven en geen tag worden.
+ */
+function ontsnap(tekst: string): string {
+  return tekst
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
 
 function omhulsel(kop: string, alineas: string[]): string {
   const regels = alineas
@@ -54,6 +70,90 @@ async function partnergegevens(affiliateId: string) {
     .where(eq(affiliates.id, affiliateId))
     .limit(1);
   return rij ?? null;
+}
+
+/**
+ * Melding aan de winkelier dat er een aanvraag binnen is.
+ *
+ * Hier zat een gat: de aanvrager kreeg netjes bericht, maar aan deze kant
+ * gebeurde er niets. Een aanvraag bleef dan staan tot iemand uit zichzelf
+ * het dashboard opende, en dat is precies de reden waarom een partner
+ * afhaakt voordat hij begonnen is.
+ *
+ * Naar hetzelfde postvak als de bestelmeldingen. Een eigen variabele
+ * erbij zou betekenen dat je het op twee plaatsen goed moet zetten, en de
+ * tweede vergeet je.
+ *
+ * Alles waarop je een besluit neemt staat in de mail zelf. Zo kun je vanaf
+ * je telefoon al zien of dit iemand is die je wil hebben, in plaats van
+ * eerst te moeten inloggen om te ontdekken dat het spam was.
+ */
+export async function stuurAanvraagmeldingNaarBeheer(
+  affiliateId: string,
+): Promise<MailResultaat> {
+  const naar = bestelmeldingAdres();
+  if (!naar) {
+    return { verstuurd: false, reden: "Geen adres voor meldingen ingesteld" };
+  }
+
+  const [rij] = await db
+    .select({
+      slug: affiliates.slug,
+      bedrijfsnaam: affiliates.bedrijfsnaam,
+      website: affiliates.website,
+      kanalen: affiliates.kanalen,
+      promotiemethode: affiliates.promotiemethode,
+      landcode: affiliates.landcode,
+      uitbetaalmethode: affiliates.uitbetaalmethode,
+      naam: users.name,
+      email: users.email,
+    })
+    .from(affiliates)
+    .innerJoin(users, eq(users.id, affiliates.userId))
+    .where(eq(affiliates.id, affiliateId))
+    .limit(1);
+  if (!rij) return { verstuurd: false, reden: "Affiliate niet gevonden" };
+
+  const beheer = `${siteUrl}/dashboard/affiliates`;
+
+  const velden: [string, string | null][] = [
+    ["Naam", rij.naam],
+    ["E-mail", rij.email],
+    ["Bedrijf", rij.bedrijfsnaam],
+    ["Link", `/r/${rij.slug}`],
+    ["Website", rij.website],
+    ["Kanalen", rij.kanalen],
+    ["Land", rij.landcode],
+    ["Uitbetaling", rij.uitbetaalmethode],
+  ];
+  const ingevuld = velden.filter(([, w]) => w);
+
+  const tekst = [
+    "Er is een nieuwe aanmelding voor het partnerprogramma.",
+    "",
+    ...ingevuld.map(([k, w]) => `${k}: ${w}`),
+    "",
+    "Hoe hij Blusbox wil promoten:",
+    rij.promotiemethode ?? "(niets ingevuld)",
+    "",
+    `Goedkeuren of afwijzen: ${beheer}`,
+  ].join("\n");
+
+  return verstuurMail({
+    naar,
+    onderwerp: `Nieuwe partneraanvraag: ${rij.naam ?? rij.email}`,
+    html: omhulsel("Nieuwe partneraanvraag", [
+      `<table style="border-collapse:collapse;font-size:14px">${ingevuld
+        .map(
+          ([k, w]) =>
+            `<tr><td style="padding:2px 14px 2px 0;color:#5f666b;vertical-align:top">${k}</td><td style="padding:2px 0;color:#16181a">${ontsnap(String(w))}</td></tr>`,
+        )
+        .join("")}</table>`,
+      `<strong>Hoe hij Blusbox wil promoten</strong><br>${ontsnap(rij.promotiemethode ?? "(niets ingevuld)")}`,
+      `Goedkeuren of afwijzen:<br><span style="font-family:ui-monospace,Menlo,monospace">${beheer}</span>`,
+    ]),
+    tekst,
+  });
 }
 
 /** Bevestiging dat de aanmelding binnen is. */

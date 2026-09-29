@@ -473,6 +473,14 @@ export async function alleAffiliates() {
       bedrijfsnaam: affiliates.bedrijfsnaam,
       landcode: affiliates.landcode,
       aangemaaktOp: affiliates.aangemaaktOp,
+      /*
+       * Waar je het besluit op neemt. Stond er eerst niet bij, waardoor
+       * de beheerpagina wel een goedkeurknop had maar niets liet zien om
+       * op te oordelen: naam, adres en een slug zijn geen aanvraag.
+       */
+      website: affiliates.website,
+      kanalen: affiliates.kanalen,
+      promotiemethode: affiliates.promotiemethode,
       naam: users.name,
       email: users.email,
     })
