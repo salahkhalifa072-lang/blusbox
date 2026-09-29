@@ -11,8 +11,12 @@ import {
   affiliateVanGebruiker,
   commissiesVoorAffiliate,
   haalInstellingen,
+  heeftCommissie,
   statistiekenVoorAffiliate,
+  uitbetalingenVoorAffiliate,
 } from "@/db/affiliate";
+import { Profielformulier } from "@/components/affiliate/profielformulier";
+import { Banners } from "@/components/affiliate/banners";
 import { euro } from "@/lib/pricing";
 import { formatteerNl } from "@/lib/levensduur";
 
@@ -100,10 +104,21 @@ export default async function AffiliateDashboard() {
     );
   }
 
-  const [stats, commissies] = await Promise.all([
+  const [stats, commissies, uitbetalingen, alVerdiend] = await Promise.all([
     statistiekenVoorAffiliate(affiliate.id),
     commissiesVoorAffiliate(affiliate.id),
+    uitbetalingenVoorAffiliate(affiliate.id),
+    heeftCommissie(affiliate.id),
   ]);
+
+  /*
+   * Het rekeningnummer afgekort tonen: de eerste vier en laatste vier
+   * tekens zijn genoeg om te herkennen of het goede nummer er staat, en
+   * te weinig om er iets mee te kunnen als iemand meekijkt.
+   */
+  const rekeningAfgekort = affiliate.uitbetaalRekening
+    ? `${affiliate.uitbetaalRekening.slice(0, 4)} •••• ${affiliate.uitbetaalRekening.slice(-4)}`
+    : "";
 
   const percentage = (
     (affiliate.percentageBp ?? instellingen.standaardPercentageBp) / 100
@@ -150,6 +165,15 @@ export default async function AffiliateDashboard() {
         {/* Links */}
         <Paneel titel="Je links">
           <Linkgereedschap slug={affiliate.slug} basisUrl={basisUrl} />
+        </Paneel>
+
+        {/* Banners */}
+        <Paneel titel="Banners">
+          <p className="mb-6 max-w-prose text-sm text-staal-tekst">
+            Vier maten, klaar om te plakken. De link erin is die van jou, dus
+            elke klik telt mee.
+          </p>
+          <Banners slug={affiliate.slug} basisUrl={basisUrl} />
         </Paneel>
 
         {/* Verkopen */}
@@ -214,6 +238,61 @@ export default async function AffiliateDashboard() {
               </div>
             ))}
           </dl>
+        </Paneel>
+
+        {/* Uitbetalingen */}
+        <Paneel titel="Uitbetalingen">
+          {uitbetalingen.length === 0 ? (
+            <Leeg tekst="Nog geen uitbetalingen. Zodra je goedgekeurde saldo boven de drempel komt, zetten wij er een klaar." />
+          ) : (
+            <Tabel koppen={["Aangemaakt", "Bedrag", "Status", "Betaald op", "Kenmerk"]}>
+              {uitbetalingen.map((u) => (
+                <Rij key={u.id}>
+                  <Cel mono>
+                    {formatteerNl(u.aangemaaktOp.toISOString().slice(0, 10))}
+                  </Cel>
+                  <Cel mono>{euro(u.bedragCenten)}</Cel>
+                  <Cel mono>
+                    {u.status === "concept" ? "klaargezet" : u.status}
+                  </Cel>
+                  <Cel mono>
+                    {u.uitbetaaldOp
+                      ? formatteerNl(u.uitbetaaldOp.toISOString().slice(0, 10))
+                      : "—"}
+                  </Cel>
+                  <Cel mono>{u.referentie ?? "—"}</Cel>
+                </Rij>
+              ))}
+            </Tabel>
+          )}
+
+          {!affiliate.uitbetaalRekening && (
+            <p className="mt-5 rounded-xl border border-signaal bg-signaal/15 p-4 text-sm">
+              Wij hebben nog geen rekeningnummer van je. Vul het hieronder in,
+              anders kunnen we niet uitbetalen.
+            </p>
+          )}
+        </Paneel>
+
+        {/* Profiel */}
+        <Paneel titel="Je gegevens">
+          <Profielformulier
+            slug={affiliate.slug}
+            bedrijfsnaam={affiliate.bedrijfsnaam ?? ""}
+            website={affiliate.website ?? ""}
+            kanalen={affiliate.kanalen ?? ""}
+            rekeningAfgekort={rekeningAfgekort}
+            tenNameVan={affiliate.uitbetaalTenNameVan ?? ""}
+            slugVast={alVerdiend}
+          />
+
+          <p className="mt-6 border-t border-railstaal/50 pt-5 text-xs text-staal-tekst">
+            Wil je stoppen? Mail naar{" "}
+            <a href="mailto:info@blusbox.nl?subject=Affiliate%20be%C3%ABindigen" className="underline underline-offset-4">
+              info@blusbox.nl
+            </a>
+            . Commissie die al is goedgekeurd betalen we gewoon uit.
+          </p>
         </Paneel>
 
         <p className="text-sm text-staal-tekst">

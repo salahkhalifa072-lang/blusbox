@@ -632,3 +632,36 @@ export async function verdachteSignalen() {
 
   return { veelKlikkenEenBron, nulConversie };
 }
+
+/** De uitbetalingen van één affiliate, voor zijn eigen dashboard. */
+export async function uitbetalingenVoorAffiliate(affiliateId: string) {
+  return db
+    .select({
+      id: affiliateUitbetalingen.id,
+      bedragCenten: affiliateUitbetalingen.bedragCenten,
+      status: affiliateUitbetalingen.status,
+      aangemaaktOp: affiliateUitbetalingen.aangemaaktOp,
+      uitbetaaldOp: affiliateUitbetalingen.uitbetaaldOp,
+      referentie: affiliateUitbetalingen.referentie,
+    })
+    .from(affiliateUitbetalingen)
+    .where(eq(affiliateUitbetalingen.affiliateId, affiliateId))
+    .orderBy(desc(affiliateUitbetalingen.aangemaaktOp))
+    .limit(50);
+}
+
+/**
+ * Heeft deze affiliate al commissie opgebouwd?
+ *
+ * Bepaalt of de persoonlijke link nog gewijzigd mag worden. Zodra er is
+ * verdiend, circuleert die link ergens — in een videobeschrijving, een
+ * nieuwsbrief, een oude post — en die mag niet onder de voeten van het
+ * publiek wegveranderen.
+ */
+export async function heeftCommissie(affiliateId: string): Promise<boolean> {
+  const [rij] = await db
+    .select({ n: sql<number>`count(*)::int` })
+    .from(affiliateCommissies)
+    .where(eq(affiliateCommissies.affiliateId, affiliateId));
+  return (rij?.n ?? 0) > 0;
+}

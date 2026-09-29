@@ -9,6 +9,7 @@ const routes: { path: string; priority: number }[] = [
   { path: "/hoe-het-werkt", priority: 0.8 },
   { path: "/zakelijk", priority: 0.8 },
   { path: "/installateurs", priority: 0.7 },
+  { path: "/affiliate", priority: 0.7 },
   { path: "/installatie", priority: 0.6 },
   { path: "/veelgestelde-vragen", priority: 0.6 },
   { path: "/downloads", priority: 0.5 },
@@ -21,6 +22,7 @@ const routes: { path: string; priority: number }[] = [
   { path: "/algemene-voorwaarden", priority: 0.2 },
   { path: "/privacyverklaring", priority: 0.2 },
   { path: "/cookiebeleid", priority: 0.2 },
+  { path: "/affiliate/voorwaarden", priority: 0.2 },
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

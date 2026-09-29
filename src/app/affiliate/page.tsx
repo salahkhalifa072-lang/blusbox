@@ -4,12 +4,31 @@ import { PageHeader, SectionTitle } from "@/components/site/page-header";
 import { SiteFooter } from "@/components/site/footer";
 import { FaqList } from "@/components/ui/accordion";
 import { Aanmeldformulier } from "@/components/affiliate/aanmeldformulier";
+import { Banners } from "@/components/affiliate/banners";
+import { siteUrl } from "@/lib/site";
 import { PROGRAMMA, STAPPEN, VOORWAARDEN_KORT, VRAGEN } from "@/lib/affiliate/teksten";
 
+/**
+ * Zoekwoorden staan in de titel en de beschrijving, niet in een
+ * keywords-tag: die leest Google al sinds 2009 niet meer.
+ *
+ * "Affiliateprogramma" én "partnerprogramma" staan er allebei in omdat
+ * mensen op allebei zoeken en het in het Nederlands door elkaar wordt
+ * gebruikt. Het onderwerp erbij — brandbeveiliging, meterkast — want op
+ * kale termen als "partnerprogramma" concurreer je met bol.com en
+ * Amazon, en dat win je niet. Op "affiliateprogramma brandbeveiliging"
+ * wel.
+ */
 export const metadata: Metadata = {
-  title: `Verdien ${PROGRAMMA.percentage}% commissie met Blusbox`,
-  description: `Word Blusbox-affiliate en verdien ${PROGRAMMA.percentage}% commissie over elke verkoop via jouw persoonlijke link. Geen kosten, geen verplichtingen.`,
+  title: `Affiliateprogramma — verdien ${PROGRAMMA.percentage}% commissie`,
+  description: `Partnerprogramma van Blusbox: verdien ${PROGRAMMA.percentage}% commissie over elke verkoop van de automatische blusmodule voor de meterkast. Gratis aanmelden, eigen link, ${PROGRAMMA.attributieDagen} dagen geldig, maandelijkse uitbetaling.`,
   alternates: { canonical: "/affiliate" },
+  openGraph: {
+    type: "website",
+    title: `Blusbox affiliateprogramma — ${PROGRAMMA.percentage}% commissie`,
+    description: `Word partner van Blusbox en verdien ${PROGRAMMA.percentage}% over elke verkoop via jouw link.`,
+    url: "/affiliate",
+  },
 };
 
 /**
@@ -22,12 +41,33 @@ export const metadata: Metadata = {
  * werkt; dat kan iedereen zelf doorrekenen.
  */
 export default function AffiliatePagina() {
+  /*
+   * FAQPage-data. Google kan hiermee de vragen uitklapbaar onder het
+   * zoekresultaat tonen, wat de regel breder maakt en meer klikken
+   * oplevert. De antwoorden zijn dezelfde als op de pagina zelf — iets
+   * anders in de structuur zetten dan wat de bezoeker ziet is precies
+   * waar Google handmatige maatregelen voor uitdeelt.
+   */
+  const faqData = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: VRAGEN.map((v) => ({
+      "@type": "Question",
+      name: v.vraag,
+      acceptedAnswer: { "@type": "Answer", text: v.antwoord },
+    })),
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqData) }}
+      />
       <PageHeader
         eyebrow="partnerprogramma"
-        title={`Verdien ${PROGRAMMA.percentage}% commissie met Blusbox`}
-        lead="Deel je persoonlijke link. Bestelt iemand een Blusbox, dan gaat een vijfde van de productwaarde naar jou. Geen kosten, geen minimum, geen verplichtingen."
+        title={`Blusbox affiliateprogramma`}
+        lead={`Verdien ${PROGRAMMA.percentage}% commissie over elke verkoop via jouw persoonlijke link. Geen kosten, geen minimum, geen verplichtingen.`}
       />
 
       <main className="pb-24">
@@ -86,6 +126,19 @@ export default function AffiliatePagina() {
           >
             Alle affiliatevoorwaarden lezen
           </Link>
+        </section>
+
+        {/* Banners — voorproefje, zonder code. */}
+        <section className="mx-auto max-w-6xl px-6 py-16">
+          <SectionTitle>Kant-en-klare banners</SectionTitle>
+          <p className="mt-3 max-w-prose text-sm leading-relaxed text-staal-tekst">
+            Geen ontwerpwerk nodig. Vier standaardmaten met het product, de
+            prijs en een knop erin. Na goedkeuring krijg je de code met jouw
+            eigen link, om te plakken waar je maar wil.
+          </p>
+          <div className="mt-8">
+            <Banners basisUrl={siteUrl} />
+          </div>
         </section>
 
         {/* Aanmelden */}

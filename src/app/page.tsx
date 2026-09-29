@@ -8,7 +8,6 @@ import { VideoBlock } from "@/components/ui/video-block";
 import { Reveal } from "@/components/ui/reveal";
 import { LogoBadge } from "@/components/site/logo";
 import { UspBar } from "@/components/site/usp-bar";
-import { InDePraktijk } from "@/components/home/in-de-praktijk";
 import { NieuwsEnModule } from "@/components/home/nieuws-en-module";
 import { Partnerband } from "@/components/home/partnerband";
 import { Prijsblok } from "@/components/product/prijsblok";
@@ -226,10 +225,6 @@ export default function Home() {
             twee schermen voor één gedachte. */}
         <NieuwsEnModule />
 
-        {/* Module in de hand en in de kast, bij echte klanten. Staat na
-            het gecombineerde blok hierboven: dat legt uit wat het is, dit
-            laat zien hoe klein het is en waar het hangt. */}
-        <InDePraktijk />
 
         {/* What arrives on the doormat. Sits here on purpose: it follows the
             product and carries the shipping promise into the buying moment. */}
