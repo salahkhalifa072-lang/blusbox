@@ -11,6 +11,8 @@ import { AantalKiezer } from "@/components/product/aantal-kiezer";
 import { Betaalmethoden } from "@/components/product/betaalmethoden";
 import { Prijsblok } from "@/components/product/prijsblok";
 import { kenmerken, productFacts } from "@/lib/product-facts";
+import { bedrijf } from "@/lib/bedrijf";
+import { siteUrl } from "@/lib/site";
 import { faqUitgelicht } from "@/lib/faq";
 import { LEVERTIJD } from "@/lib/verzending";
 import { voegToeAanWagen } from "@/app/winkelwagen/acties";
@@ -46,45 +48,120 @@ const inDoos = [
   "Registratiekaart met lotnummer voor je vervangingstermijn",
 ];
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Product",
-  name: "Blusbox",
-  description:
-    "Automatische condensed-aerosol blusmodule voor de meterkast. Zelfactiverend bij 170 °C, zonder stroom of bediening.",
-  brand: { "@type": "Brand", name: "Blusbox" },
-  category: "Brandbeveiliging",
-  offers: {
-    "@type": "Offer",
-    price: (PRIJS_INCL_CENTEN / 100).toFixed(2),
-    priceCurrency: "EUR",
-    // Wat de site toont moet zijn wat Google leest; lopen die uiteen, dan
-    // is dat een reden voor afkeuring in Search Console.
-    ...(TOON_ADVIESPRIJS
+/**
+ * Productgegevens voor Google.
+ *
+ * Hier stond een uitgeklede versie zonder `image`, en dat is precies het
+ * veld waarop Google een productkaart weigert: geen afbeelding, geen
+ * rijk resultaat, alleen een blauwe link. Sterren, prijs en
+ * voorraadstatus in de zoekresultaten hangen hier allemaal aan.
+ *
+ * Alles wat hier staat moet ook op de pagina zelf staan. Een waardering
+ * in de structuur zetten die de bezoeker nergens ziet is precies waar
+ * Google handmatige maatregelen voor uitdeelt, en dan ben je alle rijke
+ * resultaten kwijt in plaats van er een te winnen.
+ */
+function maakProductData(gemiddelde: number | null, aantal: number) {
+  const prijs = (PRIJS_INCL_CENTEN / 100).toFixed(2);
+
+  // Een jaar vooruit. Google wil weten tot wanneer de prijs geldt; zonder
+  // datum verschijnt er een waarschuwing in Search Console.
+  const geldigTot = new Date();
+  geldigTot.setFullYear(geldigTot.getFullYear() + 1);
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: "Blusbox — automatische blusmodule voor de meterkast",
+    description:
+      "Automatische condensed-aerosol blusmodule voor de meterkast. Zelfactiverend bij 170 °C, zonder stroom of bediening. Tien jaar levensduur.",
+    // Meerdere verhoudingen: Google kiest zelf welke bij de weergave past.
+    image: [
+      `${siteUrl}/media/module-packshot.jpg`,
+      `${siteUrl}/media/verpakking-open.jpg`,
+      `${siteUrl}/media/meterkast-front.jpg`,
+    ],
+    brand: { "@type": "Brand", name: "Blusbox" },
+    category: "Brandbeveiliging",
+    url: `${siteUrl}/blusbox`,
+    // Geen EAN op dit product; dan verwacht Google merk plus een eigen
+    // nummer als identificatie.
+    sku: "BB-MODULE-01",
+    mpn: "BB-MODULE-01",
+    ...(gemiddelde !== null && aantal > 0
       ? {
-          priceSpecification: {
-            "@type": "UnitPriceSpecification",
-            priceType: "https://schema.org/ListPrice",
-            price: (ADVIESPRIJS_CENTEN / 100).toFixed(2),
-            priceCurrency: "EUR",
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: gemiddelde.toString(),
+            reviewCount: aantal,
+            bestRating: "5",
+            worstRating: "1",
           },
         }
       : {}),
-    availability: "https://schema.org/InStock",
-    shippingDetails: {
-      "@type": "OfferShippingDetails",
-      shippingRate: {
-        "@type": "MonetaryAmount",
-        value: "0",
-        currency: "EUR",
+    offers: {
+      "@type": "Offer",
+      price: prijs,
+      priceCurrency: "EUR",
+      priceValidUntil: geldigTot.toISOString().slice(0, 10),
+      itemCondition: "https://schema.org/NewCondition",
+      availability: "https://schema.org/InStock",
+      url: `${siteUrl}/blusbox`,
+      seller: { "@type": "Organization", name: bedrijf.naam },
+      // Wat de site toont moet zijn wat Google leest; lopen die uiteen,
+      // dan is dat een reden voor afkeuring in Search Console.
+      ...(TOON_ADVIESPRIJS
+        ? {
+            priceSpecification: {
+              "@type": "UnitPriceSpecification",
+              priceType: "https://schema.org/ListPrice",
+              price: (ADVIESPRIJS_CENTEN / 100).toFixed(2),
+              priceCurrency: "EUR",
+            },
+          }
+        : {}),
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingRate: {
+          "@type": "MonetaryAmount",
+          value: "0",
+          currency: "EUR",
+        },
+        shippingDestination: {
+          "@type": "DefinedRegion",
+          addressCountry: "NL",
+        },
+        deliveryTime: {
+          "@type": "ShippingDeliveryTime",
+          handlingTime: {
+            "@type": "QuantitativeValue",
+            minValue: 0,
+            maxValue: 1,
+            unitCode: "DAY",
+          },
+          transitTime: {
+            "@type": "QuantitativeValue",
+            minValue: 1,
+            maxValue: 1,
+            unitCode: "DAY",
+          },
+        },
       },
-      shippingDestination: {
-        "@type": "DefinedRegion",
-        addressCountry: "NL",
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "NL",
+        returnPolicyCategory:
+          "https://schema.org/MerchantReturnFiniteReturnWindow",
+        merchantReturnDays: 14,
+        returnMethod: "https://schema.org/ReturnByMail",
+        // De retourzending is voor rekening van de klant; dat staat zo op
+        // /retourneren en hoort hier dan ook niet mooier voorgesteld.
+        returnFees: "https://schema.org/ReturnShippingFees",
       },
     },
-  },
-};
+  };
+}
+
 
 export default function BlusboxPage() {
   const gemiddelde = gemiddeldeWaardering();
@@ -95,7 +172,9 @@ export default function BlusboxPage() {
       <SiteHeader />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(maakProductData(gemiddelde, REVIEWS.length)),
+        }}
       />
       <main className="pb-24">
         {/* Galerij + koopblok. Het koopblok is op desktop sticky: bij een
