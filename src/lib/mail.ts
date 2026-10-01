@@ -80,6 +80,9 @@ export async function stuurBestelbevestiging(
       btw: order.btwVerlegd ? "btw verlegd" : euro(order.btwBedragCenten),
       verzendwaarde,
       totaal: euro(order.totaalInclBtwCenten),
+      korting: order.kortingscode
+        ? `Je bespaarde ${euro(order.kortingCenten)} met kortingscode ${order.kortingscode}.`
+        : undefined,
       adres: [
         [order.straat, order.huisnummer].filter(Boolean).join(" "),
         [order.postcode, order.plaats].filter(Boolean).join("  "),
@@ -193,6 +196,9 @@ export async function stuurBestelmelding(
   const tekst = [
     `Nieuwe bestelling ${order.ordernummer}`,
     `Totaal ${euro(order.totaalInclBtwCenten)} — ${aantalTotaal} stuks`,
+    ...(order.kortingscode
+      ? [`Kortingscode ${order.kortingscode}: −${euro(order.kortingCenten)}`]
+      : []),
     `Klant: ${klant}`,
     "",
     ...regels.map((r) => `${r.aantal}x ${r.naam}`),

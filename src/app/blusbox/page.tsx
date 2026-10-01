@@ -17,14 +17,11 @@ import { faqUitgelicht } from "@/lib/faq";
 import { LEVERTIJD } from "@/lib/verzending";
 import { voegToeAanWagen } from "@/app/winkelwagen/acties";
 import {
-  adviesprijs,
   gratisVerzending,
   prijsExcl,
   prijsIncl,
   verzendwaarde,
-  ADVIESPRIJS_CENTEN,
   PRIJS_INCL_CENTEN,
-  TOON_ADVIESPRIJS,
 } from "@/lib/pricing";
 import { Reviews } from "@/components/reviews/reviews";
 import { Sterren } from "@/components/reviews/sterren";
@@ -108,18 +105,6 @@ function maakProductData(gemiddelde: number | null, aantal: number) {
       availability: "https://schema.org/InStock",
       url: `${siteUrl}/blusbox`,
       seller: { "@type": "Organization", name: bedrijf.naam },
-      // Wat de site toont moet zijn wat Google leest; lopen die uiteen,
-      // dan is dat een reden voor afkeuring in Search Console.
-      ...(TOON_ADVIESPRIJS
-        ? {
-            priceSpecification: {
-              "@type": "UnitPriceSpecification",
-              priceType: "https://schema.org/ListPrice",
-              price: (ADVIESPRIJS_CENTEN / 100).toFixed(2),
-              priceCurrency: "EUR",
-            },
-          }
-        : {}),
       shippingDetails: {
         "@type": "OfferShippingDetails",
         shippingRate: {
@@ -242,7 +227,6 @@ export default function BlusboxPage() {
                 <Prijsblok formaat="groot" />
                 <p className="mt-2 text-sm text-kastwit/60">
                   Incl. btw ({prijsExcl} excl. btw)
-                  {TOON_ADVIESPRIJS && <> · adviesprijs {adviesprijs}</>}
                 </p>
                 <p className="data mt-3 text-sm text-kastwit/80">
                   Verzendkosten{" "}

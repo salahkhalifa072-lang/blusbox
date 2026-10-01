@@ -1,10 +1,7 @@
 import { ImageResponse } from "next/og";
 import { siteUrl } from "@/lib/site";
 import {
-  adviesprijs,
   prijsIncl,
-  KORTINGSPERCENTAGE,
-  TOON_ADVIESPRIJS,
 } from "@/lib/pricing";
 
 /**
@@ -109,31 +106,6 @@ function Prijs({ maat, letter }: { maat: number; letter?: string }) {
       >
         {prijsIncl}
       </span>
-      {TOON_ADVIESPRIJS && (
-        <>
-          <span
-            style={{
-              fontSize: maat * 0.42,
-              color: K.railstaal,
-              textDecoration: "line-through",
-            }}
-          >
-            {adviesprijs}
-          </span>
-          <span
-            style={{
-              display: "flex",
-              backgroundColor: K.vlak,
-              color: K.kastwit,
-              fontSize: maat * 0.34,
-              padding: `${Math.round(maat * 0.08)}px ${Math.round(maat * 0.24)}px`,
-              borderRadius: 999,
-            }}
-          >
-            −{KORTINGSPERCENTAGE}%
-          </span>
-        </>
-      )}
     </div>
   );
 }

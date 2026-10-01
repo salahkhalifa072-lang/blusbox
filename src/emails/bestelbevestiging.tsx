@@ -34,6 +34,8 @@ export type BevestigingProps = {
   btw: string;
   verzendwaarde: string;
   totaal: string;
+  /** "Je bespaarde € 12,00 met GLASVEZEL20 (−20%)" — alleen bij een kortingscode */
+  korting?: string;
   adres: string[];
   herroepingUiterlijk: string;
   siteUrl: string;
@@ -59,6 +61,7 @@ export function Bestelbevestiging({
   btw,
   verzendwaarde,
   totaal,
+  korting,
   adres,
   herroepingUiterlijk,
   siteUrl,
@@ -164,6 +167,11 @@ export function Bestelbevestiging({
             Totaal incl. btw
             <span style={{ float: "right", fontFamily: mono }}>{totaal}</span>
           </Text>
+          {korting ? (
+            <Text style={{ margin: "6px 0 0", fontSize: "14px", color: kleur.staal }}>
+              {korting}
+            </Text>
+          ) : null}
 
           <Hr style={{ borderColor: kleur.rail, margin: "28px 0" }} />
 

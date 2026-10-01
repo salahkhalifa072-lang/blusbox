@@ -141,6 +141,13 @@ export default async function BestellingPage({
               </dd>
             </div>
           </dl>
+          {order.kortingscode ? (
+            <p className="mt-3 text-sm text-staal-tekst">
+              Je bespaarde{" "}
+              <span className="data">{euro(order.kortingCenten)}</span> met
+              kortingscode <span className="data">{order.kortingscode}</span>.
+            </p>
+          ) : null}
         </section>
 
         <section className="mt-12" aria-label="Bezorgadres">
