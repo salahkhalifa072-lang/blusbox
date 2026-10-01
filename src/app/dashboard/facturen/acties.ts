@@ -85,7 +85,7 @@ export async function maakEnVerstuurFactuur(
     if (aantal === 0) continue;
     const prijs = leesBedrag(lees(`prijs-${item.slug}`));
     if (prijs === null || prijs <= 0) {
-      velden[`prijs-${item.slug}`] = "Vul een prijs in, bijvoorbeeld 29,99.";
+      velden[`prijs-${item.slug}`] = "Vul een prijs in, bijvoorbeeld 37,50.";
       continue;
     }
     regels.push({ slug: item.slug, aantal, stukprijsInclBtwCenten: prijs });

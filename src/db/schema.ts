@@ -208,6 +208,19 @@ export const orders = pgTable(
     mollieId: text("mollie_id"),
     verzendregelToegepast: text("verzendregel_toegepast"),
 
+    /*
+     * De kortingscode zoals hij gebruikt is, plus wat hij opleverde.
+     *
+     * De code als tekst en niet als verwijzing naar de kortingscodetabel:
+     * een bestelling moet over twee jaar nog te verklaren zijn, ook als
+     * de actie allang verwijderd is. Het bedrag staat er los bij om
+     * dezelfde reden — het percentage van vandaag hoeft niet het
+     * percentage van toen te zijn, en de factuur moet kloppen met wat er
+     * werkelijk is afgeschreven.
+     */
+    kortingscode: text("kortingscode"),
+    kortingBedragCenten: integer("korting_bedrag_centen").notNull().default(0),
+
     // Delivery address
     landcode: text("landcode").notNull().default("NL"),
     postcode: text("postcode"),
@@ -429,6 +442,44 @@ export const contentBlocks = pgTable(
   (t) => [uniqueIndex("content_blocks_pagina_sleutel").on(t.pagina, t.sleutel)],
 );
 
+/* -------------------------------------------------------- kortingscodes */
+
+/**
+ * Kortingscodes voor bij het afrekenen.
+ *
+ * In de database en niet in de code, om dezelfde reden als de
+ * affiliate-instellingen: een actie stopzetten of een percentage
+ * bijstellen hoort geen deploy te kosten. Dat is het verschil tussen een
+ * code die je dezelfde middag uitzet en een code die blijft lopen tot
+ * iemand tijd heeft.
+ *
+ * Percentage in basispunten (2000 = 20,00%), net als bij de commissies.
+ */
+export const kortingscodes = pgTable(
+  "kortingscodes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    /** Altijd genormaliseerd opgeslagen: kleine letters, zonder scheidingstekens. */
+    code: text("code").notNull(),
+    omschrijving: text("omschrijving"),
+    percentageBp: integer("percentage_bp").notNull(),
+    actief: boolean("actief").notNull().default(true),
+    /** null = geen einddatum */
+    geldigTot: timestamp("geldig_tot", { withTimezone: true }),
+    /** null = onbeperkt inwisselbaar */
+    maxGebruik: integer("max_gebruik"),
+    aantalGebruikt: integer("aantal_gebruikt").notNull().default(0),
+    aangemaaktOp: timestamp("aangemaakt_op", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    // Twee rijen met dezelfde code zouden betekenen dat het van de
+    // volgorde van de query afhangt welk percentage een klant krijgt.
+    uniqueIndex("kortingscodes_code_uniek").on(t.code),
+  ],
+);
+
 /* ------------------------------------------------------------ relations */
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -527,3 +578,4 @@ export type Lot = typeof lots.$inferSelect;
 export type Order = typeof orders.$inferSelect;
 export type OrderLine = typeof orderLines.$inferSelect;
 export type RegisteredUnit = typeof registeredUnits.$inferSelect;
+export type KortingscodeRij = typeof kortingscodes.$inferSelect;

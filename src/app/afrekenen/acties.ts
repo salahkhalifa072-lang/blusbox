@@ -4,6 +4,9 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { leesWagen, schrijfWagen } from "@/lib/winkelwagen-cookie";
 import { LEGE_WAGEN } from "@/lib/winkelwagen";
+import { beoordeelInvoer, schrijfGebruikBij } from "@/db/korting";
+import { naKorting } from "@/lib/korting";
+import { leesKortingscode, wisKortingscode } from "@/lib/kortingscode-cookie";
 import {
   BestellingGeweigerd,
   maakBestelling,
@@ -111,6 +114,20 @@ export async function rekenAf(
     return { algemeen: oordeel.reden, oplossing: oordeel.oplossing };
   }
 
+  /*
+   * De kortingscode hier opnieuw beoordelen, niet eerder.
+   *
+   * Dit is het laatste punt waarop de prijs wordt vastgesteld. Een code
+   * die tussen het invoeren en het afrekenen is uitgezet of opgeraakt,
+   * moet hier alsnog vervallen — anders bepaalt het tabblad dat iemand
+   * open liet staan wat hij betaalt.
+   */
+  const bewaardeCode = await leesKortingscode();
+  const kortingOordeel = bewaardeCode ? await beoordeelInvoer(bewaardeCode) : null;
+  const korting = kortingOordeel?.geldig
+    ? { code: kortingOordeel.code, percentageBp: kortingOordeel.percentageBp }
+    : null;
+
   let bestelling;
   try {
     bestelling = await maakBestelling(
@@ -130,6 +147,7 @@ export async function rekenAf(
           btwVerlegd({ landcode, isZakelijk, btwIdGevalideerd }),
       },
       undefined,
+      korting,
     );
   } catch (fout) {
     if (fout instanceof BestellingGeweigerd) {
@@ -157,6 +175,26 @@ export async function rekenAf(
     console.error("Affiliate niet gekoppeld:", (fout as Error).message);
   }
 
+  /*
+   * Het gebruik bijschrijven en de cookie opruimen.
+   *
+   * Bij het aanmaken van de bestelling en niet bij de betaling: op dit
+   * moment is de cookie nog binnen bereik, en de Stripe-webhook heeft die
+   * niet. Gevolg is wel dat een afgebroken betaling een gebruik kost. Bij
+   * een code zonder maximum — zoals glasvezel20 — merkt niemand dat;
+   * geeft een code ooit een beperkt aantal keren korting, dan is dit de
+   * plek om het naar de webhook te verplaatsen.
+   *
+   * De korting zit al in de bestelling, dus mislukt dit, dan betaalt de
+   * klant nog steeds het juiste bedrag.
+   */
+  if (korting) {
+    await schrijfGebruikBij(korting.code).catch((fout: unknown) =>
+      console.error("Kortinggebruik niet bijgeschreven:", fout),
+    );
+    await wisKortingscode();
+  }
+
   // Order exists and is reserved. If payment cannot start, the customer
   // still has an order number to refer to — never a silent dead end.
   if (!stripeBeschikbaar()) {
@@ -176,6 +214,9 @@ export async function rekenAf(
     landcode,
     isZakelijk,
     btwIdGevalideerd,
+    // Dezelfde korting als in de bestelling, anders int Stripe een ander
+    // bedrag dan er op de bevestiging en de factuur staat.
+    korting,
   });
 
   let sessie;
@@ -187,9 +228,12 @@ export async function rekenAf(
         // Charge exactly what the page advertised. Falling back to
         // inclBtw() would recompute from the net price and can land a
         // cent away from the shown amount.
-        stukprijsCenten: overzicht.totalen.btwVerlegd
-          ? r.item.prijsExclBtwCenten
-          : (r.item.prijsInclBtwCenten ?? r.item.prijsExclBtwCenten),
+        stukprijsCenten: naKorting(
+          overzicht.totalen.btwVerlegd
+            ? r.item.prijsExclBtwCenten
+            : (r.item.prijsInclBtwCenten ?? r.item.prijsExclBtwCenten),
+          korting?.percentageBp ?? 0,
+        ),
         aantal: r.aantal,
       })),
       email,

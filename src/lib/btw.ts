@@ -110,17 +110,26 @@ export function berekenTotalen(
 
   for (const regel of regels) {
     if (!verlegd && regel.stukprijsInclBtwCenten !== undefined) {
-      // Consumer line: the advertised gross price is the truth, so work
-      // down from it. Adding rounded btw to a net price cannot reproduce
-      // every advertised amount and would charge a cent too much or too
-      // little (see splitsIncl).
-      const regelIncl = regel.aantal * regel.stukprijsInclBtwCenten;
+      /*
+       * Consumentenregel: de geadverteerde brutoprijs is de waarheid, dus
+       * daar wordt vanaf gerekend. Btw bij een nettoprijs optellen kan
+       * niet elk geadverteerd bedrag reproduceren en scheelt een cent in
+       * wat je int (zie splitsIncl).
+       *
+       * Per stuk splitsen en dán vermenigvuldigen, niet het regeltotaal
+       * in één keer splitsen. Beide geven hetzelfde brutobedrag, maar
+       * alleen deze volgorde levert een nettobedrag op dat deelbaar is
+       * door het aantal — en de orderregels slaan een stukprijs op. Deed
+       * je het andersom, dan telde bij drie modules de som van de regels
+       * een cent af van het ordersubtotaal, en dan klopt de factuur niet
+       * met zichzelf.
+       */
       const { exclCenten, btwCenten } = splitsIncl(
-        regelIncl,
+        regel.stukprijsInclBtwCenten,
         regel.btwPercentage,
       );
-      subtotaal += exclCenten;
-      btw += btwCenten;
+      subtotaal += exclCenten * regel.aantal;
+      btw += btwCenten * regel.aantal;
       continue;
     }
 

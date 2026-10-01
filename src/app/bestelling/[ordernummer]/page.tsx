@@ -125,6 +125,24 @@ export default async function BestellingPage({
               </dt>
               <dd className="data">{euro(order.btwBedragCenten)}</dd>
             </div>
+            {order.kortingscode && order.kortingBedragCenten > 0 && (
+              /*
+                Ter informatie: het bedrag zit al verwerkt in het
+                subtotaal hierboven, want de korting is op de stukprijs
+                toegepast. Hier staat alleen wát er is verrekend, zodat de
+                klant het verschil met de winkelprijs kan plaatsen.
+              */
+              <div className="flex justify-between">
+                <dt className="text-staal-tekst">
+                  Korting{" "}
+                  <span className="data uppercase">{order.kortingscode}</span>{" "}
+                  <span className="text-xs">(al verwerkt)</span>
+                </dt>
+                <dd className="data text-blusrood-op-licht">
+                  −{euro(order.kortingBedragCenten)}
+                </dd>
+              </div>
+            )}
             <div className="flex justify-between">
               <dt className="text-staal-tekst">Verzending</dt>
               <dd className="data">

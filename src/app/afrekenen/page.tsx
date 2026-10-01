@@ -8,6 +8,9 @@ import { berekenWagen } from "@/lib/winkelwagen";
 import { euro, verzendwaarde } from "@/lib/pricing";
 import { stripeBeschikbaar, stripeTestmodus } from "@/lib/stripe";
 import { AfrekenFormulier } from "./formulier";
+import { Kortingsveld } from "@/components/winkel/kortingsveld";
+import { leesKortingscode } from "@/lib/kortingscode-cookie";
+import { beoordeelInvoer } from "@/db/korting";
 
 export const metadata: Metadata = {
   title: "Afrekenen",
@@ -16,10 +19,24 @@ export const metadata: Metadata = {
 
 export default async function AfrekenenPage() {
   const wagen = await leesWagen();
+
+  /*
+   * De code elke keer opnieuw beoordelen en niet vertrouwen op wat er in
+   * de cookie staat. Een code die inmiddels is uitgezet of op is, moet
+   * hier vandaag al vervallen — ook bij iemand die hem gisteren invoerde
+   * en de pagina open liet staan.
+   */
+  const bewaardeCode = await leesKortingscode();
+  const oordeel = bewaardeCode ? await beoordeelInvoer(bewaardeCode) : null;
+  const korting = oordeel?.geldig
+    ? { code: oordeel.code, percentageBp: oordeel.percentageBp }
+    : null;
+
   const overzicht = berekenWagen(wagen, {
     landcode: "NL",
     isZakelijk: false,
     btwIdGevalideerd: false,
+    korting,
   });
 
   // Nothing to pay for — send them back rather than showing an empty form.
@@ -93,6 +110,19 @@ export default async function AfrekenenPage() {
                   {euro(overzicht.totalen.btwBedragCenten)}
                 </dd>
               </div>
+              {overzicht.korting && (
+                <div className="flex justify-between">
+                  <dt className="text-staal-tekst">
+                    Korting{" "}
+                    <span className="data uppercase">
+                      {overzicht.korting.code}
+                    </span>
+                  </dt>
+                  <dd className="data text-blusrood-op-licht">
+                    −{euro(overzicht.korting.bedragCenten)}
+                  </dd>
+                </div>
+              )}
               <div className="flex justify-between">
                 <dt className="text-staal-tekst">Verzending</dt>
                 <dd className="data">
@@ -109,6 +139,8 @@ export default async function AfrekenenPage() {
                 </dd>
               </div>
             </dl>
+
+            <Kortingsveld toegepast={korting} />
 
             <p className="data mt-5 text-xs leading-relaxed text-staal-tekst">
               Verzending is gratis. Besteld op een werkdag vóór 16:00, dan gaat

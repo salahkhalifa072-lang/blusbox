@@ -6,7 +6,7 @@
 export const BTW_TARIEF = 0.21;
 
 /** Consumer price incl. btw, in euro cents to avoid float drift. */
-export const PRIJS_INCL_CENTEN = 2999;
+export const PRIJS_INCL_CENTEN = 3750;
 
 /**
  * Adviesprijs: de prijs die installateurs en wederverkopers voeren.
@@ -19,12 +19,12 @@ export const PRIJS_INCL_CENTEN = 2999;
  * ACM op handhaaft.
  *
  * Een adviesprijs is een andere claim: niet "dit kostte het hier", maar
- * "dit is de prijs die in de markt geadviseerd wordt". Die mag je naast je
- * eigen prijs zetten, mits hij echt bestaat en werkelijk gehanteerd wordt.
- * Daar staat of valt het mee: is € 37,50 niet de prijs die installateurs
- * voeren, dan moet dit bedrag eruit.
+ * "dit is de prijs die in de markt geadviseerd wordt".
+ *
+ * € 49,99 is de prijs die installateurs en wederverkopers voeren,
+ * bevestigd door de eigenaar. De winkel zelf vraagt € 37,50.
  */
-export const ADVIESPRIJS_CENTEN = 3750;
+export const ADVIESPRIJS_CENTEN = 4999;
 
 /** What shipping would have cost. Never charged — used to show the saving. */
 export const VERZENDWAARDE_CENTEN = 600;
@@ -60,8 +60,29 @@ export const KORTINGSPERCENTAGE = Math.round(
   ((ADVIESPRIJS_CENTEN - PRIJS_INCL_CENTEN) / ADVIESPRIJS_CENTEN) * 100,
 );
 
-/** Toont de site de adviesprijs naast de eigen prijs? */
-export const TOON_ADVIESPRIJS = ADVIESPRIJS_CENTEN > PRIJS_INCL_CENTEN;
+/*
+ * Let op bij hergebruik: zodra de winkelprijs gelijk is aan de
+ * adviesprijs is dit 0. Gebruik het alleen achter TOON_ADVIESPRIJS, want
+ * "0% korting" op een pagina is erger dan geen percentage.
+ */
+
+/**
+ * Toont de site de adviesprijs naast de eigen prijs?
+ *
+ * Een bewuste schakelaar en niet langer afgeleid van "is de adviesprijs
+ * hoger". Die afleiding koppelde twee onafhankelijke beslissingen aan
+ * elkaar: wat de adviesprijs ís, en of wij ons daarmee willen
+ * vergelijken. Met de adviesprijs op € 49,99 zou de site uit zichzelf
+ * een doorgestreepte prijs met −25% tonen, en dat is precies het
+ * kortingsvignet dat er op verzoek af moest.
+ *
+ * Staat hij op false, dan toont de site één prijs en loopt korting
+ * uitsluitend via een kortingscode bij het afrekenen. Op true komt de
+ * vergelijking terug, inclusief KORTINGSPERCENTAGE hierboven — en dan
+ * geldt de waarschuwing bij ADVIESPRIJS_CENTEN weer onverkort: hij moet
+ * echt gehanteerd worden in de markt.
+ */
+export const TOON_ADVIESPRIJS = false;
 
 export const prijsIncl = euro(PRIJS_INCL_CENTEN);
 export const adviesprijs = euro(ADVIESPRIJS_CENTEN);

@@ -3,6 +3,8 @@ import { db } from "@/db";
 import { orderLines, orders, products } from "@/db/schema";
 import { berekenWagen, type Winkelwagen } from "./winkelwagen";
 import { volgendOrdernummer } from "@/db/nummers";
+import { naKorting } from "./korting";
+import { splitsIncl } from "./btw";
 
 
 /**
@@ -46,11 +48,14 @@ export async function maakBestelling(
   wagen: Winkelwagen,
   adres: BesteladresInvoer,
   userId?: string,
+  /** Een al beoordeelde kortingscode; de geldigheid is hier niet meer aan de orde. */
+  korting?: { code: string; percentageBp: number } | null,
 ): Promise<AangemaakteBestelling> {
   const overzicht = berekenWagen(wagen, {
     landcode: adres.landcode,
     isZakelijk: adres.isZakelijk,
     btwIdGevalideerd: adres.btwIdGevalideerd,
+    korting,
   });
 
   if (overzicht.leeg) {
@@ -90,6 +95,8 @@ export async function maakBestelling(
         straat: adres.straat ?? null,
         plaats: adres.plaats ?? null,
         verzendregelToegepast: `gratis verzending · ${overzicht.aantalModules} module(s)`,
+        kortingscode: overzicht.korting?.code ?? null,
+        kortingBedragCenten: overzicht.korting?.bedragCenten ?? 0,
       })
       .returning({ id: orders.id, ordernummer: orders.ordernummer });
 
@@ -108,15 +115,50 @@ export async function maakBestelling(
         );
       }
 
-      const regelExcl = regel.item.prijsExclBtwCenten * regel.aantal;
+      /*
+       * De verrekende stukprijs, niet de catalogusprijs.
+       *
+       * Twee dingen hangen hieraan. De factuurregels moeten optellen tot
+       * het bedrag dat is afgeschreven, anders klopt de boekhouding niet.
+       * En de grondslag van de affiliatecommissie wordt uit deze regels
+       * berekend — met de volle prijs zou een partner 20% krijgen over
+       * geld dat nooit is binnengekomen.
+       */
+      /*
+       * Dezelfde route als de totalen: met een brutoprijs is díé de
+       * waarheid en volgt netto door deling. Netto apart korten scheelt
+       * een cent, en dan tellen de factuurregels niet op tot het
+       * factuurtotaal.
+       */
+      const bp = korting?.percentageBp ?? 0;
+      const bruto = regel.item.prijsInclBtwCenten;
+
+      /*
+       * Netto én btw uit dezelfde splitsing halen, per stuk. Btw apart
+       * uitrekenen over het regeltotaal geeft hier 1562 waar het
+       * ordertotaal 1563 zegt, en dan telt de btw op de factuurregels
+       * niet op tot de btw op de factuur.
+       */
+      const perStuk =
+        bruto !== undefined && !overzicht.totalen.btwVerlegd
+          ? splitsIncl(naKorting(bruto, bp), regel.item.btwPercentage)
+          : {
+              exclCenten: naKorting(regel.item.prijsExclBtwCenten, bp),
+              btwCenten: 0,
+            };
+
+      const stukExcl = perStuk.exclCenten;
+      const regelExcl = stukExcl * regel.aantal;
       await tx.insert(orderLines).values({
         orderId: order.id,
         productId: product.id,
         aantal: regel.aantal,
-        stukprijsExclBtwCenten: regel.item.prijsExclBtwCenten,
+        stukprijsExclBtwCenten: stukExcl,
         btwBedragCenten: overzicht.totalen.btwVerlegd
           ? 0
-          : Math.round((regelExcl * regel.item.btwPercentage) / 100),
+          : bruto !== undefined
+            ? perStuk.btwCenten * regel.aantal
+            : Math.round((regelExcl * regel.item.btwPercentage) / 100),
       });
     }
 

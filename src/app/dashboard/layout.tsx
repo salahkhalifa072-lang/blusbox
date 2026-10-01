@@ -19,6 +19,7 @@ const nav = [
   { href: "/dashboard/activeringen", label: "Activeringen" },
   { href: "/dashboard/retouren", label: "Retouren" },
   { href: "/dashboard/affiliates", label: "Affiliates" },
+  { href: "/dashboard/kortingscodes", label: "Kortingscodes" },
   { href: "/dashboard/recalls", label: "Recalls" },
 ];
 
