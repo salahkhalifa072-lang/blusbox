@@ -128,20 +128,13 @@ export default function Home() {
                       <span className="data text-kastwit">170 °C</span> vanzelf
                       ingrijpt. Geen stroom. Geen bediening. Geen mens.
                     </p>
-                    {/* Prijs, adviesprijs en het verschil — hetzelfde blok als
-                        op de productpagina, zodat de twee pagina's niet elk een
-                        eigen voorstelling van de prijs geven.
-
-                        De gevulde rode badge is nu het kortingscijfer en niet
-                        meer de verzendbelofte. Twee gevulde badges naast elkaar
-                        vechten om dezelfde aandacht, en van die twee is het
-                        prijsverschil de reden om door te klikken; gratis
-                        verzending staat bovendien in de balk erboven én in de
-                        kaartenrij direct hieronder. */}
+                    {/* Prijs — hetzelfde blok als op de productpagina, zodat de
+                        twee pagina's niet elk een eigen voorstelling van de
+                        prijs geven. */}
                     <div className="mt-5">
                       <Prijsblok />
                       <p className="data mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-2 text-xs text-kastwit/70">
-                        <span>incl. btw · t.o.v. adviesprijs</span>
+                        <span>incl. btw</span>
                         <span className="rounded-full border border-kastwit/30 px-3 py-1">
                           {gratisVerzending.kort}
                         </span>

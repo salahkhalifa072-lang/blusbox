@@ -72,6 +72,8 @@ export async function maakCheckoutSessie(opts: {
    * annuleert niets — de klant kan de link later opnieuw openen.
    */
   bron?: "webshop" | "factuur";
+  /** Alleen ter informatie in het Stripe-dashboard; de prijzen zijn al verlaagd */
+  kortingscode?: string;
 }): Promise<{ id: string; url: string | null }> {
   const stripe = stripeClient();
 
@@ -127,6 +129,7 @@ export async function maakCheckoutSessie(opts: {
       orderId: opts.orderId,
       btwVerlegd: opts.btwVerlegd ? "ja" : "nee",
       bron: opts.bron ?? "webshop",
+      ...(opts.kortingscode ? { kortingscode: opts.kortingscode } : {}),
     },
   });
 

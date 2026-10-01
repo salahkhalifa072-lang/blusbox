@@ -8,6 +8,8 @@ import { berekenWagen } from "@/lib/winkelwagen";
 import { euro, verzendwaarde } from "@/lib/pricing";
 import { stripeBeschikbaar, stripeTestmodus } from "@/lib/stripe";
 import { AfrekenFormulier } from "./formulier";
+import { KortingscodeVeld } from "./kortingscode";
+import { leesKortingscode } from "@/lib/kortingscode-cookie";
 
 export const metadata: Metadata = {
   title: "Afrekenen",
@@ -16,10 +18,12 @@ export const metadata: Metadata = {
 
 export default async function AfrekenenPage() {
   const wagen = await leesWagen();
+  const korting = await leesKortingscode();
   const overzicht = berekenWagen(wagen, {
     landcode: "NL",
     isZakelijk: false,
     btwIdGevalideerd: false,
+    korting,
   });
 
   // Nothing to pay for — send them back rather than showing an empty form.
@@ -80,6 +84,10 @@ export default async function AfrekenenPage() {
               ))}
             </ul>
 
+            <div className="hairline-t mt-5 pt-4">
+              <KortingscodeVeld actief={overzicht.korting?.code ?? null} />
+            </div>
+
             <dl className="hairline-t mt-5 space-y-2 pt-4 text-sm">
               <div className="flex justify-between">
                 <dt className="text-staal-tekst">Subtotaal excl. btw</dt>
@@ -109,6 +117,18 @@ export default async function AfrekenenPage() {
                 </dd>
               </div>
             </dl>
+
+            {/* Onder het totaal en niet als min-regel erboven: de bedragen
+                hierboven zijn al na korting, een aftrekregel ertussen zou
+                lezen alsof hij nog van het totaal af moet. */}
+            {overzicht.korting ? (
+              <p className="mt-3 text-sm">
+                Je bespaart{" "}
+                <span className="data">{euro(overzicht.korting.bedragCenten)}</span>{" "}
+                met <span className="data">{overzicht.korting.code}</span> (−
+                {overzicht.korting.percentage}%).
+              </p>
+            ) : null}
 
             <p className="data mt-5 text-xs leading-relaxed text-staal-tekst">
               Verzending is gratis. Besteld op een werkdag vóór 16:00, dan gaat

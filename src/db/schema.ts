@@ -248,6 +248,16 @@ export const orders = pgTable(
      * laten bekijken door een nummer op te hogen.
      */
     betaaltoken: text("betaaltoken"),
+
+    /**
+     * Kortingscode bij het afrekenen, zoals de klant hem zag (GLASVEZEL20).
+     * De regelprijzen zijn al na korting; dit veld en het bedrag ernaast
+     * zijn er voor de bevestiging en de administratie, niet om opnieuw te
+     * rekenen.
+     */
+    kortingscode: text("kortingscode"),
+    /** Wat de code de klant scheelde, incl. btw */
+    kortingCenten: integer("korting_centen").notNull().default(0),
   },
   (t) => [
     uniqueIndex("orders_ordernummer_uniek").on(t.ordernummer),

@@ -1,6 +1,7 @@
 import { berekenTotalen, type OrderTotalen } from "./btw";
 import { catalogus, vindItem, type CatalogusItem } from "./catalogus";
 import { beoordeelVerzending, type VerzendOordeel } from "./verzending";
+import { naKorting, type Kortingscode } from "./kortingscode";
 
 /**
  * Cart domain logic — pure, so it can be tested without a request.
@@ -63,6 +64,10 @@ export function verwijder(wagen: Winkelwagen, slug: string): Winkelwagen {
 export type WagenRegel = {
   item: CatalogusItem;
   aantal: number;
+  /** Stukprijs excl. btw die echt gerekend wordt, dus na een eventuele kortingscode */
+  stukprijsExclBtwCenten: number;
+  /** Idem incl. btw; undefined als het artikel geen consumentenprijs heeft */
+  stukprijsInclBtwCenten?: number;
   regelExclBtwCenten: number;
 };
 
@@ -72,6 +77,8 @@ export type WagenOverzicht = {
   /** Aerosol modules in the shipment — what the carrier rules count */
   aantalModules: number;
   totalen: OrderTotalen;
+  /** Toegepaste kortingscode met wat die scheelt, incl. btw zoals de klant betaalt */
+  korting: (Kortingscode & { bedragCenten: number }) | null;
   verzending: VerzendOordeel;
   /** True when nothing blocks checkout */
   afrekenbaar: boolean;
@@ -90,18 +97,31 @@ export function berekenWagen(
     landcode: string;
     isZakelijk: boolean;
     btwIdGevalideerd: boolean;
+    /** Al gecontroleerd met zoekKortingscode; nooit rechtstreeks uit invoer */
+    korting?: Kortingscode | null;
   },
 ): WagenOverzicht {
   const genormaliseerd = normaliseerWagen(wagen);
+  const pct = opts.korting?.percentage ?? 0;
 
+  // De korting gaat op de stukprijs, zodat alles daarna — btw, Stripe,
+  // orderregels, affiliatecommissie — vanzelf met de prijs na korting
+  // rekent en niemand hem een tweede keer kan toepassen of vergeten.
   const regels: WagenRegel[] = genormaliseerd.regels.flatMap((r) => {
     const item = vindItem(r.slug);
     if (!item) return [];
+    const excl = naKorting(item.prijsExclBtwCenten, pct);
+    const incl =
+      item.prijsInclBtwCenten === undefined
+        ? undefined
+        : naKorting(item.prijsInclBtwCenten, pct);
     return [
       {
         item,
         aantal: r.aantal,
-        regelExclBtwCenten: item.prijsExclBtwCenten * r.aantal,
+        stukprijsExclBtwCenten: excl,
+        stukprijsInclBtwCenten: incl,
+        regelExclBtwCenten: excl * r.aantal,
       },
     ];
   });
@@ -109,21 +129,43 @@ export function berekenWagen(
   // Elke regel is één module per stuk; er zijn geen bundels meer.
   const aantalModules = regels.reduce((som, r) => som + r.aantal, 0);
 
+  const totaalOpties = {
+    landcode: opts.landcode,
+    isZakelijk: opts.isZakelijk,
+    btwIdGevalideerd: opts.btwIdGevalideerd,
+    // §8: shipping is free on every order, always.
+    verzendkostenCenten: 0,
+  };
+
   const totalen = berekenTotalen(
     regels.map((r) => ({
       aantal: r.aantal,
-      stukprijsExclBtwCenten: r.item.prijsExclBtwCenten,
-      stukprijsInclBtwCenten: r.item.prijsInclBtwCenten,
+      stukprijsExclBtwCenten: r.stukprijsExclBtwCenten,
+      stukprijsInclBtwCenten: r.stukprijsInclBtwCenten,
       btwPercentage: r.item.btwPercentage,
     })),
-    {
-      landcode: opts.landcode,
-      isZakelijk: opts.isZakelijk,
-      btwIdGevalideerd: opts.btwIdGevalideerd,
-      // §8: shipping is free on every order, always.
-      verzendkostenCenten: 0,
-    },
+    totaalOpties,
   );
+
+  // Wat de code scheelt: het totaal zonder korting min het totaal met. Zo
+  // klopt het getoonde kortingsbedrag altijd met het verschil dat de klant
+  // ziet, ook na afronding per stuk.
+  let korting: WagenOverzicht["korting"] = null;
+  if (opts.korting && pct > 0 && regels.length > 0) {
+    const zonder = berekenTotalen(
+      regels.map((r) => ({
+        aantal: r.aantal,
+        stukprijsExclBtwCenten: r.item.prijsExclBtwCenten,
+        stukprijsInclBtwCenten: r.item.prijsInclBtwCenten,
+        btwPercentage: r.item.btwPercentage,
+      })),
+      totaalOpties,
+    );
+    korting = {
+      ...opts.korting,
+      bedragCenten: zonder.totaalInclBtwCenten - totalen.totaalInclBtwCenten,
+    };
+  }
 
   const verzending = beoordeelVerzending({
     bestemming: { landcode: opts.landcode },
@@ -137,6 +179,7 @@ export function berekenWagen(
     aantalArtikelen: regels.reduce((som, r) => som + r.aantal, 0),
     aantalModules,
     totalen,
+    korting,
     verzending,
     afrekenbaar: !leeg && verzending.toegestaan,
     leeg,

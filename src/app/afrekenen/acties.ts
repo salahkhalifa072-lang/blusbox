@@ -26,6 +26,12 @@ import {
 import { berekenWagen } from "@/lib/winkelwagen";
 import { beoordeelVerzending } from "@/lib/verzending";
 import { koppelAffiliateAanBestelling } from "@/lib/affiliate/koppelen";
+import { zoekKortingscode } from "@/lib/kortingscode";
+import {
+  leesKortingscode,
+  schrijfKortingscode,
+} from "@/lib/kortingscode-cookie";
+import { revalidatePath } from "next/cache";
 
 export type AfrekenFout = {
   velden?: Record<string, string>;
@@ -111,6 +117,10 @@ export async function rekenAf(
     return { algemeen: oordeel.reden, oplossing: oordeel.oplossing };
   }
 
+  // Opnieuw gecontroleerd, hier aan de server: wat er in de cookie staat
+  // is alleen wat de klant typte, niet een belofte van korting.
+  const korting = await leesKortingscode();
+
   let bestelling;
   try {
     bestelling = await maakBestelling(
@@ -130,6 +140,7 @@ export async function rekenAf(
           btwVerlegd({ landcode, isZakelijk, btwIdGevalideerd }),
       },
       undefined,
+      korting,
     );
   } catch (fout) {
     if (fout instanceof BestellingGeweigerd) {
@@ -161,6 +172,7 @@ export async function rekenAf(
   // still has an order number to refer to — never a silent dead end.
   if (!stripeBeschikbaar()) {
     await schrijfWagen(LEGE_WAGEN);
+    await schrijfKortingscode(null);
     redirect(`/bestelling/${bestelling.ordernummer}?betalen=nietingesteld`);
   }
 
@@ -176,6 +188,7 @@ export async function rekenAf(
     landcode,
     isZakelijk,
     btwIdGevalideerd,
+    korting,
   });
 
   let sessie;
@@ -187,9 +200,10 @@ export async function rekenAf(
         // Charge exactly what the page advertised. Falling back to
         // inclBtw() would recompute from the net price and can land a
         // cent away from the shown amount.
+        // Stukprijzen uit het overzicht, dus al na een kortingscode.
         stukprijsCenten: overzicht.totalen.btwVerlegd
-          ? r.item.prijsExclBtwCenten
-          : (r.item.prijsInclBtwCenten ?? r.item.prijsExclBtwCenten),
+          ? r.stukprijsExclBtwCenten
+          : (r.stukprijsInclBtwCenten ?? r.stukprijsExclBtwCenten),
         aantal: r.aantal,
       })),
       email,
@@ -198,10 +212,12 @@ export async function rekenAf(
       succesUrl: `${basis}/bestelling/${bestelling.ordernummer}`,
       annuleerUrl: `${basis}/winkelwagen`,
       btwVerlegd: overzicht.totalen.btwVerlegd,
+      kortingscode: overzicht.korting?.code,
     });
   } catch (fout) {
     if (fout instanceof StripeNietGeconfigureerd) {
       await schrijfWagen(LEGE_WAGEN);
+      await schrijfKortingscode(null);
       redirect(`/bestelling/${bestelling.ordernummer}?betalen=nietingesteld`);
     }
     console.error("Stripe-sessie aanmaken mislukt:", fout);
@@ -213,6 +229,37 @@ export async function rekenAf(
 
   await markeerBetaald(bestelling.id, sessie.id, "nieuw");
   await schrijfWagen(LEGE_WAGEN);
+  await schrijfKortingscode(null);
 
   redirect(sessie.url ?? `/bestelling/${bestelling.ordernummer}`);
+}
+
+export type KortingStaat = { fout?: string } | null;
+
+/**
+ * Kortingscode controleren en onthouden tot het betalen.
+ *
+ * Een onbekende code krijgt één vaste melding, ongeacht hoe dichtbij hij
+ * zit: anders kun je per letter raden.
+ */
+export async function pasKortingscodeToe(
+  _vorige: KortingStaat,
+  formData: FormData,
+): Promise<KortingStaat> {
+  const invoer = String(formData.get("kortingscode") ?? "").trim();
+  if (!invoer) return { fout: "Vul een kortingscode in." };
+
+  const korting = zoekKortingscode(invoer);
+  if (!korting) {
+    return { fout: "Deze kortingscode is niet geldig." };
+  }
+
+  await schrijfKortingscode(invoer);
+  revalidatePath("/afrekenen");
+  return null;
+}
+
+export async function verwijderKortingscode(): Promise<void> {
+  await schrijfKortingscode(null);
+  revalidatePath("/afrekenen");
 }

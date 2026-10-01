@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { orderLines, orders, products } from "@/db/schema";
 import { berekenWagen, type Winkelwagen } from "./winkelwagen";
 import { volgendOrdernummer } from "@/db/nummers";
+import type { Kortingscode } from "./kortingscode";
 
 
 /**
@@ -46,11 +47,13 @@ export async function maakBestelling(
   wagen: Winkelwagen,
   adres: BesteladresInvoer,
   userId?: string,
+  korting?: Kortingscode | null,
 ): Promise<AangemaakteBestelling> {
   const overzicht = berekenWagen(wagen, {
     landcode: adres.landcode,
     isZakelijk: adres.isZakelijk,
     btwIdGevalideerd: adres.btwIdGevalideerd,
+    korting,
   });
 
   if (overzicht.leeg) {
@@ -83,6 +86,8 @@ export async function maakBestelling(
         btwBedragCenten: overzicht.totalen.btwBedragCenten,
         verzendkostenCenten: overzicht.totalen.verzendkostenCenten,
         totaalInclBtwCenten: overzicht.totalen.totaalInclBtwCenten,
+        kortingscode: overzicht.korting?.code ?? null,
+        kortingCenten: overzicht.korting?.bedragCenten ?? 0,
         btwVerlegd: overzicht.totalen.btwVerlegd,
         landcode: adres.landcode.toUpperCase(),
         postcode: adres.postcode,
@@ -108,12 +113,12 @@ export async function maakBestelling(
         );
       }
 
-      const regelExcl = regel.item.prijsExclBtwCenten * regel.aantal;
+      const regelExcl = regel.stukprijsExclBtwCenten * regel.aantal;
       await tx.insert(orderLines).values({
         orderId: order.id,
         productId: product.id,
         aantal: regel.aantal,
-        stukprijsExclBtwCenten: regel.item.prijsExclBtwCenten,
+        stukprijsExclBtwCenten: regel.stukprijsExclBtwCenten,
         btwBedragCenten: overzicht.totalen.btwVerlegd
           ? 0
           : Math.round((regelExcl * regel.item.btwPercentage) / 100),
