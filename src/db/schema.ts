@@ -442,6 +442,41 @@ export const contentBlocks = pgTable(
   (t) => [uniqueIndex("content_blocks_pagina_sleutel").on(t.pagina, t.sleutel)],
 );
 
+/* ---------------------------------------------------- wachtwoordherstel */
+
+/**
+ * Eenmalige tokens om een vergeten wachtwoord opnieuw te zetten.
+ *
+ * Alleen een hash van het token staat erin, nooit het token zelf. Een
+ * gelekte databasekopie levert dan geen bruikbare herstellinks op — het
+ * verschil tussen een vervelend incident en overgenomen accounts.
+ *
+ * Rijen blijven staan na gebruik. Dat is met opzet: `gebruikt_op` is het
+ * enige spoor dat er een herstel heeft plaatsgevonden, en bij een vraag
+ * over een overgenomen account is dat precies wat je wil kunnen nakijken.
+ */
+export const wachtwoordHerstel = pgTable(
+  "wachtwoord_herstel",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    tokenHash: text("token_hash").notNull(),
+    verlooptOp: timestamp("verloopt_op", { withTimezone: true }).notNull(),
+    gebruiktOp: timestamp("gebruikt_op", { withTimezone: true }),
+    aangemaaktOp: timestamp("aangemaakt_op", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    // Opzoeken gebeurt altijd op de hash; dat is de enige ingang.
+    uniqueIndex("wachtwoord_herstel_token_uniek").on(t.tokenHash),
+    // Voor de telling "hoeveel aanvragen deed dit account het afgelopen uur".
+    index("wachtwoord_herstel_user_idx").on(t.userId, t.aangemaaktOp),
+  ],
+);
+
 /* -------------------------------------------------------- kortingscodes */
 
 /**
@@ -579,3 +614,4 @@ export type Order = typeof orders.$inferSelect;
 export type OrderLine = typeof orderLines.$inferSelect;
 export type RegisteredUnit = typeof registeredUnits.$inferSelect;
 export type KortingscodeRij = typeof kortingscodes.$inferSelect;
+export type WachtwoordHerstelRij = typeof wachtwoordHerstel.$inferSelect;

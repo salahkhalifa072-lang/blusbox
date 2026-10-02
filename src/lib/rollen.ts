@@ -11,6 +11,10 @@ export const ROLLEN: readonly Rol[] = [
   "admin",
   "operations",
   "installateur",
+  // Stond hier niet, terwijl de rol wel bestaat sinds het
+  // affiliateprogramma. Een lijst die een rol mist is een lijst waar
+  // iemand later op bouwt zonder te merken dat er een geval ontbreekt.
+  "affiliate",
   "klant",
 ] as const;
 

@@ -52,6 +52,7 @@ export async function meldAan(
   const naam = tekst(formData.get("naam"), 120);
   const email = tekst(formData.get("email"), 160).toLowerCase();
   const wachtwoord = String(formData.get("wachtwoord") ?? "");
+  const wachtwoordHerhaal = String(formData.get("wachtwoordHerhaal") ?? "");
   const bedrijfsnaam = tekst(formData.get("bedrijfsnaam"), 120);
   const website = tekst(formData.get("website"), 200);
   const kanalen = tekst(formData.get("kanalen"), 300);
@@ -73,6 +74,10 @@ export async function meldAan(
   const wachtwoordfouten = wachtwoordProblemen(wachtwoord);
   if (wachtwoordfouten.length > 0) {
     velden.wachtwoord = wachtwoordfouten.join(" ");
+  } else if (wachtwoord !== wachtwoordHerhaal) {
+    // Pas controleren als het wachtwoord zelf deugt: anders krijgt iemand
+    // twee meldingen over hetzelfde veld en weet hij niet welke eerst.
+    velden.wachtwoordHerhaal = "De twee wachtwoorden zijn niet gelijk.";
   }
   if (promotiemethode.length < 10) {
     velden.promotiemethode = "Vertel kort hoe je Blusbox wil promoten.";

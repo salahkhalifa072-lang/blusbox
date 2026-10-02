@@ -119,15 +119,31 @@ export function Aanmeldformulier() {
         />
       </div>
 
-      <Veld
-        naam="wachtwoord"
-        label="Wachtwoord"
-        type="password"
-        required
-        autoComplete="new-password"
-        hulp="Minimaal 12 tekens. Hiermee log je straks in op je dashboard."
-        fout={velden.wachtwoord}
-      />
+      {/*
+        Twee velden, want een typefout in een wachtwoord dat je nergens
+        terugziet merk je pas als je wil inloggen — en dan heb je geen
+        idee wat je verkeerd hebt getypt.
+      */}
+      <div className="grid gap-5 sm:grid-cols-2">
+        <Veld
+          naam="wachtwoord"
+          label="Wachtwoord"
+          type="password"
+          required
+          autoComplete="new-password"
+          hulp="Minimaal 12 tekens. Hiermee log je straks in op je dashboard."
+          fout={velden.wachtwoord}
+        />
+        <Veld
+          naam="wachtwoordHerhaal"
+          label="Wachtwoord herhalen"
+          type="password"
+          required
+          autoComplete="new-password"
+          hulp="Precies hetzelfde als hierboven."
+          fout={velden.wachtwoordHerhaal}
+        />
+      </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
         <Veld naam="bedrijfsnaam" label="Bedrijfsnaam" fout={velden.bedrijfsnaam} />

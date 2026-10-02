@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/site/page-header";
 import { SiteFooter } from "@/components/site/footer";
 import { signIn } from "@/auth";
 import { huidigeActor } from "@/lib/sessie";
 import { magDashboard, magInstallateursportaal } from "@/lib/rollen";
+import { affiliateVanGebruiker } from "@/db/affiliate";
 
 export const metadata: Metadata = {
   title: "Inloggen",
@@ -24,6 +26,24 @@ export default async function AccountPage({
   if (actor) {
     if (magDashboard(actor.rol)) redirect("/dashboard");
     if (magInstallateursportaal(actor.rol)) redirect("/portaal");
+
+    /*
+     * Partners horen op hun eigen dashboard.
+     *
+     * Op het bestaan van een affiliate-record en niet op de rol: wie zich
+     * net heeft aangemeld staat op "aangevraagd" en houdt tot de
+     * goedkeuring rol `klant`. De aanmeldbevestiging zegt wél dat hij
+     * alvast kan inloggen — en dat liep hier dood. Hij werd netjes
+     * ingelogd en vervolgens naar de homepage gestuurd, waar niets laat
+     * zien dat het gelukt is. Van buiten af is dat niet te onderscheiden
+     * van "inloggen werkt niet".
+     *
+     * Het dashboard zelf vangt elke status af, inclusief een afgewezen
+     * aanvraag, dus hier hoeft niet op status gefilterd te worden.
+     */
+    const partner = await affiliateVanGebruiker(actor.id);
+    if (partner) redirect("/affiliate/dashboard");
+
     redirect("/");
   }
 
@@ -100,6 +120,13 @@ export default async function AccountPage({
             Inloggen
           </button>
         </form>
+
+        <Link
+          href="/wachtwoord-vergeten"
+          className="mt-6 inline-block text-sm underline underline-offset-4 hover:text-staal-tekst"
+        >
+          Wachtwoord vergeten?
+        </Link>
       </main>
       <SiteFooter />
     </>

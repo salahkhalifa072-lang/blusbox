@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/site/page-header";
 import { Cel, Leeg, Paneel, Rij, Tabel, Tegel } from "@/components/dashboard/ui";
 import { Linkgereedschap } from "@/components/affiliate/linkgereedschap";
 import { vereisLogin } from "@/lib/sessie";
+import { signOut } from "@/auth";
 import {
   affiliateVanGebruiker,
   commissiesVoorAffiliate,
@@ -17,6 +18,7 @@ import {
 } from "@/db/affiliate";
 import { Profielformulier } from "@/components/affiliate/profielformulier";
 import { Banners } from "@/components/affiliate/banners";
+import { Uitlogbalk } from "@/components/affiliate/uitlogbalk";
 import { euro } from "@/lib/pricing";
 import { formatteerNl } from "@/lib/levensduur";
 
@@ -64,6 +66,16 @@ export default async function AffiliateDashboard() {
 
   if (!affiliate) redirect("/affiliate");
 
+  /*
+   * Uitloggen stond hier niet. Een partner kon dus wel inloggen maar
+   * nergens meer weg — op een gedeelde computer blijft zijn dashboard
+   * dan gewoon open staan voor de volgende.
+   */
+  async function uitloggen() {
+    "use server";
+    await signOut({ redirectTo: "/" });
+  }
+
   const instellingen = await haalInstellingen();
   const kop = await headers();
   const host = kop.get("host") ?? "www.blusbox.nl";
@@ -98,6 +110,7 @@ export default async function AffiliateDashboard() {
             </a>
             .
           </p>
+          <Uitlogbalk email={actor.email} actie={uitloggen} />
         </main>
         <SiteFooter />
       </>
@@ -304,6 +317,8 @@ export default async function AffiliateDashboard() {
             Vraag of wijziging doorgeven
           </a>
         </p>
+
+        <Uitlogbalk email={actor.email} actie={uitloggen} />
       </main>
 
       <SiteFooter />
