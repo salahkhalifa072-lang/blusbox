@@ -17,8 +17,8 @@ export const metadata: Metadata = {
 const documenten: { t: string; b: string; meta: string; href?: string }[] = [
   {
     t: "Handleiding",
-    b: "Montage, een geannoteerde foto van een goed geplaatste module en wat te doen na een activering.",
-    meta: "PDF · Nederlands · 5 pagina's · versie oktober 2026",
+    b: "Werking, montage met een geannoteerde foto, levensduur en wat te doen na een activering.",
+    meta: "PDF · Nederlands · 8 pagina's · versie oktober 2026",
     href: "/downloads/blusbox-handleiding.pdf",
   },
   {
