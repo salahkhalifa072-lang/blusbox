@@ -64,6 +64,13 @@
       "when": 1790930935361,
       "tag": "0008_wachtwoordherstel",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791236623649,
+      "tag": "0009_rookmelder",
+      "breakpoints": true
     }
   ]
 }

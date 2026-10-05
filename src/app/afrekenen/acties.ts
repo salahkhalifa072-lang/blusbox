@@ -26,7 +26,8 @@ import {
   maakCheckoutSessie,
   stripeBeschikbaar,
 } from "@/lib/stripe";
-import { berekenWagen } from "@/lib/winkelwagen";
+import { berekenWagen, regelKortingBp } from "@/lib/winkelwagen";
+import { vindItem } from "@/lib/catalogus";
 import { beoordeelVerzending } from "@/lib/verzending";
 import { koppelAffiliateAanBestelling } from "@/lib/affiliate/koppelen";
 
@@ -108,7 +109,10 @@ export async function rekenAf(
   // de bestelling en de betaling, dus hier hoort de controle.
   const oordeel = beoordeelVerzending({
     bestemming: { landcode, postcode },
-    aantalModules: wagen.regels.reduce((som, r) => som + r.aantal, 0),
+    // Alleen blusmodules; een meeverkochte rookmelder telt niet mee.
+    aantalModules: wagen.regels
+      .filter((r) => vindItem(r.slug)?.isModule)
+      .reduce((som, r) => som + r.aantal, 0),
   });
   if (!oordeel.toegestaan) {
     return { algemeen: oordeel.reden, oplossing: oordeel.oplossing };
@@ -232,7 +236,7 @@ export async function rekenAf(
           overzicht.totalen.btwVerlegd
             ? r.item.prijsExclBtwCenten
             : (r.item.prijsInclBtwCenten ?? r.item.prijsExclBtwCenten),
-          korting?.percentageBp ?? 0,
+          regelKortingBp(r.item, korting?.percentageBp ?? 0),
         ),
         aantal: r.aantal,
       })),

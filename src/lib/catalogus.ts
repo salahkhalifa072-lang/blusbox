@@ -21,7 +21,23 @@ export type CatalogusItem = {
   /** Consumenten mogen het kopen; sommige SKU's zijn alleen zakelijk */
   voorConsument: boolean;
   actief: boolean;
+  /**
+   * Is dit een blusmodule? De verzendregels en de vervangingstermijn
+   * gaan over modules. Een rookmelder in hetzelfde pakket is geen
+   * aerosolgenerator en telt daar niet mee.
+   */
+  isModule: boolean;
+  /**
+   * Mag een kortingscode hierop? Nee voor meeverkochte artikelen: een
+   * actiecode is bedoeld voor de Blusbox, en 20% op een product met een
+   * kleine marge maakt de rookmelder een verliespost.
+   */
+  kortingscodeToegestaan: boolean;
 };
+
+/** De rookmelder die bij het afrekenen wordt aangeboden. */
+export const ROOKMELDER_SLUG = "rookmelder";
+const ROOKMELDER_INCL_CENTEN = 1695;
 
 export const catalogus: CatalogusItem[] = [
   {
@@ -34,6 +50,8 @@ export const catalogus: CatalogusItem[] = [
     btwPercentage: 21,
     voorConsument: true,
     actief: true,
+    isModule: true,
+    kortingscodeToegestaan: true,
   },
   {
     slug: "vervangmodule",
@@ -45,6 +63,23 @@ export const catalogus: CatalogusItem[] = [
     btwPercentage: 21,
     voorConsument: true,
     actief: true,
+    isModule: true,
+    kortingscodeToegestaan: true,
+  },
+  {
+    // Meeverkocht via een groothandel, aangeboden bij het afrekenen.
+    // Feiten van de productpagina van ELRO (FS1801).
+    slug: ROOKMELDER_SLUG,
+    naam: "ELRO rookmelder FS1801",
+    omschrijving:
+      "Optische rookmelder volgens EN 14604, alarm van 85 dB, testknop en melding bij een lege batterij. Inclusief batterij en bevestigingsmateriaal.",
+    prijsExclBtwCenten: Math.round(ROOKMELDER_INCL_CENTEN / 1.21),
+    prijsInclBtwCenten: ROOKMELDER_INCL_CENTEN,
+    btwPercentage: 21,
+    voorConsument: true,
+    actief: true,
+    isModule: false,
+    kortingscodeToegestaan: false,
   },
 ];
 

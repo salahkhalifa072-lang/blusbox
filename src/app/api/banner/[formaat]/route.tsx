@@ -111,14 +111,11 @@ function Prijs({ maat, letter }: { maat: number; letter?: string }) {
       </span>
       {TOON_ADVIESPRIJS && (
         <>
-          <span
-            style={{
-              fontSize: maat * 0.42,
-              color: K.railstaal,
-              textDecoration: "line-through",
-            }}
-          >
-            {adviesprijs}
+          {/* "advies" erbij: een kaal doorgestreept bedrag leest als een
+              eerdere prijs van deze winkel. */}
+          <span style={{ display: "flex", alignItems: "baseline", gap: maat * 0.12, fontSize: maat * 0.42, color: K.railstaal }}>
+            <span style={{ fontSize: maat * 0.3 }}>advies</span>
+            <span style={{ textDecoration: "line-through" }}>{adviesprijs}</span>
           </span>
           <span
             style={{

@@ -95,6 +95,15 @@ export type WagenOverzicht = {
  * The shipping verdict travels with the totals so no page can render a
  * "pay now" button for an order we would have to cancel afterwards.
  */
+/**
+ * Het kortingspercentage dat op dit artikel geldt: de code, of niets als
+ * het artikel geen code accepteert. Eén definitie voor de winkelwagen, de
+ * bestelling en het bedrag dat Stripe int — die drie mogen niet uiteenlopen.
+ */
+export function regelKortingBp(item: CatalogusItem, bp: number): number {
+  return item.kortingscodeToegestaan ? bp : 0;
+}
+
 export function berekenWagen(
   wagen: Winkelwagen,
   opts: {
@@ -108,8 +117,11 @@ export function berekenWagen(
   const genormaliseerd = normaliseerWagen(wagen);
 
   const bp = opts.korting?.percentageBp ?? 0;
-  const metKorting = (centen: number | undefined) =>
-    centen === undefined ? undefined : bp > 0 ? naKorting(centen, bp) : centen;
+  /** De korting geldt per artikel: niet elk artikel accepteert een code. */
+  const metKorting = (item: CatalogusItem, centen: number | undefined) => {
+    const eigen = regelKortingBp(item, bp);
+    return centen === undefined ? undefined : eigen > 0 ? naKorting(centen, eigen) : centen;
+  };
 
   const regels: WagenRegel[] = genormaliseerd.regels.flatMap((r) => {
     const item = vindItem(r.slug);
@@ -128,16 +140,19 @@ export function berekenWagen(
         regelExclBtwCenten:
           item.prijsInclBtwCenten !== undefined
             ? splitsIncl(
-                metKorting(item.prijsInclBtwCenten)!,
+                metKorting(item, item.prijsInclBtwCenten)!,
                 item.btwPercentage,
               ).exclCenten * r.aantal
-            : metKorting(item.prijsExclBtwCenten)! * r.aantal,
+            : metKorting(item, item.prijsExclBtwCenten)! * r.aantal,
       },
     ];
   });
 
-  // Elke regel is één module per stuk; er zijn geen bundels meer.
-  const aantalModules = regels.reduce((som, r) => som + r.aantal, 0);
+  // Alleen blusmodules tellen voor de verzendregels; een meeverkochte
+  // rookmelder is geen aerosolgenerator.
+  const aantalModules = regels
+    .filter((r) => r.item.isModule)
+    .reduce((som, r) => som + r.aantal, 0);
 
   /*
    * De korting gaat op de stukprijs, vóór de btw-berekening.
@@ -156,8 +171,8 @@ export function berekenWagen(
   const totalen = berekenTotalen(
     regels.map((r) => ({
       aantal: r.aantal,
-      stukprijsExclBtwCenten: metKorting(r.item.prijsExclBtwCenten)!,
-      stukprijsInclBtwCenten: metKorting(r.item.prijsInclBtwCenten),
+      stukprijsExclBtwCenten: metKorting(r.item, r.item.prijsExclBtwCenten)!,
+      stukprijsInclBtwCenten: metKorting(r.item, r.item.prijsInclBtwCenten),
       btwPercentage: r.item.btwPercentage,
     })),
     {
@@ -186,7 +201,7 @@ export function berekenWagen(
    */
   let korting: WagenKorting | null = null;
   if (opts.korting && bp > 0 && !leeg) {
-    const vol = regels.reduce((som, r) => {
+    const vol = regels.filter((r) => r.item.kortingscodeToegestaan).reduce((som, r) => {
       const stuk = totalen.btwVerlegd
         ? r.item.prijsExclBtwCenten
         : (r.item.prijsInclBtwCenten ?? r.item.prijsExclBtwCenten);

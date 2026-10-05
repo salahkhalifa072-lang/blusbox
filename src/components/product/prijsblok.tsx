@@ -37,14 +37,13 @@ export function Prijsblok({
 
       {TOON_ADVIESPRIJS && (
         <>
-          <span
-            className={`data ${adviesMaat} text-railstaal line-through`}
-            // De adviesprijs is een vergelijking, geen bedrag dat iemand
-            // betaalt. Zonder dit leest een schermlezer twee prijzen achter
-            // elkaar voor en klinkt het alsof je 67,49 kwijt bent.
-            aria-label={`adviesprijs ${adviesprijs}`}
-          >
-            {adviesprijs}
+          {/* Het woord "adviesprijs" staat er zichtbaar bij, niet alleen
+              voor schermlezers. Een kaal doorgestreept bedrag leest als een
+              oude prijs van deze winkel, en dat is een andere — en hier
+              onjuiste — bewering dan "dit is de geadviseerde prijs". */}
+          <span className={`data ${adviesMaat} text-railstaal`}>
+            <span className="text-xs">adviesprijs </span>
+            <span className="line-through">{adviesprijs}</span>
           </span>
           <span className="rounded-full bg-blusrood-vlak px-3 py-1 text-xs font-medium text-kastwit">
             −{KORTINGSPERCENTAGE}%

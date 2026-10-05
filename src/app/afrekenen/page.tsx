@@ -4,11 +4,14 @@ import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/site/page-header";
 import { SiteFooter } from "@/components/site/footer";
 import { leesWagen } from "@/lib/winkelwagen-cookie";
-import { berekenWagen } from "@/lib/winkelwagen";
+import { berekenWagen, regelKortingBp } from "@/lib/winkelwagen";
+import { naKorting } from "@/lib/korting";
 import { euro, verzendwaarde } from "@/lib/pricing";
 import { stripeBeschikbaar, stripeTestmodus } from "@/lib/stripe";
 import { AfrekenFormulier } from "./formulier";
 import { Kortingsveld } from "@/components/winkel/kortingsveld";
+import { Rookmelderaanbod } from "@/components/winkel/rookmelderaanbod";
+import { ROOKMELDER_SLUG } from "@/lib/catalogus";
 import { leesKortingscode } from "@/lib/kortingscode-cookie";
 import { beoordeelInvoer } from "@/db/korting";
 
@@ -81,7 +84,10 @@ export default async function AfrekenenPage() {
             bedrag={euro(overzicht.totalen.totaalInclBtwCenten)}
           />
 
-          <aside className="h-fit rounded-2xl border border-railstaal/50 p-6 lg:sticky lg:top-32">
+          {/* Op mobiel bovenaan: wie afrekent wil eerst zien wát hij betaalt,
+              en het rookmelderaanbod moet vóór de betaalknop staan in plaats
+              van eronder, waar je het pas ziet als het te laat is. */}
+          <aside className="order-first h-fit rounded-2xl border border-railstaal/50 p-6 lg:order-none lg:sticky lg:top-32">
             <h2 className="font-display text-xl">Je bestelling</h2>
 
             <ul className="mt-5 space-y-3 text-sm">
@@ -90,12 +96,25 @@ export default async function AfrekenenPage() {
                   <span>
                     {r.aantal}× {r.item.naam}
                   </span>
+                  {/* Inclusief btw: dit is een consumentenpagina, en het
+                      rookmelderaanbod eronder noemt ook de prijs inclusief.
+                      Twee soorten bedragen in één lijstje laat de klant
+                      zelf moeten rekenen. */}
                   <span className="data shrink-0">
-                    {euro(r.regelExclBtwCenten)}
+                    {euro(
+                      naKorting(
+                        r.item.prijsInclBtwCenten ?? r.item.prijsExclBtwCenten,
+                        regelKortingBp(r.item, korting?.percentageBp ?? 0),
+                      ) * r.aantal,
+                    )}
                   </span>
                 </li>
               ))}
             </ul>
+
+            <Rookmelderaanbod
+              inWagen={wagen.regels.some((r) => r.slug === ROOKMELDER_SLUG)}
+            />
 
             <dl className="hairline-t mt-5 space-y-2 pt-4 text-sm">
               <div className="flex justify-between">

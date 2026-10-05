@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { orderLines, orders, products } from "@/db/schema";
-import { berekenWagen, type Winkelwagen } from "./winkelwagen";
+import { berekenWagen, regelKortingBp, type Winkelwagen } from "./winkelwagen";
 import { volgendOrdernummer } from "@/db/nummers";
 import { naKorting } from "./korting";
 import { splitsIncl } from "./btw";
@@ -130,7 +130,7 @@ export async function maakBestelling(
        * een cent, en dan tellen de factuurregels niet op tot het
        * factuurtotaal.
        */
-      const bp = korting?.percentageBp ?? 0;
+      const bp = regelKortingBp(regel.item, korting?.percentageBp ?? 0);
       const bruto = regel.item.prijsInclBtwCenten;
 
       /*

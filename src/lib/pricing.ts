@@ -6,7 +6,7 @@
 export const BTW_TARIEF = 0.21;
 
 /** Consumer price incl. btw, in euro cents to avoid float drift. */
-export const PRIJS_INCL_CENTEN = 3750;
+export const PRIJS_INCL_CENTEN = 4950;
 
 /**
  * Adviesprijs: de prijs die installateurs en wederverkopers voeren.
@@ -21,10 +21,10 @@ export const PRIJS_INCL_CENTEN = 3750;
  * Een adviesprijs is een andere claim: niet "dit kostte het hier", maar
  * "dit is de prijs die in de markt geadviseerd wordt".
  *
- * € 49,99 is de prijs die installateurs en wederverkopers voeren,
- * bevestigd door de eigenaar. De winkel zelf vraagt € 37,50.
+ * € 72,95 is de consumentenadviesprijs, opgegeven door de eigenaar.
+ * De winkel zelf vraagt € 49,50.
  */
-export const ADVIESPRIJS_CENTEN = 4999;
+export const ADVIESPRIJS_CENTEN = 7295;
 
 /** What shipping would have cost. Never charged — used to show the saving. */
 export const VERZENDWAARDE_CENTEN = 600;
@@ -69,7 +69,7 @@ export const KORTINGSPERCENTAGE = Math.round(
 /**
  * Toont de site de adviesprijs naast de eigen prijs?
  *
- * Een bewuste schakelaar en niet langer afgeleid van "is de adviesprijs
+ * Een bewuste schakelaar en niet afgeleid van "is de adviesprijs
  * hoger". Die afleiding koppelde twee onafhankelijke beslissingen aan
  * elkaar: wat de adviesprijs ís, en of wij ons daarmee willen
  * vergelijken. Met de adviesprijs op € 49,99 zou de site uit zichzelf
@@ -82,7 +82,7 @@ export const KORTINGSPERCENTAGE = Math.round(
  * geldt de waarschuwing bij ADVIESPRIJS_CENTEN weer onverkort: hij moet
  * echt gehanteerd worden in de markt.
  */
-export const TOON_ADVIESPRIJS = false;
+export const TOON_ADVIESPRIJS = true;
 
 export const prijsIncl = euro(PRIJS_INCL_CENTEN);
 export const adviesprijs = euro(ADVIESPRIJS_CENTEN);

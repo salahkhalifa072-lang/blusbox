@@ -66,7 +66,12 @@ export default async function BestellingPage({
    * al daarvoor — wie afhaakt op het betaalscherm komt hier ook terecht —
    * en zou anders als verkoop meetellen.
    */
-  const aantalModules = regels.reduce((som, r) => som + r.aantal, 0);
+  const meetregels = regels.map((r) => ({
+    id: r.slug === "blusbox" || r.slug === "vervangmodule" ? "BB-MODULE-01" : r.slug,
+    naam: r.naam,
+    aantal: r.aantal,
+    stukprijsCenten: r.stukprijsExclBtwCenten,
+  }));
 
   return (
     <>
@@ -74,7 +79,7 @@ export default async function BestellingPage({
         <Aankoop
           ordernummer={order.ordernummer}
           waardeCenten={order.subtotaalExclBtwCenten}
-          aantal={aantalModules}
+          regels={meetregels}
         />
       )}
       <PageHeader

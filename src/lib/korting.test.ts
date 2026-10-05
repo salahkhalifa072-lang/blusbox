@@ -10,6 +10,8 @@ import {
 } from "./korting";
 import { PRIJS_EXCL_CENTEN, PRIJS_INCL_CENTEN } from "./pricing";
 import { berekenTotalen, splitsIncl } from "./btw";
+import { berekenWagen } from "./winkelwagen";
+import { ROOKMELDER_SLUG } from "./catalogus";
 
 function code(aanpassing: Partial<Kortingscode> = {}): Kortingscode {
   return {
@@ -111,15 +113,15 @@ describe("beoordeelCode", () => {
 
 describe("kortingCenten", () => {
   it("rekent glasvezel20 op de winkelprijs uit tot een rond bedrag", () => {
-    expect(PRIJS_INCL_CENTEN).toBe(3750);
-    expect(kortingCenten(PRIJS_INCL_CENTEN, 2000)).toBe(750);
-    expect(naKorting(PRIJS_INCL_CENTEN, 2000)).toBe(3000);
+    expect(PRIJS_INCL_CENTEN).toBe(4950);
+    expect(kortingCenten(PRIJS_INCL_CENTEN, 2000)).toBe(990);
+    expect(naKorting(PRIJS_INCL_CENTEN, 2000)).toBe(3960);
   });
 
   it("rondt één keer af over het hele bedrag", () => {
-    // Drie stuks: 11250 × 20% = 2250 precies. Per regel afronden zou hier
+    // Drie stuks: 14850 × 20% = 2970 precies. Per regel afronden zou hier
     // hetzelfde geven, maar bij een percentage dat niet opgaat niet meer.
-    expect(kortingCenten(3 * PRIJS_INCL_CENTEN, 2000)).toBe(2250);
+    expect(kortingCenten(3 * PRIJS_INCL_CENTEN, 2000)).toBe(2970);
     // 3099 excl. btw × 20% = 619,8 → 620
     expect(kortingCenten(3099, 2000)).toBe(620);
     // halve cent naar boven
@@ -192,5 +194,56 @@ describe("afronding blijft sluitend", () => {
         );
       }
     }
+  });
+});
+
+describe("rookmelder in hetzelfde mandje", () => {
+  /*
+   * De rookmelder wordt meeverkocht bij het afrekenen. Een actiecode is
+   * voor de Blusbox bedoeld; 20% op een product met een kleine marge
+   * maakt hem een verliespost. En hij is geen blusmodule, dus hij hoort
+   * niet mee te tellen voor de verzendregels.
+   */
+  const wagen = {
+    regels: [
+      { slug: "blusbox", aantal: 1 },
+      { slug: ROOKMELDER_SLUG, aantal: 1 },
+    ],
+  };
+  const opts = { landcode: "NL", isZakelijk: false, btwIdGevalideerd: false };
+
+  it("telt zonder code gewoon beide prijzen op", () => {
+    const o = berekenWagen(wagen, opts);
+    expect(o.totalen.totaalInclBtwCenten).toBe(4950 + 1695);
+    expect(o.aantalModules).toBe(1);
+    expect(o.aantalArtikelen).toBe(2);
+  });
+
+  it("geeft de kortingscode alleen op de Blusbox", () => {
+    const o = berekenWagen(wagen, {
+      ...opts,
+      korting: { code: "glasvezel20", percentageBp: 2000 },
+    });
+    expect(o.totalen.totaalInclBtwCenten).toBe(3960 + 1695);
+    expect(o.korting?.bedragCenten).toBe(990);
+  });
+
+  it("houdt regels, subtotaal en btw sluitend", () => {
+    const o = berekenWagen(wagen, {
+      ...opts,
+      korting: { code: "glasvezel20", percentageBp: 2000 },
+    });
+    const somRegels = o.regels.reduce((s, r) => s + r.regelExclBtwCenten, 0);
+    expect(somRegels).toBe(o.totalen.subtotaalExclBtwCenten);
+    expect(o.totalen.subtotaalExclBtwCenten + o.totalen.btwBedragCenten).toBe(
+      o.totalen.totaalInclBtwCenten,
+    );
+  });
+
+  it("is een losse rookmelder zonder module toch bestelbaar", () => {
+    const o = berekenWagen({ regels: [{ slug: ROOKMELDER_SLUG, aantal: 1 }] }, opts);
+    expect(o.aantalModules).toBe(0);
+    expect(o.leeg).toBe(false);
+    expect(o.totalen.totaalInclBtwCenten).toBe(1695);
   });
 });

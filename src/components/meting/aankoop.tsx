@@ -47,15 +47,28 @@ function onthoud(ordernummer: string): void {
   }
 }
 
+export type AankoopRegel = {
+  id: string;
+  naam: string;
+  aantal: number;
+  /** Stukprijs exclusief btw, in centen. */
+  stukprijsCenten: number;
+};
+
 export function Aankoop({
   ordernummer,
   waardeCenten,
-  aantal,
+  regels,
 }: {
   ordernummer: string;
   /** Exclusief btw en exclusief verzendkosten. */
   waardeCenten: number;
-  aantal: number;
+  /**
+   * Per artikel, zodat GA4 ziet dat er naast de Blusbox ook een rookmelder
+   * is verkocht. Eén samengevoegde regel zou de rookmelderverkoop in de
+   * Blusbox-cijfers laten verdwijnen.
+   */
+  regels: AankoopRegel[];
 }) {
   useEffect(() => {
     if (!conversieDoel && !GA4_ID) return;
@@ -84,14 +97,12 @@ export function Aankoop({
           transaction_id: ordernummer,
           value: waarde,
           currency: "EUR",
-          items: [
-            {
-              item_id: "BB-MODULE-01",
-              item_name: "Blusbox-module",
-              quantity: aantal,
-              price: aantal > 0 ? waarde / aantal : waarde,
-            },
-          ],
+          items: regels.map((r) => ({
+            item_id: r.id,
+            item_name: r.naam,
+            quantity: r.aantal,
+            price: r.stukprijsCenten / 100,
+          })),
         });
       }
 
@@ -137,7 +148,7 @@ export function Aankoop({
       clearInterval(wachten);
       opzeggen();
     };
-  }, [ordernummer, waardeCenten, aantal]);
+  }, [ordernummer, waardeCenten, regels]);
 
   return null;
 }

@@ -1,10 +1,6 @@
 import { siteUrl } from "@/lib/site";
 import { bedrijf } from "@/lib/bedrijf";
-import {
-  ADVIESPRIJS_CENTEN,
-  PRIJS_INCL_CENTEN,
-  TOON_ADVIESPRIJS,
-} from "@/lib/pricing";
+import { PRIJS_INCL_CENTEN } from "@/lib/pricing";
 import { MODULE_PAKKET } from "@/lib/verzending";
 import { gemiddeldeWaardering, REVIEWS } from "@/lib/reviews";
 
@@ -65,10 +61,14 @@ export async function GET() {
     ["g:image_link", `${siteUrl}/media/module-packshot.jpg`],
     ["g:additional_image_link", `${siteUrl}/media/verpakking-open.jpg`],
     ["g:availability", "in_stock"],
-    ["g:price", bedrag(TOON_ADVIESPRIJS ? ADVIESPRIJS_CENTEN : PRIJS_INCL_CENTEN)],
-    ...(TOON_ADVIESPRIJS
-      ? ([["g:sale_price", bedrag(PRIJS_INCL_CENTEN)]] as [string, string][])
-      : []),
+    /*
+     * Alleen de winkelprijs, nooit de adviesprijs als g:price met de
+     * winkelprijs als g:sale_price. Google leest dat paar als "dit kostte
+     * het hier en nu is het afgeprijsd", en eist dat je die hogere prijs
+     * ook echt gerekend hebt. De adviesprijs is een vergelijking met de
+     * markt, geen eerdere prijs van deze winkel.
+     */
+    ["g:price", bedrag(PRIJS_INCL_CENTEN)],
     ["g:brand", "Blusbox"],
     ["g:mpn", "BB-MODULE-01"],
     ["g:identifier_exists", "no"],
