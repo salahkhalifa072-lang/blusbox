@@ -32,8 +32,8 @@ const stappen = [
   },
   {
     nr: "04",
-    t: "Leg het detectiekoord",
-    b: "Voer het koord langs de componenten die de meeste warmte kunnen ontwikkelen. Vermijd knikken en klem het koord niet in.",
+    t: "Let op het detectiekoord",
+    b: "Het koord zit al aan de module: één kant naar boven, één kant naar beneden. Zorg dat het nergens knikt en klem het niet in.",
   },
   {
     nr: "05",
@@ -53,7 +53,7 @@ export default function InstallatiePage() {
       <KruimelData kruimels={[{ naam: "Installatie", pad: "/installatie" }]} />
       <PageHeader
         eyebrow="montage"
-        title="Klikken, koord leggen,"
+        title="Klikken, koord checken,"
         accent="registreren."
         lead="Blusbox heeft geen aansluiting, geen instelling en geen inbedrijfstelling. De montage bestaat uit drie handelingen — de vierde is het vastleggen van de datum."
       />
