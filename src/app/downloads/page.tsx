@@ -14,11 +14,12 @@ export const metadata: Metadata = {
  * public view of it. Files are listed but not linked until the client
  * supplies them — a dead link on a safety document is worse than none.
  */
-const documenten = [
+const documenten: { t: string; b: string; meta: string; href?: string }[] = [
   {
     t: "Handleiding",
     b: "Montage, plaatsing van het detectiekoord en wat te doen na een activering.",
-    meta: "PDF · Nederlands",
+    meta: "PDF · Nederlands · 4 pagina's · versie oktober 2026",
+    href: "/downloads/blusbox-handleiding.pdf",
   },
   {
     t: "Conformiteitsverklaring (DoC)",
@@ -59,9 +60,19 @@ export default function DownloadsPage() {
                 </p>
                 <p className="data mt-2 text-xs text-staal-tekst">{d.meta}</p>
               </div>
-              <span className="data rounded-full border border-dashed border-railstaal px-4 py-2 text-xs text-staal-tekst">
-                nog niet beschikbaar
-              </span>
+              {d.href ? (
+                <a
+                  href={d.href}
+                  download
+                  className="data rounded-full bg-antraciet px-4 py-2 text-xs text-kastwit transition-opacity hover:opacity-85"
+                >
+                  Download PDF
+                </a>
+              ) : (
+                <span className="data rounded-full border border-dashed border-railstaal px-4 py-2 text-xs text-staal-tekst">
+                  nog niet beschikbaar
+                </span>
+              )}
             </li>
           ))}
         </ul>
