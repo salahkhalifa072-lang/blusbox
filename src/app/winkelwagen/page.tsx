@@ -7,6 +7,8 @@ import { leesWagen } from "@/lib/winkelwagen-cookie";
 import { berekenWagen } from "@/lib/winkelwagen";
 import { euro, verzendwaarde } from "@/lib/pricing";
 import { wijzigWagenAantal, verwijderUitWagen } from "./acties";
+import { Rookmelderaanbod } from "@/components/winkel/rookmelderaanbod";
+import { ROOKMELDER_SLUG } from "@/lib/catalogus";
 
 export const metadata: Metadata = {
   title: "Winkelwagen",
@@ -72,7 +74,7 @@ export default async function WinkelwagenPage() {
               >
                 <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-kastwit-dim">
                   <Image
-                    src="/media/module-packshot.webp"
+                    src={regel.item.foto}
                     alt=""
                     fill
                     sizes="96px"
@@ -114,7 +116,10 @@ export default async function WinkelwagenPage() {
                   </form>
 
                   <p className="data w-24 text-right text-sm">
-                    {euro(regel.regelExclBtwCenten)}
+                    {euro(
+                      (regel.item.prijsInclBtwCenten ?? regel.item.prijsExclBtwCenten) *
+                        regel.aantal,
+                    )}
                   </p>
                 </div>
 
@@ -129,6 +134,17 @@ export default async function WinkelwagenPage() {
                 </form>
               </article>
             ))}
+
+            {/* Het aanbod staat hier én bij het afrekenen. Iedereen komt
+                na "in winkelwagen" eerst hier; alleen op de afrekenpagina
+                zag een deel het nooit. */}
+            {/* Zit hij er al in, dan is de regel erboven genoeg; een
+                "toegevoegd"-kaart eronder zou hem twee keer tonen. */}
+            {!overzicht.regels.some((r) => r.item.slug === ROOKMELDER_SLUG) && (
+              <div className="py-6">
+                <Rookmelderaanbod inWagen={false} />
+              </div>
+            )}
           </div>
 
           {/* Totalen */}

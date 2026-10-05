@@ -33,6 +33,8 @@ export type CatalogusItem = {
    * kleine marge maakt de rookmelder een verliespost.
    */
   kortingscodeToegestaan: boolean;
+  /** Productfoto voor de winkelwagen. */
+  foto: string;
 };
 
 /** De rookmelder die bij het afrekenen wordt aangeboden. */
@@ -52,6 +54,7 @@ export const catalogus: CatalogusItem[] = [
     actief: true,
     isModule: true,
     kortingscodeToegestaan: true,
+    foto: "/media/module-packshot.webp",
   },
   {
     slug: "vervangmodule",
@@ -65,6 +68,7 @@ export const catalogus: CatalogusItem[] = [
     actief: true,
     isModule: true,
     kortingscodeToegestaan: true,
+    foto: "/media/module-packshot.webp",
   },
   {
     // Meeverkocht via een groothandel, aangeboden bij het afrekenen.
@@ -80,6 +84,7 @@ export const catalogus: CatalogusItem[] = [
     actief: true,
     isModule: false,
     kortingscodeToegestaan: false,
+    foto: "/media/rookmelder/rookmelder-klein.webp",
   },
 ];
 
