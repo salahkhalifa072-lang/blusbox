@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 import { ButtonLink } from "@/components/ui/button";
 import { SiteHeader } from "@/components/site/header";
 import { SiteFooter } from "@/components/site/footer";
@@ -8,9 +7,10 @@ import { VideoBlock } from "@/components/ui/video-block";
 import { Reveal } from "@/components/ui/reveal";
 import { LogoBadge } from "@/components/site/logo";
 import { UspBar } from "@/components/site/usp-bar";
+import { HeroExplosie } from "@/components/home/hero-explosie";
+import { HeroTekst } from "@/components/home/hero-tekst";
 import { NieuwsEnModule } from "@/components/home/nieuws-en-module";
 import { Partnerband } from "@/components/home/partnerband";
-import { Prijsblok } from "@/components/product/prijsblok";
 import { Reviews } from "@/components/reviews/reviews";
 import { gratisVerzending, prijsIncl, verzendwaarde } from "@/lib/pricing";
 
@@ -56,132 +56,23 @@ export default function Home() {
       <SiteHeader />
       <main>
         {/*
-          Hero. De film is staand (9:16): een man klikt de module op de
-          DIN-rail. Als liggende achtergrond achter de kop zou juist die klik
-          worden weggesneden of onder de letters verdwijnen, dus de film
-          krijgt op elk formaat een eigen vak.
-
-          Mobiel: een blok boven de kop, uitgesneden op het gezicht, de module
-          en beide koorden — je ziet eerst waar het over gaat en leest daarna
-          waarom.
-
-          Desktop: kop en tekst links, de film als staande kaart rechts. De
-          tekst staat daardoor op effen antraciet en heeft geen schaduwlagen
-          meer nodig om leesbaar te blijven.
+          Hero: de module als explosietekening. Hij springt open op een fijn
+          raster — het tekenpapier van een technische tekening — en op het
+          uiteengevallen moment benoemen verwijskaartjes de onderdelen.
+          Het raster vervaagt naar de randen zodat het achter de module
+          staat en niet achter de tekst.
         */}
         <section className="relative overflow-hidden bg-antraciet pt-32 lg:pt-0">
-          <div className="relative mx-auto max-w-7xl lg:grid lg:min-h-screen lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:gap-12 lg:px-6 lg:pb-12 lg:pt-32">
-            {/* De uitsnede houdt het gezicht, de module en beide koorden in
-                beeld: 25% in het vierkant op mobiel, 34% in het lagere
-                4:3-vak op tablet, anders valt het onderste koord weg. Op lg
-                is het vak zelf staand en past de hele film erin. */}
-            <div className="relative aspect-square w-full sm:aspect-[4/3] lg:order-2 lg:aspect-[9/16] lg:h-[min(76vh,46rem)] lg:w-auto lg:overflow-hidden lg:rounded-3xl lg:border lg:border-kastwit/10">
-              <VideoBlock
-                src="/media/hero-plaatsing.mp4"
-                poster="/media/hero-plaatsing.jpg"
-                label="Een man klikt de Blusbox-module in de meterkast op de DIN-rail, in lijn naast een installatieautomaat"
-                className="absolute inset-0 h-full w-full object-cover object-[50%_25%] sm:object-[50%_34%] lg:object-center"
-                priority
-              />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(232,233,230,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(232,233,230,0.05)_1px,transparent_1px)] bg-[size:28px_28px] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_35%,black,transparent)] lg:[mask-image:radial-gradient(ellipse_45%_70%_at_72%_50%,black,transparent)]"
+          />
+          <div className="relative mx-auto max-w-7xl lg:grid lg:min-h-screen lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-center lg:gap-8 lg:px-6 lg:pt-28">
+            <div className="px-2 lg:order-2 lg:px-0">
+              <HeroExplosie />
             </div>
-
-            <div className="relative flex flex-col gap-8 px-6 pb-10 pt-8 lg:order-1 lg:gap-2 lg:px-0 lg:pb-0 lg:pt-0">
-              {/* top line */}
-              <div>
-                {/* One sentence over two blocks. The h1 carries the whole
-                    line for assistive tech; the closing half is painted
-                    below it and hidden from the accessibility tree. */}
-                {/* leading-[1.05] tegen de 0.88 die .font-display meegeeft.
-                    Die strakke zetting is gemaakt voor losse woorden onder
-                    elkaar; met twee volle regels liepen de stokken van de
-                    onderste regel tegen de staarten van de bovenste. */}
-                {/* Op lg kleiner dan op mobiel: de kolom deelt de breedte
-                    met de film, en "dé brandblusser" moet op één regel. */}
-                <h1 className="font-display text-[clamp(2.75rem,9vw,7.5rem)] leading-[1.05] lg:text-[clamp(4rem,6.2vw,6.25rem)]">
-                  <span aria-hidden className="text-blusrood-op-donker">
-                    Blusbox,
-                  </span>
-                  <br aria-hidden />
-                  <span aria-hidden className="text-kastwit">
-                    dé brandblusser
-                  </span>
-                  <span className="sr-only">
-                    Blusbox, dé brandblusser voor in de meterkast!
-                  </span>
-                </h1>
-              </div>
-
-              {/* bottom line + supporting copy */}
-              <div>
-                <p
-                  aria-hidden
-                  className="font-display text-[clamp(2.75rem,9vw,7.5rem)] leading-[1.05] lg:text-[clamp(4rem,6.2vw,6.25rem)]"
-                >
-                  <span className="text-kastwit">voor in de </span>
-                  <span className="text-blusrood-op-donker">meterkast!</span>
-                </p>
-
-                <div className="mt-10 flex flex-col gap-8 border-t border-kastwit/15 pt-6">
-                  <div className="max-w-md">
-                    <p className="text-kastwit/75">
-                      Een compacte blusmodule in je meterkast die bij{" "}
-                      <span className="data text-kastwit">170 °C</span> vanzelf
-                      ingrijpt. Geen stroom. Geen bediening. Geen mens.
-                    </p>
-                    {/* Prijs, adviesprijs en het verschil — hetzelfde blok als
-                        op de productpagina, zodat de twee pagina's niet elk een
-                        eigen voorstelling van de prijs geven.
-
-                        De gevulde rode badge is nu het kortingscijfer en niet
-                        meer de verzendbelofte. Twee gevulde badges naast elkaar
-                        vechten om dezelfde aandacht, en van die twee is het
-                        prijsverschil de reden om door te klikken; gratis
-                        verzending staat bovendien in de balk erboven én in de
-                        kaartenrij direct hieronder. */}
-                    <div className="mt-5">
-                      <Prijsblok />
-                      <p className="data mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-2 text-xs text-kastwit/70">
-                        <span>incl. btw · t.o.v. adviesprijs</span>
-                        <span className="rounded-full border border-kastwit/30 px-3 py-1">
-                          {gratisVerzending.kort}
-                        </span>
-                      </p>
-                    </div>
-                    <div className="mt-5 flex flex-wrap gap-3">
-                      <Link
-                        href="/blusbox"
-                        className="rounded-full bg-blusrood-vlak px-6 py-3 text-sm font-medium text-kastwit transition-colors hover:bg-[#9e1b18]"
-                      >
-                        Bekijk Blusbox
-                      </Link>
-                      <Link
-                        href="/installateurs"
-                        className="rounded-full border border-kastwit/40 px-6 py-3 text-sm text-kastwit transition-colors hover:bg-kastwit hover:text-antraciet"
-                      >
-                        Voor installateurs
-                      </Link>
-                    </div>
-                  </div>
-
-                  {/* floating spec cards, reference pattern */}
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:max-w-xl">
-                    {specs.map((s) => (
-                      <div
-                        key={s.label}
-                        className="rounded-2xl border border-kastwit/15 bg-kastwit/5 px-4 py-3 backdrop-blur-sm"
-                      >
-                        <p className="data text-lg text-kastwit">{s.value}</p>
-                        <p className="mt-0.5 text-[11px] leading-tight text-kastwit/60">
-                          {s.label}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <p className="data mt-4 text-[11px] text-railstaal">
-                  Beeld is een weergave.
-                </p>
-              </div>
+            <div className="mt-8 lg:order-1 lg:mt-0">
+              <HeroTekst />
             </div>
           </div>
         </section>
