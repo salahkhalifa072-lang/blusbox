@@ -106,7 +106,7 @@ export function HeroExplosie() {
   }, []);
 
   return (
-    <div className="relative mx-auto aspect-[720/738] w-full max-w-[44rem]">
+    <div className="relative mx-auto aspect-[720/738] w-3/4 max-w-[33rem]">
       {/* Gloed achter de kern: warmte die binnen blijft. */}
       <div
         aria-hidden
