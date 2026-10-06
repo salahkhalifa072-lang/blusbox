@@ -5,6 +5,7 @@ import { berekenWagen, regelKortingBp, type Winkelwagen } from "./winkelwagen";
 import { volgendOrdernummer } from "@/db/nummers";
 import { naKorting } from "./korting";
 import { splitsIncl } from "./btw";
+import { splitsAdresregel } from "./adresregel";
 
 
 /**
@@ -82,7 +83,9 @@ export async function maakBestelling(
       .values({
         ordernummer,
         userId: userId ?? null,
-        gastEmail: userId ? null : adres.email,
+        // Leeg bij snel afrekenen: dan vult de webhook het in met het
+        // adres dat de klant bij Stripe opgaf.
+        gastEmail: userId ? null : adres.email || null,
         status: "nieuw",
         subtotaalExclBtwCenten: overzicht.totalen.subtotaalExclBtwCenten,
         btwBedragCenten: overzicht.totalen.btwBedragCenten,
@@ -218,3 +221,49 @@ export async function markeerBetaald(
   await db.update(orders).set(velden).where(eq(orders.id, orderId));
 }
 
+
+/**
+ * Het adres van een snel-afrekenen-bestelling aanvullen vanuit Stripe.
+ *
+ * Bij snel afrekenen vult de klant op onze site niets in; e-mail en
+ * bezorgadres komen van de betaalpagina. Zonder deze stap zou er een
+ * betaalde bestelling liggen zonder adres om naar te verzenden.
+ *
+ * Alleen lege velden worden gevuld. Een bestelling via het gewone
+ * formulier heeft al een adres, en dat hoort niet overschreven te worden
+ * door wat er toevallig in een Wallet staat.
+ */
+export async function vulAdresAan(
+  orderId: string,
+  stripe: {
+    email?: string | null;
+    adresregel?: string | null;
+    postcode?: string | null;
+    plaats?: string | null;
+  },
+): Promise<void> {
+  const [order] = await db
+    .select({ gastEmail: orders.gastEmail, postcode: orders.postcode, userId: orders.userId })
+    .from(orders)
+    .where(eq(orders.id, orderId))
+    .limit(1);
+  if (!order) return;
+
+  const velden: Partial<typeof orders.$inferInsert> = {};
+
+  if (!order.gastEmail && !order.userId && stripe.email) {
+    velden.gastEmail = stripe.email.trim().toLowerCase();
+  }
+
+  if (!order.postcode && stripe.postcode) {
+    const { straat, huisnummer } = splitsAdresregel(stripe.adresregel ?? "");
+    velden.postcode = stripe.postcode.replace(/\s+/g, "").toUpperCase();
+    velden.straat = straat || null;
+    velden.huisnummer = huisnummer || null;
+    velden.plaats = stripe.plaats?.trim() || null;
+  }
+
+  if (Object.keys(velden).length > 0) {
+    await db.update(orders).set(velden).where(eq(orders.id, orderId));
+  }
+}

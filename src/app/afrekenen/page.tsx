@@ -11,6 +11,8 @@ import { stripeBeschikbaar, stripeTestmodus } from "@/lib/stripe";
 import { AfrekenFormulier } from "./formulier";
 import { Kortingsveld } from "@/components/winkel/kortingsveld";
 import { Rookmelderaanbod } from "@/components/winkel/rookmelderaanbod";
+import { Bestelregel } from "@/components/winkel/bestelregel";
+import { SnelAfrekenen } from "@/components/winkel/snel-afrekenen";
 import { ROOKMELDER_SLUG } from "@/lib/catalogus";
 import { leesKortingscode } from "@/lib/kortingscode-cookie";
 import { beoordeelInvoer } from "@/db/korting";
@@ -90,31 +92,37 @@ export default async function AfrekenenPage() {
           <aside className="order-first h-fit rounded-2xl border border-railstaal/50 p-6 lg:order-none lg:sticky lg:top-32">
             <h2 className="font-display text-xl">Je bestelling</h2>
 
-            <ul className="mt-5 space-y-3 text-sm">
-              {overzicht.regels.map((r) => (
-                <li key={r.item.slug} className="flex justify-between gap-4">
-                  <span>
-                    {r.aantal}× {r.item.naam}
-                  </span>
-                  {/* Inclusief btw: dit is een consumentenpagina, en het
-                      rookmelderaanbod eronder noemt ook de prijs inclusief.
-                      Twee soorten bedragen in één lijstje laat de klant
-                      zelf moeten rekenen. */}
-                  <span className="data shrink-0">
-                    {euro(
-                      naKorting(
-                        r.item.prijsInclBtwCenten ?? r.item.prijsExclBtwCenten,
-                        regelKortingBp(r.item, korting?.percentageBp ?? 0),
-                      ) * r.aantal,
-                    )}
-                  </span>
-                </li>
-              ))}
+            {/* Modules eerst: de Blusbox is waar de klant voor kwam en
+                krijgt de grote weergave; meeverkochte artikelen eronder. */}
+            <ul className="mt-5 space-y-5">
+              {[...overzicht.regels]
+                .sort((a, b) => Number(b.item.isModule) - Number(a.item.isModule))
+                .map((r) => {
+                  const stuk = naKorting(
+                    r.item.prijsInclBtwCenten ?? r.item.prijsExclBtwCenten,
+                    regelKortingBp(r.item, korting?.percentageBp ?? 0),
+                  );
+                  return (
+                    <Bestelregel
+                      key={r.item.slug}
+                      slug={r.item.slug}
+                      naam={r.item.naam}
+                      foto={r.item.foto}
+                      aantal={r.aantal}
+                      stukprijs={euro(stuk)}
+                      regelprijs={euro(stuk * r.aantal)}
+                      groot={r.item.isModule}
+                    />
+                  );
+                })}
             </ul>
 
-            <Rookmelderaanbod
-              inWagen={wagen.regels.some((r) => r.slug === ROOKMELDER_SLUG)}
-            />
+            {/* Het aanbod alleen zolang de rookmelder er nog niet in zit.
+                Daarna staat hij als gewone regel hierboven, met plus en min
+                voor meer stuks; de kaart zou hem dubbel tonen. */}
+            {!wagen.regels.some((r) => r.slug === ROOKMELDER_SLUG) && (
+              <Rookmelderaanbod inWagen={false} />
+            )}
 
             <dl className="hairline-t mt-5 space-y-2 pt-4 text-sm">
               <div className="flex justify-between">
@@ -160,6 +168,8 @@ export default async function AfrekenenPage() {
             </dl>
 
             <Kortingsveld toegepast={korting} />
+
+            {stripeBeschikbaar() && <SnelAfrekenen />}
 
             <p className="data mt-5 text-xs leading-relaxed text-staal-tekst">
               Verzending is gratis. Besteld op een werkdag vóór 16:00, dan gaat

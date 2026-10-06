@@ -43,6 +43,7 @@ export async function wijzigWagenAantal(formData: FormData) {
 
   await schrijfWagen(wijzigAantal(await leesWagen(), slug, aantal));
   revalidatePath("/winkelwagen");
+  revalidatePath("/afrekenen");
 }
 
 export async function verwijderUitWagen(formData: FormData) {
@@ -51,6 +52,7 @@ export async function verwijderUitWagen(formData: FormData) {
 
   await schrijfWagen(verwijder(await leesWagen(), slug));
   revalidatePath("/winkelwagen");
+  revalidatePath("/afrekenen");
 }
 
 /**

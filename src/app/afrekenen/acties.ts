@@ -260,7 +260,110 @@ export async function rekenAf(
   }
 
   await markeerBetaald(bestelling.id, sessie.id, "nieuw");
-  await schrijfWagen(LEGE_WAGEN);
-
+  // De wagen blijft staan tot er betaald is: wie op de betaalpagina op
+  // "terug" drukt, hoort zijn mandje terug te vinden. De bevestigingspagina
+  // leegt hem zodra de bestelling betaald is.
   redirect(sessie.url ?? `/bestelling/${bestelling.ordernummer}`);
+}
+
+/**
+ * Snel afrekenen: direct naar de betaalpagina van Stripe, zonder ons
+ * adresformulier.
+ *
+ * Stripe toont daar Apple Pay en iDEAL bovenaan en vraagt zelf het
+ * bezorgadres. Met Apple Pay komt dat met één aanraking uit de Wallet. De
+ * webhook zet e-mail en adres daarna in de bestelling (vulAdresAan).
+ *
+ * Alleen voor consumenten in Nederland: wie zakelijk bestelt of de btw
+ * wil verleggen, heeft het formulier nodig voor bedrijfsnaam en btw-id.
+ */
+export async function snelAfrekenen(): Promise<void> {
+  const wagen = await leesWagen();
+
+  const bewaardeCode = await leesKortingscode();
+  const kortingOordeel = bewaardeCode ? await beoordeelInvoer(bewaardeCode) : null;
+  const korting = kortingOordeel?.geldig
+    ? { code: kortingOordeel.code, percentageBp: kortingOordeel.percentageBp }
+    : null;
+
+  let bestelling;
+  try {
+    bestelling = await maakBestelling(
+      wagen,
+      {
+        email: "",
+        landcode: "NL",
+        postcode: "",
+        huisnummer: "",
+        isZakelijk: false,
+        btwIdGevalideerd: false,
+      },
+      undefined,
+      korting,
+    );
+  } catch (fout) {
+    if (fout instanceof BestellingGeweigerd) redirect("/winkelwagen");
+    throw fout;
+  }
+
+  try {
+    await koppelAffiliateAanBestelling(bestelling.id);
+  } catch (fout) {
+    console.error("Affiliate niet gekoppeld:", (fout as Error).message);
+  }
+  if (korting) {
+    await schrijfGebruikBij(korting.code).catch(() => {});
+    await wisKortingscode();
+  }
+
+  if (!stripeBeschikbaar()) {
+    await schrijfWagen(LEGE_WAGEN);
+    redirect(`/bestelling/${bestelling.ordernummer}?betalen=nietingesteld`);
+  }
+
+  const kop = await headers();
+  const host = kop.get("host") ?? "";
+  const basis = `${host.startsWith("localhost") ? "http" : "https"}://${host}`;
+  const overzicht = berekenWagen(wagen, {
+    landcode: "NL",
+    isZakelijk: false,
+    btwIdGevalideerd: false,
+    korting,
+  });
+
+  let sessie;
+  try {
+    sessie = await maakCheckoutSessie({
+      regels: overzicht.regels.map((r) => ({
+        naam: r.item.naam,
+        omschrijving: r.item.omschrijving,
+        stukprijsCenten: naKorting(
+          r.item.prijsInclBtwCenten ?? r.item.prijsExclBtwCenten,
+          regelKortingBp(r.item, korting?.percentageBp ?? 0),
+        ),
+        aantal: r.aantal,
+      })),
+      ordernummer: bestelling.ordernummer,
+      orderId: bestelling.id,
+      succesUrl: `${basis}/bestelling/${bestelling.ordernummer}`,
+      annuleerUrl: `${basis}/afrekenen`,
+      vraagAdres: true,
+    });
+  } catch (fout) {
+    if (fout instanceof StripeNietGeconfigureerd) {
+      await schrijfWagen(LEGE_WAGEN);
+      redirect(`/bestelling/${bestelling.ordernummer}?betalen=nietingesteld`);
+    }
+    console.error("Stripe-sessie (snel afrekenen) mislukt:", fout);
+    redirect("/afrekenen");
+  }
+
+  await markeerBetaald(bestelling.id, sessie.id, "nieuw");
+  // Wagen blijft staan tot er betaald is; zie rekenAf.
+  redirect(sessie.url ?? `/bestelling/${bestelling.ordernummer}`);
+}
+
+/** Na een geslaagde betaling: de winkelwagen leegmaken. */
+export async function leegWagenNaBetaling(): Promise<void> {
+  await schrijfWagen(LEGE_WAGEN);
 }

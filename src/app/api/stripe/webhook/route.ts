@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { leesWebhookGebeurtenis, naarOrderStatus } from "@/lib/stripe";
-import { markeerBetaald } from "@/lib/bestelling";
+import { markeerBetaald, vulAdresAan } from "@/lib/bestelling";
 import {
   stuurBestelbevestiging,
   stuurBestelmelding,
@@ -113,6 +113,28 @@ export async function POST(request: Request) {
           }
           break;
         }
+        /*
+         * Snel afrekenen: e-mail en adres staan alleen bij Stripe. Eerst
+         * aanvullen, dan pas markeren en mailen — anders gaat de
+         * bevestiging uit naar een bestelling zonder adres.
+         */
+        if (status === "betaald") {
+          const verzend =
+            (sessie as unknown as {
+              collected_information?: { shipping_details?: { address?: Stripe.Address | null } | null } | null;
+            }).collected_information?.shipping_details?.address ??
+            sessie.customer_details?.address ??
+            null;
+          await vulAdresAan(orderId, {
+            email: sessie.customer_details?.email,
+            adresregel: [verzend?.line1, verzend?.line2].filter(Boolean).join(" "),
+            postcode: verzend?.postal_code,
+            plaats: verzend?.city,
+          }).catch((fout: unknown) =>
+            console.error(`Adres aanvullen voor ${ordernummer ?? orderId} mislukt:`, fout),
+          );
+        }
+
         await markeerBetaald(
           orderId,
           sessie.id,

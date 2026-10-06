@@ -7,6 +7,7 @@ import { haalBestelling } from "@/lib/bestelling";
 import { euro, verzendwaarde } from "@/lib/pricing";
 import { formatteerNl } from "@/lib/levensduur";
 import { Aankoop } from "@/components/meting/aankoop";
+import { LeegWagen } from "@/components/winkel/leeg-wagen";
 import { isBetaald } from "@/lib/meting";
 
 export const metadata: Metadata = {
@@ -75,6 +76,7 @@ export default async function BestellingPage({
 
   return (
     <>
+      {isBetaald(order.status) && <LeegWagen />}
       {isBetaald(order.status) && (
         <Aankoop
           ordernummer={order.ordernummer}

@@ -67,7 +67,10 @@ export default async function WinkelwagenPage() {
         <div className="grid gap-10 lg:grid-cols-[1.5fr_1fr]">
           {/* Regels */}
           <div className="divide-y divide-railstaal/50 border-y border-railstaal/50">
-            {overzicht.regels.map((regel) => (
+            {/* Blusbox voorop; meeverkochte artikelen eronder. */}
+            {[...overzicht.regels]
+              .sort((a, b) => Number(b.item.isModule) - Number(a.item.isModule))
+              .map((regel) => (
               <article
                 key={regel.item.slug}
                 className="flex flex-wrap items-start gap-5 py-6"

@@ -72,6 +72,12 @@ export async function maakCheckoutSessie(opts: {
    * annuleert niets — de klant kan de link later opnieuw openen.
    */
   bron?: "webshop" | "factuur";
+  /**
+   * Snel afrekenen: de klant heeft op onze site geen adres ingevuld, dus
+   * Stripe vraagt erom. Met Apple Pay komt het met één aanraking uit de
+   * Wallet; de webhook zet het daarna in de bestelling.
+   */
+  vraagAdres?: boolean;
 }): Promise<{ id: string; url: string | null }> {
   const stripe = stripeClient();
 
@@ -120,6 +126,11 @@ export async function maakCheckoutSessie(opts: {
             },
           ],
         }),
+    // Alleen Nederland: daar bezorgen we, en dat moet Stripe ook niet
+    // anders laten kiezen dan ons eigen formulier.
+    ...(opts.vraagAdres
+      ? { shipping_address_collection: { allowed_countries: ["NL" as const] } }
+      : {}),
     success_url: opts.succesUrl,
     cancel_url: opts.annuleerUrl,
     metadata: {
@@ -127,6 +138,7 @@ export async function maakCheckoutSessie(opts: {
       orderId: opts.orderId,
       btwVerlegd: opts.btwVerlegd ? "ja" : "nee",
       bron: opts.bron ?? "webshop",
+      snel: opts.vraagAdres ? "ja" : "nee",
     },
   });
 
