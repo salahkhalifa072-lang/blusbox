@@ -32,7 +32,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Blusbox — automatische blusmodule voor de meterkast",
+    default: "Blusbox — dé brandblusser voor in de meterkast",
     template: "%s — Blusbox",
   },
   description:
@@ -66,7 +66,11 @@ export const metadata: Metadata = {
     locale: "nl_NL",
     siteName: "Blusbox",
     url: siteUrl,
+    // Het plaatje bij een gedeelde link (WhatsApp, Facebook, LinkedIn) en
+    // in Google Discover. Zonder dit kiezen zij zelf, vaak het logo.
+    images: [{ url: "/media/google/blusbox-deel.jpg", width: 1200, height: 630, alt: "Blusbox blusmodule" }],
   },
+  twitter: { card: "summary_large_image" },
   // Geen expliciete robots-regel: indexeren is de standaard, en deze regel
   // werd óók op de 404 gezet — naast Next' eigen `noindex`. Twee meta-tags
   // met tegengestelde instructies laat je niet aan Google over.

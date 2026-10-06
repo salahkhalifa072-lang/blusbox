@@ -25,6 +25,17 @@ const routes: { path: string; priority: number }[] = [
   { path: "/affiliate/voorwaarden", priority: 0.2 },
 ];
 
+/** Productfoto's per pagina, zodat ze in Google Afbeeldingen opduiken. */
+const fotos: Record<string, string[]> = {
+  "/": ["/media/google/blusbox-module-11.jpg", "/media/meterkast-front.jpg"],
+  "/blusbox": [
+    "/media/google/blusbox-module-11.jpg",
+    "/media/google/blusbox-module-34.jpg",
+    "/media/verpakking-open.jpg",
+    "/media/meterkast-front.jpg",
+  ],
+};
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();
   return routes.map(({ path, priority }) => ({
@@ -32,5 +43,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified,
     changeFrequency: "monthly",
     priority,
+    ...(fotos[path] ? { images: fotos[path].map((f) => `${siteUrl}${f}`) } : {}),
   }));
 }

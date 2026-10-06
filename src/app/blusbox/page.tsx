@@ -38,10 +38,22 @@ import { REVIEWS, gemiddeldeWaardering } from "@/lib/reviews";
 export const metadata: Metadata = {
   // absolute: the product name is already the brand name, so the
   // "%s — Blusbox" template would stutter here
-  title: { absolute: "Blusbox — automatische blusmodule voor de meterkast" },
+  // De prijs in de titel: in de zoekresultaten is dat vaak het eerste
+  // wat iemand ziet, en hij komt uit dezelfde bron als het prijsblok.
+  title: {
+    absolute: `Blusbox kopen — brandblusser voor de meterkast · ${prijsIncl}`,
+  },
   description:
-    "Blusbox is een automatische blusmodule voor de meterkast. Activeert zichzelf bij 170 °C. Geen stroom, geen bediening, geen mens. Tien jaar levensduur.",
+    `Automatische blusmodule voor de meterkast voor ${prijsIncl}. Activeert zichzelf bij 170 °C, zonder stroom of bediening. Tien jaar levensduur, gratis verzending, 14 dagen bedenktijd.`,
   alternates: { canonical: "/blusbox" },
+  openGraph: {
+    type: "website",
+    url: "/blusbox",
+    title: `Blusbox — brandblusser voor de meterkast · ${prijsIncl}`,
+    description:
+      "Activeert zichzelf bij 170 °C. Geen stroom, geen bediening. Gratis verzending.",
+    images: [{ url: "/media/google/blusbox-deel.jpg", width: 1200, height: 630, alt: "Blusbox blusmodule" }],
+  },
 };
 
 /** §5.2 PDP. Price and shipping come from lib/pricing. */
@@ -82,7 +94,9 @@ function maakProductData(gemiddelde: number | null, aantal: number) {
       "Automatische condensed-aerosol blusmodule voor de meterkast. Zelfactiverend bij 170 °C, zonder stroom of bediening. Tien jaar levensduur.",
     // Meerdere verhoudingen: Google kiest zelf welke bij de weergave past.
     image: [
-      `${siteUrl}/media/module-packshot.jpg`,
+      `${siteUrl}/media/google/blusbox-module-11.jpg`,
+      `${siteUrl}/media/google/blusbox-module-34.jpg`,
+      `${siteUrl}/media/google/blusbox-module-169.jpg`,
       `${siteUrl}/media/verpakking-open.jpg`,
       `${siteUrl}/media/meterkast-front.jpg`,
     ],

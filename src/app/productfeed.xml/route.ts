@@ -55,11 +55,14 @@ export async function GET() {
    */
   const velden: [string, string][] = [
     ["g:id", "BB-MODULE-01"],
-    ["g:title", "Blusbox — automatische blusmodule voor de meterkast"],
+    ["g:title", "Blusbox automatische brandblusser voor de meterkast — blusmodule voor DIN-rail"],
     ["g:description", omschrijving],
     ["g:link", `${siteUrl}/blusbox`],
-    ["g:image_link", `${siteUrl}/media/module-packshot.jpg`],
+    // Vierkant en 1200 px: Merchant Center wil minstens 800 × 800 voor
+    // de grote weergave, en de oude packshot was maar 448 breed.
+    ["g:image_link", `${siteUrl}/media/google/blusbox-module-11.jpg`],
     ["g:additional_image_link", `${siteUrl}/media/verpakking-open.jpg`],
+    ["g:additional_image_link", `${siteUrl}/media/meterkast-front.jpg`],
     ["g:availability", "in_stock"],
     /*
      * Alleen de winkelprijs, nooit de adviesprijs als g:price met de
