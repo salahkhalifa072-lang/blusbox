@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Prijsblok } from "@/components/product/prijsblok";
-import { gratisVerzending } from "@/lib/pricing";
+import { gratisVerzending, prijsIncl } from "@/lib/pricing";
+import { koopNu } from "@/app/winkelwagen/acties";
 
 /**
  * De tekstkolom van de hero: kop, uitleg, prijs en knoppen.
@@ -52,20 +53,36 @@ export function HeroTekst() {
           </div>
           <p className="data mt-2 text-xs text-kastwit/50">incl. btw</p>
 
+          {/*
+            Koop nu gaat in één keer naar het afrekenen: de route van
+            homepage naar betalen gaat van vijf stappen naar drie. Wie eerst
+            wil lezen heeft de tweede knop; installateurs vinden hun pagina
+            via de tekstlink en het menu.
+          */}
           <div className="mt-6 flex flex-wrap gap-3">
+            <form action={koopNu}>
+              <input type="hidden" name="slug" value="blusbox" />
+              <button
+                type="submit"
+                className="group flex items-center gap-2 rounded-full bg-blusrood-vlak px-7 py-3.5 text-sm font-semibold text-kastwit shadow-[0_8px_24px_-8px_rgba(210,35,31,0.75)] transition-all hover:-translate-y-px hover:bg-[#9e1b18] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kastwit motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+              >
+                Koop nu · {prijsIncl}
+                <span aria-hidden className="transition-transform group-hover:translate-x-0.5">→</span>
+              </button>
+            </form>
             <Link
               href="/blusbox"
-              className="rounded-full bg-blusrood-vlak px-6 py-3 text-sm font-medium text-kastwit transition-colors hover:bg-[#9e1b18] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kastwit"
+              className="rounded-full border border-kastwit/40 px-6 py-3.5 text-sm text-kastwit transition-colors hover:bg-kastwit hover:text-antraciet"
             >
-              Bekijk Blusbox
-            </Link>
-            <Link
-              href="/installateurs"
-              className="rounded-full border border-kastwit/40 px-6 py-3 text-sm text-kastwit transition-colors hover:bg-kastwit hover:text-antraciet"
-            >
-              Voor installateurs
+              Meer over Blusbox
             </Link>
           </div>
+          <Link
+            href="/installateurs"
+            className="data mt-4 inline-block text-xs text-kastwit/55 underline underline-offset-4 hover:text-kastwit"
+          >
+            Installateur? Bekijk de zakelijke voorwaarden →
+          </Link>
         </div>
       </div>
     </div>

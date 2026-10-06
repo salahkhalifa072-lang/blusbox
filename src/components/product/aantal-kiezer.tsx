@@ -7,6 +7,7 @@ import {
   staffelStukprijs,
 } from "@/lib/catalogus";
 import { euro, PRIJS_INCL_CENTEN } from "@/lib/pricing";
+import { koopNu } from "@/app/winkelwagen/acties";
 
 /**
  * Aantal kiezen, met de staffelkorting live erbij.
@@ -75,33 +76,47 @@ export function AantalKiezer() {
           </button>
         </div>
 
+        {/* Het totaal naast het aantal: dat is wat de klant straks
+            betaalt, en daar hoort hij niet voor te hoeven rekenen. */}
+        <p className="data ml-auto text-right text-sm text-kastwit/80" aria-live="polite">
+          <span className="block text-[11px] uppercase tracking-widest text-kastwit/50">Totaal</span>
+          <span className="text-lg text-kastwit">{euro(totaal)}</span>
+        </p>
+      </div>
+
+      {/*
+        Twee knoppen. "Koop nu" gaat in één keer naar het afrekenen;
+        "In winkelwagen" is er voor wie nog wil rondkijken. Alleen een
+        koopknop jaagt twijfelaars weg, alleen een winkelwagenknop maakt de
+        route voor iedereen langer.
+      */}
+      <div className="mt-4 grid gap-2.5 sm:grid-cols-[1.4fr_1fr]">
         <button
           type="submit"
-          className="rounded-full bg-blusrood-vlak px-8 py-3.5 text-sm font-medium text-kastwit transition-colors hover:bg-[#9e1b18]"
+          formAction={koopNu}
+          className="group flex items-center justify-center gap-2 rounded-full bg-blusrood-vlak px-8 py-4 text-base font-semibold text-kastwit shadow-[0_8px_24px_-8px_rgba(210,35,31,0.7)] transition-all hover:-translate-y-px hover:bg-[#9e1b18] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+        >
+          Koop nu
+          <span aria-hidden className="transition-transform group-hover:translate-x-0.5">→</span>
+        </button>
+        <button
+          type="submit"
+          className="rounded-full border border-kastwit/35 px-6 py-4 text-sm font-medium text-kastwit transition-colors hover:bg-kastwit hover:text-antraciet"
         >
           In winkelwagen
         </button>
       </div>
 
-      {/* aria-live: de prijs verandert zonder paginawissel, dus het moet
-          voorgelezen worden. Polite, want het mag niets onderbreken. */}
-      <p className="data mt-3 text-sm text-kastwit/80" aria-live="polite">
-        {korting > 0 ? (
-          <>
-            {aantal} × {euro(stuk)} = <span className="text-kastwit">{euro(totaal)}</span>{" "}
-            <span className="text-blusrood-op-donker">
-              −{korting.toString().replace(".", ",")}% staffelkorting
-            </span>
-          </>
-        ) : (
-          <>
-            {aantal} × {euro(PRIJS_INCL_CENTEN)} ={" "}
-            <span className="text-kastwit">{euro(totaal)}</span>
-          </>
-        )}
-      </p>
+      {korting > 0 && (
+        <p className="data mt-3 text-sm text-kastwit/80">
+          {aantal} × {euro(stuk)}{" "}
+          <span className="text-blusrood-op-donker">
+            −{korting.toString().replace(".", ",")}% staffelkorting
+          </span>
+        </p>
+      )}
 
-      {korting < 17.5 && (
+      {korting < 17.5 && aantal >= 10 && (
         <p className="mt-1 text-xs text-kastwit/50">
           Nog {totVolgende} stuks tot{" "}
           {staffelPercentage(aantal + totVolgende)

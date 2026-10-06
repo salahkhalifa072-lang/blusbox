@@ -83,3 +83,13 @@ export function IcoonMeterkast({ className }: Props) {
     </svg>
   );
 }
+
+/** Shield with a check — warranty and consumer rights. */
+export function IcoonSchild({ className }: Props) {
+  return (
+    <svg {...basis} className={className}>
+      <path d="M12 3.5 5 6.2v5.3c0 4.3 2.9 7.6 7 9 4.1-1.4 7-4.7 7-9V6.2L12 3.5Z" />
+      <path d="m8.8 12.2 2.2 2.2 4.2-4.4" />
+    </svg>
+  );
+}

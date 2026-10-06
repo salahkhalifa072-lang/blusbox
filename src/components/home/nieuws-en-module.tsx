@@ -1,5 +1,6 @@
+import { koopNu } from "@/app/winkelwagen/acties";
+import { prijsIncl } from "@/lib/pricing";
 import Image from "next/image";
-import { ButtonLink } from "@/components/ui/button";
 import { VideoBlock } from "@/components/ui/video-block";
 import { LogoBadge } from "@/components/site/logo";
 import { Reveal } from "@/components/ui/reveal";
@@ -126,9 +127,15 @@ export function NieuwsEnModule() {
                     dat is het advies in het artikel, en het onze ook.
                   </p>
 
-                  <ButtonLink href="/blusbox" className="mt-6 rounded-full">
-                    Bekijk Blusbox
-                  </ButtonLink>
+                  <form action={koopNu} className="mt-6">
+                    <input type="hidden" name="slug" value="blusbox" />
+                    <button
+                      type="submit"
+                      className="rounded-full bg-blusrood-vlak px-6 py-3 text-sm font-semibold text-kastwit transition-colors hover:bg-[#9e1b18]"
+                    >
+                      Koop nu · {prijsIncl} →
+                    </button>
+                  </form>
                 </div>
 
                 {/* Twee beelden naast elkaar, ook op een telefoon. Onder

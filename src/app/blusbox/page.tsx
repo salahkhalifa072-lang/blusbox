@@ -15,10 +15,15 @@ import { bedrijf } from "@/lib/bedrijf";
 import { siteUrl } from "@/lib/site";
 import { faqUitgelicht } from "@/lib/faq";
 import { LEVERTIJD } from "@/lib/verzending";
-import { voegToeAanWagen } from "@/app/winkelwagen/acties";
+import { koopNu, voegToeAanWagen } from "@/app/winkelwagen/acties";
+import { RookmelderOptie } from "@/components/product/rookmelder-optie";
 import {
-  adviesprijs,
-  gratisVerzending,
+  IcoonLevensduur,
+  IcoonRetour,
+  IcoonSchild,
+  IcoonVerzending,
+} from "@/components/site/pictogrammen";
+import {
   prijsExcl,
   prijsIncl,
   verzendwaarde,
@@ -238,57 +243,112 @@ export default function BlusboxPage() {
                 stroom, zonder bediening, zonder mens.
               </p>
 
-              <div className="mt-8 border-t border-kastwit/15 pt-6">
-                <Prijsblok formaat="groot" />
-                <p className="mt-2 text-sm text-kastwit/60">
-                  Incl. btw ({prijsExcl} excl. btw)
-                  {TOON_ADVIESPRIJS && <> · adviesprijs {adviesprijs}</>}
-                </p>
-                <p className="data mt-3 text-sm text-kastwit/80">
-                  Verzendkosten{" "}
-                  <span className="text-railstaal line-through">
-                    {verzendwaarde}
-                  </span>{" "}
-                  <span className="text-kastwit">gratis</span>
-                </p>
-
-                <div className="data mt-4 flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-railstaal">
-                  <span>Op voorraad</span>
-                  <span>Levertijd: {LEVERTIJD}</span>
-                  <span>Lotnummer bij levering</span>
+              {/*
+                Het koopblok, vanaf de prijs. Was één kolom losse regels onder
+                elkaar; nu vier duidelijke vakken in leesvolgorde: wat kost
+                het en is het er, kopen, waarom je het hier veilig koopt, hoe
+                je betaalt. Op een telefoon is dat de hele afweging in één
+                schermhoogte, zonder dat de klant de regels zelf moet sorteren.
+              */}
+              <div className="mt-8 space-y-4">
+                {/* 1 · prijs en voorraad */}
+                <div className="rounded-2xl bg-gradient-to-br from-kastwit/[0.09] via-kastwit/[0.04] to-transparent p-5 ring-1 ring-kastwit/10">
+                  <Prijsblok formaat="groot" />
+                  <p className="mt-1.5 text-xs text-kastwit/55">
+                    Incl. btw · {prijsExcl} excl. btw
+                  </p>
+                  <p className="mt-4 flex items-start gap-2.5 text-sm leading-snug">
+                    {/* Pulserende stip: "op voorraad" als signaal en niet als
+                        nog een regel tekst. Staat stil bij minder beweging. */}
+                    <span className="relative mt-[5px] flex h-2.5 w-2.5 shrink-0" aria-hidden>
+                      <span className="absolute inline-flex h-full w-full rounded-full bg-[#3ddc84] opacity-70 motion-safe:animate-ping" />
+                      <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#3ddc84]" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="whitespace-nowrap font-medium text-[#7ee8ad]">
+                        Op voorraad
+                      </span>{" "}
+                      <span className="text-kastwit/60">
+                        · vóór 16:00 besteld, vandaag verstuurd
+                      </span>
+                    </span>
+                  </p>
                 </div>
 
-                <form action={voegToeAanWagen} className="mt-6">
-                  <input type="hidden" name="slug" value="blusbox" />
-                  <AantalKiezer />
-                </form>
+                {/* 2 · kopen, met het rookmeldervakje ernaast (laptop) of
+                    eronder (telefoon) */}
+                <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_13rem] lg:items-start">
+                  <div>
+                    <form id="koopblok" action={voegToeAanWagen}>
+                      <input type="hidden" name="slug" value="blusbox" />
+                      <AantalKiezer />
+                    </form>
+                    <Link
+                      href="/zakelijk"
+                      className="data mt-3 inline-block text-xs text-kastwit/60 underline underline-offset-4 hover:text-kastwit"
+                    >
+                      Zakelijk bestellen of staffelprijzen →
+                    </Link>
+                  </div>
+                  <RookmelderOptie formulier="koopblok" />
+                </div>
 
-                <Link
-                  href="/zakelijk"
-                  className="mt-4 inline-block rounded-full border border-kastwit/40 px-7 py-3 text-sm transition-colors hover:bg-kastwit hover:text-antraciet"
-                >
-                  Zakelijk bestellen
-                </Link>
-
-                {/* Vertrouwenspunten binnen het koopblok en niet eronder:
-                    wie twijfelt bij de knop moet ze zien zonder te scrollen.
-                    Alleen dingen die wij waarmaken — geen "dag en nacht
-                    klantenservice" bij een eenmanszaak. */}
-                <ul className="mt-6 space-y-2 border-t border-kastwit/15 pt-6">
+                {/* 3 · waarom je hier veilig koopt */}
+                <ul className="grid grid-cols-2 gap-2.5">
                   {[
-                    gratisVerzending.kort,
-                    `Levertijd ${LEVERTIJD}, verstuurd uit Nederland`,
-                    "14 dagen bedenktijd, retour zonder opgaaf van reden",
-                    "Wettelijke garantie en Nederlandse handleiding",
-                  ].map((punt) => (
-                    <li key={punt} className="flex gap-2 text-sm text-kastwit/75">
-                      <span aria-hidden className="text-blusrood-op-donker">—</span>
-                      <span>{punt}</span>
+                    {
+                      Icoon: IcoonVerzending,
+                      kleur: "#4f9e78",
+                      kop: "Gratis verzending",
+                      regel: `t.w.v. ${verzendwaarde}`,
+                    },
+                    {
+                      Icoon: IcoonLevensduur,
+                      kleur: "#6f9cc4",
+                      kop: `Levering ${LEVERTIJD}`,
+                      regel: "verstuurd uit Nederland",
+                    },
+                    {
+                      Icoon: IcoonRetour,
+                      kleur: "var(--blusrood-op-donker)",
+                      kop: "14 dagen bedenktijd",
+                      regel: "zonder opgaaf van reden",
+                    },
+                    {
+                      Icoon: IcoonSchild,
+                      kleur: "#e8e9e6",
+                      kop: "Wettelijke garantie",
+                      regel: "met Nederlandse handleiding",
+                    },
+                  ].map(({ Icoon, kleur, kop, regel }) => (
+                    <li
+                      key={kop}
+                      className="flex items-start gap-3 rounded-2xl bg-gradient-to-b from-kastwit/[0.07] to-kastwit/[0.02] p-3.5 ring-1 ring-kastwit/10"
+                    >
+                      <span
+                        className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+                        style={{
+                          color: kleur,
+                          backgroundColor:
+                            "color-mix(in srgb, currentColor 15%, transparent)",
+                        }}
+                      >
+                        <Icoon className="h-[18px] w-[18px]" />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-[13px] font-medium leading-tight">
+                          {kop}
+                        </span>
+                        <span className="mt-0.5 block text-[11px] leading-snug text-kastwit/55">
+                          {regel}
+                        </span>
+                      </span>
                     </li>
                   ))}
                 </ul>
 
-                <div className="mt-8 border-t border-kastwit/15 pt-6">
+                {/* 4 · betalen */}
+                <div className="rounded-2xl p-4 ring-1 ring-kastwit/10">
                   <Betaalmethoden donker />
                 </div>
               </div>
@@ -431,14 +491,15 @@ export default function BlusboxPage() {
               incl. btw · gratis verzending
             </p>
           </div>
-          <form action={voegToeAanWagen}>
+          {/* Zonder aantal: Koop nu zorgt dan voor minstens één, en laat
+              een eerder gekozen aantal staan. */}
+          <form action={koopNu}>
             <input type="hidden" name="slug" value="blusbox" />
-            <input type="hidden" name="aantal" value={1} />
             <button
               type="submit"
-              className="rounded-full bg-blusrood-vlak px-6 py-3 text-sm font-medium text-kastwit transition-colors hover:bg-[#9e1b18]"
+              className="rounded-full bg-blusrood-vlak px-7 py-3 text-sm font-semibold text-kastwit shadow-[0_6px_18px_-6px_rgba(210,35,31,0.7)] transition-colors hover:bg-[#9e1b18]"
             >
-              In winkelwagen
+              Koop nu →
               <span className="sr-only"> (onderbalk)</span>
             </button>
           </form>

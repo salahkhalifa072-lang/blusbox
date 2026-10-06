@@ -22,9 +22,9 @@ import { euro } from "@/lib/pricing";
  */
 
 // Uit de catalogus, zodat aanbod en afrekening nooit uiteenlopen.
-const PRIJS = euro(vindItem(ROOKMELDER_SLUG)?.prijsInclBtwCenten ?? 0);
+export const PRIJS = euro(vindItem(ROOKMELDER_SLUG)?.prijsInclBtwCenten ?? 0);
 
-const FOTOS = [
+export const FOTOS = [
   { src: "/media/rookmelder/binnenkant.webp", alt: "Opengewerkte rookmelder: luidspreker van 85 dB, optische sensor, test- en pauzeknop en batterij" },
   { src: "/media/rookmelder/kamers.webp", alt: "De rookmelder in slaapkamer, woonkamer, garderobe en hal, met iconen voor 85 dB-alarm en lege-batterijwaarschuwing" },
   { src: "/media/rookmelder/installeren.webp", alt: "Montage aan het plafond met de meegeleverde bevestigingsplaat" },
@@ -32,7 +32,7 @@ const FOTOS = [
   { src: "/media/rookmelder/batterij.webp", alt: "Batterij gaat na activatie een jaar mee" },
 ];
 
-const FEITEN = [
+export const FEITEN = [
   ["Norm", "EN 14604"],
   ["Sensor", "Optisch"],
   ["Alarm", "85 dB op 3 meter"],
