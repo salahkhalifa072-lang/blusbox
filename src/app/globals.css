@@ -83,6 +83,13 @@
     scroll-behavior: smooth;
   }
 
+  /* Browsers geven een fieldset min-width: min-content. Op een telefoon
+     van 320 px duwde dat het afrekenformulier breder dan het scherm, en
+     schoof de hele pagina opzij zodra je een veld aantikte. */
+  fieldset {
+    min-width: 0;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;

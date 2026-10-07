@@ -64,7 +64,7 @@ export default async function WinkelwagenPage() {
         } · verzending gratis`}
       />
       <main className="mx-auto max-w-5xl px-6 py-20">
-        <div className="grid gap-10 lg:grid-cols-[1.5fr_1fr]">
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.5fr_1fr]">
           {/* Regels */}
           <div className="divide-y divide-railstaal/50 border-y border-railstaal/50">
             {/* Blusbox voorop; meeverkochte artikelen eronder. */}

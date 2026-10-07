@@ -33,7 +33,7 @@ export function PageHeader({
           </p>
           <h1
             id="paginatitel"
-            className="font-display mt-4 max-w-4xl text-[clamp(2.5rem,7vw,5rem)]"
+            className="font-display mt-4 max-w-4xl text-[clamp(2.5rem,7vw,5rem)] hyphens-auto break-words"
           >
             {title}
             {accent ? <span className="accent"> {accent}</span> : null}

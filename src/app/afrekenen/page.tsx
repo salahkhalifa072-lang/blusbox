@@ -81,7 +81,7 @@ export default async function AfrekenenPage() {
           </div>
         ) : null}
 
-        <div className="grid gap-12 lg:grid-cols-[1.3fr_1fr]">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1.3fr_1fr]">
           <AfrekenFormulier
             bedrag={euro(overzicht.totalen.totaalInclBtwCenten)}
           />

@@ -47,7 +47,7 @@ export default function ZakelijkPage() {
       <main>
         {/* RI&E framing */}
         <section className="mx-auto max-w-6xl px-6 py-20">
-          <div className="grid gap-12 lg:grid-cols-[1fr_1.2fr]">
+          <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_1.2fr]">
             <Reveal>
               <SectionTitle>Blusbox in uw RI&amp;E</SectionTitle>
             </Reveal>
@@ -125,7 +125,7 @@ export default function ZakelijkPage() {
         <section className="bg-kastwit-dim py-20">
           <div className="mx-auto max-w-6xl px-6">
             <SectionTitle>Voor wie</SectionTitle>
-            <div className="mt-10 grid gap-4 lg:grid-cols-3">
+            <div className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-3">
               {doelgroepen.map((d, i) => (
                 <Reveal key={d.t} delay={i * 70}>
                   <article className="flex h-full flex-col rounded-2xl border border-railstaal/50 bg-kastwit p-8">
@@ -150,7 +150,7 @@ export default function ZakelijkPage() {
 
         {/* Verzekeraar + traceerbaarheid */}
         <section className="mx-auto max-w-6xl px-6 py-20">
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <Reveal>
               <div className="h-full rounded-2xl border border-railstaal/50 p-8">
                 <h3 className="font-display text-2xl">
@@ -198,7 +198,7 @@ export default function ZakelijkPage() {
 
         {/* Specs + offerte */}
         <section className="bg-antraciet py-20 text-kastwit">
-          <div className="mx-auto grid max-w-6xl gap-12 px-6 lg:grid-cols-2">
+          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-12 px-6 lg:grid-cols-2">
             <div>
               <SectionTitle>Staffelprijzen aanvragen</SectionTitle>
               <p className="mt-4 text-kastwit/70">

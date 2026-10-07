@@ -81,7 +81,11 @@ export function Bestelregel({
 
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-3">
-          <p className={groot ? "font-display text-lg leading-tight" : "text-sm font-medium leading-snug"}>
+          <p
+            className={`min-w-0 break-words hyphens-auto ${
+              groot ? "font-display text-lg leading-tight" : "text-sm font-medium leading-snug"
+            }`}
+          >
             {naam}
           </p>
           <p className="data shrink-0 text-sm">{regelprijs}</p>
