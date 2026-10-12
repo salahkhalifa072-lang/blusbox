@@ -10,7 +10,7 @@ import { Galerij } from "@/components/product/galerij";
 import { AantalKiezer } from "@/components/product/aantal-kiezer";
 import { Betaalmethoden } from "@/components/product/betaalmethoden";
 import { Prijsblok } from "@/components/product/prijsblok";
-import { kenmerken, productFacts } from "@/lib/product-facts";
+import { GTIN, kenmerken, productFacts } from "@/lib/product-facts";
 import { bedrijf } from "@/lib/bedrijf";
 import { siteUrl } from "@/lib/site";
 import { faqUitgelicht } from "@/lib/faq";
@@ -103,10 +103,9 @@ function maakProductData(gemiddelde: number | null, aantal: number) {
     brand: { "@type": "Brand", name: "Blusbox" },
     category: "Brandbeveiliging",
     url: `${siteUrl}/blusbox`,
-    // Geen EAN op dit product; dan verwacht Google merk plus een eigen
-    // nummer als identificatie.
     sku: "BB-MODULE-01",
     mpn: "BB-MODULE-01",
+    gtin13: GTIN,
     ...(gemiddelde !== null && aantal > 0
       ? {
           aggregateRating: {

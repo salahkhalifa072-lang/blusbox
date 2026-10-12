@@ -3,6 +3,7 @@ import { bedrijf } from "@/lib/bedrijf";
 import { PRIJS_INCL_CENTEN } from "@/lib/pricing";
 import { MODULE_PAKKET } from "@/lib/verzending";
 import { gemiddeldeWaardering, REVIEWS } from "@/lib/reviews";
+import { GTIN } from "@/lib/product-facts";
 
 /**
  * Productfeed voor Google Merchant Center.
@@ -49,9 +50,8 @@ export async function GET() {
   ].join(" ");
 
   /*
-   * Geen EAN of GTIN op dit product. Dan moet identifier_exists op no
-   * staan, met merk en mpn als vervanging — laat je dat weg, dan wordt
-   * het artikel afgekeurd omdat Google een streepjescode verwacht.
+   * GTIN plus merk: zo koppelt Google de vermelding aan het product op de
+   * verpakking. De mpn blijft erbij als eigen artikelnummer.
    */
   const velden: [string, string][] = [
     ["g:id", "BB-MODULE-01"],
@@ -73,8 +73,8 @@ export async function GET() {
      */
     ["g:price", bedrag(PRIJS_INCL_CENTEN)],
     ["g:brand", "Blusbox"],
+    ["g:gtin", GTIN],
     ["g:mpn", "BB-MODULE-01"],
-    ["g:identifier_exists", "no"],
     ["g:condition", "new"],
     ["g:product_type", "Brandbeveiliging > Blusmodules > Meterkast"],
     // Categorienummer uit de taxonomie van Google: brandbestrijding.

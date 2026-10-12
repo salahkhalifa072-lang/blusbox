@@ -52,3 +52,10 @@ export const kenmerken = [
   "Past op de DIN-rail",
   "Niet-corrosief residu",
 ] as const;
+
+/**
+ * GTIN-13 (EAN) van de module, uitgegeven door GS1 Nederland. GS1 toont
+ * hem als 08720844120390; dat is dezelfde code in 14-cijferige notatie.
+ * Staat ook als streepjescode op de verpakking.
+ */
+export const GTIN = "8720844120390";
