@@ -11,6 +11,7 @@ import {
   registeredUnits,
   returns,
 } from "./schema";
+import { affiliates } from "./affiliate-schema";
 import { plusMaanden, type IsoDatum } from "@/lib/levensduur";
 
 /**
@@ -76,8 +77,79 @@ export async function overzichtCijfers(vandaag: IsoDatum) {
   };
 }
 
+/**
+ * Filters op de bestellingenpagina. Elk filter is één vraag die je je in
+ * de praktijk stelt — "wat moet er de deur uit?" — en niet een ruwe
+ * status: "te versturen" is betaald én nog niet verzonden én geen
+ * balieverkoop, wat geen enkele status op zichzelf uitdrukt.
+ */
+export const BESTELFILTERS = {
+  alle: { label: "Alle", where: sql`true` },
+  versturen: {
+    label: "Te versturen",
+    where: sql`${orders.status} in ('betaald','in_behandeling') and ${orders.verzondenOp} is null and ${orders.balieverkoop} = false`,
+  },
+  onderweg: {
+    label: "Onderweg",
+    where: sql`${orders.verzondenOp} is not null and ${orders.geleverdOp} is null and ${orders.status} not in ('geannuleerd','terugbetaald')`,
+  },
+  afgerond: {
+    label: "Afgerond",
+    where: sql`(${orders.status} = 'geleverd' or (${orders.balieverkoop} = true and ${orders.status} <> 'nieuw'))`,
+  },
+  onbetaald: { label: "Wacht op betaling", where: sql`${orders.status} = 'nieuw'` },
+  geannuleerd: {
+    label: "Geannuleerd",
+    where: sql`${orders.status} in ('geannuleerd','terugbetaald')`,
+  },
+} as const;
+
+export type Bestelfilter = keyof typeof BESTELFILTERS;
+
+export function isBestelfilter(w: unknown): w is Bestelfilter {
+  return typeof w === "string" && w in BESTELFILTERS;
+}
+
+/** Aantallen per filter, voor de knoppen boven de lijst. */
+export async function bestelfilterAantallen(): Promise<Record<Bestelfilter, number>> {
+  const sleutels = Object.keys(BESTELFILTERS) as Bestelfilter[];
+  const [rij] = await db
+    .select(
+      Object.fromEntries(
+        sleutels.map((k) => [
+          k,
+          sql<number>`count(*) filter (where ${BESTELFILTERS[k].where})`.mapWith(Number),
+        ]),
+      ) as Record<Bestelfilter, ReturnType<typeof sql<number>>>,
+    )
+    .from(orders);
+  return rij as Record<Bestelfilter, number>;
+}
+
 /** §9.5 orders with fulfilment state. */
-export async function bestellingenLijst(limiet = 50) {
+export async function bestellingenLijst(
+  limiet = 50,
+  opties: { zoek?: string; filter?: Bestelfilter } = {},
+) {
+  const voorwaarden = [BESTELFILTERS[opties.filter ?? "alle"].where];
+
+  // Zoeken op wat je van een klant weet als hij belt: nummer, naam,
+  // e-mail of postcode. Postcode zonder spatie, zoals hij opgeslagen staat.
+  const zoek = opties.zoek?.trim();
+  if (zoek) {
+    // % en _ zijn jokers in ilike; letterlijk zoeken, anders gaf "%" alles.
+    const ontsnapt = (t: string) => t.replace(/[%_\\]/g, (c) => `\\${c}`);
+    const patroon = `%${ontsnapt(zoek)}%`;
+    const postcode = `%${ontsnapt(zoek.replace(/\s+/g, "").toUpperCase())}%`;
+    voorwaarden.push(
+      sql`(${orders.ordernummer} ilike ${patroon}
+        or ${orders.klantNaam} ilike ${patroon}
+        or ${orders.bedrijfsnaam} ilike ${patroon}
+        or ${orders.gastEmail} ilike ${patroon}
+        or ${orders.postcode} ilike ${postcode})`,
+    );
+  }
+
   return db
     .select({
       id: orders.id,
@@ -95,11 +167,52 @@ export async function bestellingenLijst(limiet = 50) {
       balieverkoop: orders.balieverkoop,
     })
     .from(orders)
+    .where(and(...voorwaarden))
     .orderBy(desc(orders.geplaatstOp))
     .limit(limiet);
 }
 
-/** §9.2 lot register, with how many units of each lot are out there. */
+/**
+ * Wat er nu op jou wacht. Bovenaan het overzicht, zodat je niet uit acht
+ * tegels hoeft af te leiden of er iets te doen is.
+ */
+export async function teDoen() {
+  const [bestel] = await db
+    .select({
+      versturen: sql<number>`count(*) filter (where ${BESTELFILTERS.versturen.where})`.mapWith(Number),
+      onderwegLang: sql<number>`count(*) filter (where ${BESTELFILTERS.onderweg.where} and ${orders.verzondenOp} < now() - interval '5 days')`.mapWith(Number),
+      openFacturen: sql<number>`count(*) filter (where ${orders.factuurnummer} is not null and ${orders.status} = 'nieuw')`.mapWith(Number),
+    })
+    .from(orders);
+
+  const [retour] = await db
+    .select({
+      beoordelen: sql<number>`count(*) filter (where ${returns.status} = 'aangemeld')`.mapWith(Number),
+      terugbetalen: sql<number>`count(*) filter (where ${returns.status} = 'ontvangen')`.mapWith(Number),
+    })
+    .from(returns);
+
+  const [aanvragen] = await db
+    .select({ aantal: count() })
+    .from(affiliates)
+    .where(eq(affiliates.status, "aangevraagd"));
+
+  const [recall] = await db
+    .select({ aantal: count() })
+    .from(recalls)
+    .where(isNull(recalls.geslotenOp));
+
+  return {
+    versturen: bestel?.versturen ?? 0,
+    onderwegLang: bestel?.onderwegLang ?? 0,
+    openFacturen: bestel?.openFacturen ?? 0,
+    retourBeoordelen: retour?.beoordelen ?? 0,
+    retourTerugbetalen: retour?.terugbetalen ?? 0,
+    affiliateAanvragen: Number(aanvragen?.aantal ?? 0),
+    openRecalls: Number(recall?.aantal ?? 0),
+  };
+}
+
 export async function lotsLijst() {
   return db
     .select({

@@ -1,6 +1,8 @@
 import Link from "next/link";
-import { overzichtCijfers, bestellingenLijst } from "@/db/dashboard";
-import { Cel, Leeg, Paneel, Rij, Status, Tabel, Tegel } from "@/components/dashboard/ui";
+import { overzichtCijfers, bestellingenLijst, teDoen } from "@/db/dashboard";
+import { Cel, Leeg, Paneel, Rij, Status, Tabel, TeDoen, Tegel } from "@/components/dashboard/ui";
+import { vereisDashboard } from "@/lib/sessie";
+import { magFactureren } from "@/lib/rollen";
 import { euro } from "@/lib/pricing";
 import { formatteerNl } from "@/lib/levensduur";
 import { metingActief } from "@/lib/meting";
@@ -15,10 +17,14 @@ function vandaagIso(): string {
 
 export default async function DashboardOverzicht() {
   const vandaag = vandaagIso();
-  const [cijfers, recent] = await Promise.all([
+  const [actor, cijfers, recent, taken] = await Promise.all([
+    vereisDashboard(),
     overzichtCijfers(vandaag),
     bestellingenLijst(8),
+    teDoen(),
   ]);
+
+  const enkelvoud = (n: number, een: string, meer: string) => (n === 1 ? een : meer);
 
   return (
     <div className="space-y-8">
@@ -28,6 +34,52 @@ export default async function DashboardOverzicht() {
           {formatteerNl(vandaag)} · Europe/Amsterdam
         </p>
       </div>
+
+      <TeDoen
+        taken={[
+          {
+            aantal: taken.versturen,
+            tekst: `${enkelvoud(taken.versturen, "bestelling", "bestellingen")} betaald en klaar om te versturen`,
+            href: "/dashboard/bestellingen?filter=versturen",
+            dringend: true,
+          },
+          {
+            aantal: taken.retourBeoordelen,
+            tekst: `${enkelvoud(taken.retourBeoordelen, "retour", "retouren")} aangemeld, wacht op je besluit`,
+            href: "/dashboard/retouren",
+          },
+          {
+            aantal: taken.retourTerugbetalen,
+            tekst: `${enkelvoud(taken.retourTerugbetalen, "retour", "retouren")} ontvangen, nog terugbetalen`,
+            href: "/dashboard/retouren",
+          },
+          {
+            aantal: taken.affiliateAanvragen,
+            tekst: `affiliate-${enkelvoud(taken.affiliateAanvragen, "aanvraag", "aanvragen")} om te beoordelen`,
+            href: "/dashboard/affiliates",
+          },
+          {
+            aantal: taken.openRecalls,
+            tekst: `${enkelvoud(taken.openRecalls, "recall", "recalls")} nog niet afgesloten`,
+            href: "/dashboard/recalls",
+            dringend: true,
+          },
+          ...(magFactureren(actor.rol)
+            ? [
+                {
+                  aantal: taken.openFacturen,
+                  tekst: `${enkelvoud(taken.openFacturen, "factuur", "facturen")} nog niet betaald`,
+                  href: "/dashboard/facturen",
+                },
+              ]
+            : []),
+          {
+            aantal: taken.onderwegLang,
+            tekst: `${enkelvoud(taken.onderwegLang, "zending", "zendingen")} al ruim 5 dagen onderweg — op geleverd zetten?`,
+            href: "/dashboard/bestellingen?filter=onderweg",
+          },
+        ]}
+      />
 
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <Tegel

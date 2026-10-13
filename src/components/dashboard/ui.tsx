@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Children, cloneElement, isValidElement, type ReactElement, type ReactNode } from "react";
 
 /** Shared dashboard primitives, so pages stay mostly data. */
@@ -146,7 +147,7 @@ export function Cel({
   return (
     <td
       data-label={label}
-      className={`align-top md:table-cell md:px-5 md:py-3 ${mono ? "data" : ""} ${
+      className={`align-top md:table-cell md:px-5 md:py-3 ${mono ? "data md:whitespace-nowrap" : ""} ${
         eerste
           ? "block pb-1 text-base font-medium md:text-sm md:font-normal"
           : "grid grid-cols-[6.5rem_minmax(0,1fr)] items-start justify-items-start gap-3 py-1 before:content-[attr(data-label)] before:pt-0.5 before:font-[family-name:var(--font-mono)] before:text-[10px] before:uppercase before:tracking-widest before:text-staal-tekst md:before:content-none"
@@ -185,4 +186,52 @@ export function Status({ waarde }: { waarde: string }) {
 
 export function Leeg({ tekst }: { tekst: string }) {
   return <p className="px-4 py-8 text-sm text-staal-tekst sm:px-5">{tekst}</p>;
+}
+
+export type Taak = { aantal: number; tekst: string; href: string; dringend?: boolean };
+
+/**
+ * "Te doen": alleen wat aandacht vraagt, met een directe link ernaartoe.
+ * Staat er niets, dan zegt het blok dat ook — een leeg dashboard is op een
+ * drukke dag precies het antwoord dat je zoekt.
+ */
+export function TeDoen({ taken }: { taken: Taak[] }) {
+  const open = taken.filter((t) => t.aantal > 0);
+  return (
+    <section aria-labelledby="tedoen-titel" className="rounded-2xl border border-railstaal/50 bg-kastwit">
+      <div className="flex items-center justify-between gap-3 border-b border-railstaal/50 px-4 py-4 sm:px-5">
+        <h2 id="tedoen-titel" className="font-display text-lg sm:text-xl">Te doen</h2>
+        <span className="data text-xs text-staal-tekst">
+          {open.length === 0 ? "alles bijgewerkt" : `${open.reduce((n, t) => n + t.aantal, 0)} open`}
+        </span>
+      </div>
+      {open.length === 0 ? (
+        <p className="flex items-center gap-2 px-4 py-5 text-sm text-staal-tekst sm:px-5">
+          <span aria-hidden className="inline-block h-2 w-2 rounded-full bg-[#2f9e5c]" />
+          Er wacht niets op je. Nieuwe bestellingen en aanvragen verschijnen hier vanzelf.
+        </p>
+      ) : (
+        <ul className="divide-y divide-railstaal/25">
+          {open.map((t) => (
+            <li key={t.href + t.tekst}>
+              <Link
+                href={t.href}
+                className="flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-kastwit-dim sm:px-5"
+              >
+                <span
+                  className={`data flex h-8 min-w-8 items-center justify-center rounded-full px-2 text-sm ${
+                    t.dringend ? "bg-blusrood-vlak text-kastwit" : "bg-antraciet text-kastwit"
+                  }`}
+                >
+                  {t.aantal}
+                </span>
+                <span className="min-w-0 flex-1 text-sm">{t.tekst}</span>
+                <span aria-hidden className="text-staal-tekst">→</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
 }
