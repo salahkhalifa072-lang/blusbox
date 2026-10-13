@@ -35,7 +35,7 @@ export default async function KortingscodesPagina() {
   return (
     <div className="space-y-10">
       <div>
-        <h1 className="font-display text-3xl">Kortingscodes</h1>
+        <h1 className="font-display text-2xl max-lg:sr-only sm:text-3xl">Kortingscodes</h1>
         <p className="mt-2 max-w-prose text-sm text-staal-tekst">
           De korting gaat op de stukprijs, vóór de btw. Daardoor loopt hij mee
           in het bedrag dat Stripe int, op de factuur en in de grondslag van de
@@ -44,7 +44,7 @@ export default async function KortingscodesPagina() {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-3 gap-3 sm:gap-4">
         <Tegel label="Codes" waarde={String(codes.length)} />
         <Tegel label="Actief" waarde={String(actief.length)} />
         <Tegel label="Keer ingewisseld" waarde={String(ingewisseld)} />

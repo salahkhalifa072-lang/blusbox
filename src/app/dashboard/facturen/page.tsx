@@ -34,7 +34,7 @@ export default async function FacturenPagina() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-3xl">Facturen</h1>
+        <h1 className="font-display text-2xl max-lg:sr-only sm:text-3xl">Facturen</h1>
         <p className="mt-1 max-w-2xl text-sm text-staal-tekst">
           Voor een verkoop aan de balie: de klant heeft de module al en betaalt
           achteraf. De factuur gaat als pdf vanaf info@blusbox.nl, met een

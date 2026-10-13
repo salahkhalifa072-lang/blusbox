@@ -103,18 +103,18 @@ export function FactuurFormulier({
     <form
       key={JSON.stringify(w)}
       action={actie}
-      className="grid gap-6 p-5 lg:grid-cols-2"
+      className="grid grid-cols-1 gap-6 p-4 sm:p-5 lg:grid-cols-2"
     >
       <fieldset className="space-y-3">
         <legend className="font-medium">Klant</legend>
         <Veld naam="klantNaam" defaultValue={terug("klantNaam")} label="Naam" required autoComplete="off" fout={f.klantNaam} />
         <Veld naam="bedrijfsnaam" defaultValue={terug("bedrijfsnaam")} label="Bedrijfsnaam (optioneel)" autoComplete="off" />
         <Veld naam="email" defaultValue={terug("email")} label="E-mail" type="email" required autoComplete="off" fout={f.email} />
-        <div className="grid grid-cols-[1fr_7rem] gap-3">
+        <div className="grid grid-cols-[minmax(0,1fr)_7rem] gap-3">
           <Veld naam="straat" defaultValue={terug("straat")} label="Straat" required fout={f.straat} />
           <Veld naam="huisnummer" defaultValue={terug("huisnummer")} label="Huisnr." required fout={f.huisnummer} />
         </div>
-        <div className="grid grid-cols-[8rem_1fr] gap-3">
+        <div className="grid grid-cols-[8rem_minmax(0,1fr)] gap-3">
           <Veld naam="postcode" defaultValue={terug("postcode")} label="Postcode" required fout={f.postcode} />
           <Veld naam="plaats" defaultValue={terug("plaats")} label="Plaats" required fout={f.plaats} />
         </div>
@@ -132,7 +132,7 @@ export function FactuurFormulier({
           fout={f.leverdatum}
         />
         {artikelen.map((a) => (
-          <div key={a.slug} className="grid grid-cols-[1fr_5rem_7rem] items-end gap-3">
+          <div key={a.slug} className="grid grid-cols-[minmax(0,1fr)_4.5rem_6.5rem] items-end gap-2 sm:gap-3">
             <p className="pb-2 text-sm">{a.naam}</p>
             <Veld
               naam={`aantal-${a.slug}`}

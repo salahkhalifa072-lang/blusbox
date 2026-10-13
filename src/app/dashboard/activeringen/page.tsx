@@ -10,7 +10,7 @@ export default async function ActiveringenPagina() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-3xl">Activeringen</h1>
+        <h1 className="font-display text-2xl max-lg:sr-only sm:text-3xl">Activeringen</h1>
         <p className="mt-1 max-w-2xl text-sm text-staal-tekst">
           Elke gemelde inzet in het veld. Dit register is op termijn de enige
           praktijkdata die er in deze niche bestaat — en het beste

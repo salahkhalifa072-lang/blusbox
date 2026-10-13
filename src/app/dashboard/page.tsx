@@ -23,13 +23,13 @@ export default async function DashboardOverzicht() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="font-display text-3xl">Overzicht</h1>
+        <h1 className="font-display text-2xl max-lg:sr-only sm:text-3xl">Overzicht</h1>
         <p className="data mt-1 text-xs text-staal-tekst">
           {formatteerNl(vandaag)} · Europe/Amsterdam
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <Tegel
           label="Omzet"
           waarde={euro(cijfers.omzetCenten)}

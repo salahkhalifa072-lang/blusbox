@@ -13,7 +13,7 @@ export default async function BestellingenPagina() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-3xl">Bestellingen</h1>
+        <h1 className="font-display text-2xl max-lg:sr-only sm:text-3xl">Bestellingen</h1>
         <p className="mt-1 max-w-2xl text-sm text-staal-tekst">
           {bestellingen.length} bestellingen, nieuwste eerst. Op geleverd
           zetten start de bedenktijd van veertien dagen; de klant krijgt dan

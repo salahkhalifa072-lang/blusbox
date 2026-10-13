@@ -69,7 +69,7 @@ export function Afhandelen({
   return (
     <div className="space-y-1.5">
       {!verzonden ? (
-        <form action={verzendActie} className="flex items-center gap-1.5">
+        <form action={verzendActie} className="flex flex-wrap items-center gap-1.5">
           <input type="hidden" name="ordernummer" value={ordernummer} />
           <label className="sr-only" htmlFor={`tt-${ordernummer}`}>
             Zendingnummer voor {ordernummer}

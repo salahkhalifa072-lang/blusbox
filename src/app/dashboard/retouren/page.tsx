@@ -10,7 +10,7 @@ export default async function RetourenPagina() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-3xl">Retouren</h1>
+        <h1 className="font-display text-2xl max-lg:sr-only sm:text-3xl">Retouren</h1>
         <p className="mt-1 max-w-2xl text-sm text-staal-tekst">
           Of de aanvraag binnen de bedenktijd van veertien dagen viel, is
           vastgelegd op het moment van aanvragen en verandert niet meer.

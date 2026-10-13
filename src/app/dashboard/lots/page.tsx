@@ -14,7 +14,7 @@ export default async function LotsPagina() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="font-display text-3xl">Lotregister</h1>
+        <h1 className="font-display text-2xl max-lg:sr-only sm:text-3xl">Lotregister</h1>
         <p className="mt-1 max-w-2xl text-sm text-staal-tekst">
           Elke unit is herleidbaar tot een productiepartij. Vanuit een
           lotnummer kun je in één handeling de afnemerslijst genereren.

@@ -17,7 +17,7 @@ export default async function RecallsPagina() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-3xl">Recalls</h1>
+        <h1 className="font-display text-2xl max-lg:sr-only sm:text-3xl">Recalls</h1>
         <p className="mt-1 max-w-2xl text-sm text-staal-tekst">
           Per recall staat vast wie is aangeschreven, wie bericht heeft
           gekregen en wie heeft bevestigd. Klik op een lotnummer voor de

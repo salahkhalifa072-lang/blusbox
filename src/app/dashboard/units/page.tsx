@@ -17,7 +17,7 @@ export default async function UnitsPagina() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-3xl">Geplaatste units</h1>
+        <h1 className="font-display text-2xl max-lg:sr-only sm:text-3xl">Geplaatste units</h1>
         <p className="mt-1 max-w-2xl text-sm text-staal-tekst">
           Installatiedatum plus tien jaar bepaalt de vervangdatum. Herinneringen
           gaan uit op twaalf, zes en één maand voor het einde.

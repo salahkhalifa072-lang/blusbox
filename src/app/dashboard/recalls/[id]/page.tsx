@@ -68,7 +68,7 @@ export default async function RecallDetail({
           ← Alle recalls
         </Link>
         {/* Geen "Lot {lotNummer}": lotnummers beginnen zelf al met LOT-. */}
-        <h1 className="font-display mt-2 text-3xl">Terugroepactie</h1>
+        <h1 className="font-display mt-2 text-2xl sm:text-3xl">Terugroepactie</h1>
         <p className="data mt-1 text-lg">{recall.lotNummer}</p>
         <p className="mt-2 max-w-2xl text-sm text-staal-tekst">
           {recall.reden}

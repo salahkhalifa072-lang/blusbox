@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { Children, cloneElement, isValidElement, type ReactElement, type ReactNode } from "react";
 
 /** Shared dashboard primitives, so pages stay mostly data. */
 
@@ -16,16 +16,16 @@ export function Tegel({
 }) {
   return (
     <div
-      className={`rounded-2xl border bg-kastwit p-5 ${
+      className={`rounded-2xl border bg-kastwit p-4 sm:p-5 ${
         nadruk ? "border-signaal" : "border-railstaal/50"
       }`}
     >
-      <p className="data text-[11px] uppercase tracking-widest text-staal-tekst">
+      <p className="data break-words text-[10px] uppercase tracking-widest text-staal-tekst sm:text-[11px]">
         {label}
       </p>
-      <p className="data mt-2 text-2xl">{waarde}</p>
+      <p className="data mt-2 whitespace-nowrap text-lg sm:text-2xl">{waarde}</p>
       {toelichting ? (
-        <p className="mt-1 text-xs leading-snug text-staal-tekst">
+        <p className="mt-1 hyphens-auto break-words text-xs leading-snug text-staal-tekst">
           {toelichting}
         </p>
       ) : null}
@@ -44,8 +44,8 @@ export function Paneel({
 }) {
   return (
     <section className="rounded-2xl border border-railstaal/50 bg-kastwit">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-railstaal/50 px-5 py-4">
-        <h2 className="font-display text-xl">{titel}</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-railstaal/50 px-4 py-4 sm:px-5">
+        <h2 className="font-display text-lg sm:text-xl">{titel}</h2>
         {actie}
       </div>
       {/*
@@ -59,7 +59,10 @@ export function Paneel({
         role="region"
         aria-label={titel}
         tabIndex={0}
-        className="overflow-x-auto focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-antraciet"
+        // relative: de sr-only labels in de tabel staan absoluut. Zonder een
+        // gepositioneerde ouder ontsnapten ze uit dit scrollvak en maakten
+        // ze de hele pagina op een telefoon 887 px breed.
+        className="relative overflow-x-auto focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-antraciet"
       >
         {children}
       </div>
@@ -67,6 +70,12 @@ export function Paneel({
   );
 }
 
+/*
+ * Op een telefoon wordt elke rij een kaart: de eerste cel als titel, de
+ * rest als label-waardeparen. Dezelfde markup als op de laptop, alleen
+ * anders weergegeven — de pagina's hoeven er niets voor te doen. Tabel
+ * geeft de koppen door aan elke Rij, Rij geeft elke Cel zijn kop.
+ */
 export function Tabel({
   koppen,
   children,
@@ -75,8 +84,8 @@ export function Tabel({
   children: ReactNode;
 }) {
   return (
-    <table className="w-full min-w-[42rem] border-collapse text-sm">
-      <thead>
+    <table className="block w-full border-collapse text-sm md:table md:min-w-[42rem]">
+      <thead className="hidden md:table-header-group">
         <tr className="border-b border-railstaal/40">
           {koppen.map((k) => (
             <th
@@ -89,26 +98,62 @@ export function Tabel({
           ))}
         </tr>
       </thead>
-      <tbody>{children}</tbody>
+      <tbody className="block md:table-row-group">
+        {Children.map(children, (rij) =>
+          isValidElement(rij)
+            ? cloneElement(rij as ReactElement<{ koppen?: string[] }>, { koppen })
+            : rij,
+        )}
+      </tbody>
     </table>
   );
 }
 
-export function Rij({ children }: { children: ReactNode }) {
+export function Rij({
+  children,
+  koppen,
+}: {
+  children: ReactNode;
+  /** Gezet door Tabel; niet zelf meegeven. */
+  koppen?: string[];
+}) {
   return (
-    <tr className="border-b border-railstaal/25 last:border-0">{children}</tr>
+    <tr className="block border-b border-railstaal/25 px-4 py-3 last:border-0 md:table-row md:p-0">
+      {Children.map(children, (cel, i) =>
+        isValidElement(cel)
+          ? cloneElement(cel as ReactElement<{ label?: string; eerste?: boolean }>, {
+              label: koppen?.[i],
+              eerste: i === 0,
+            })
+          : cel,
+      )}
+    </tr>
   );
 }
 
 export function Cel({
   children,
   mono = false,
+  label,
+  eerste = false,
 }: {
   children: ReactNode;
   mono?: boolean;
+  /** Gezet door Rij: de kolomkop, als label op een telefoon. */
+  label?: string;
+  eerste?: boolean;
 }) {
   return (
-    <td className={`px-5 py-3 align-top ${mono ? "data" : ""}`}>{children}</td>
+    <td
+      data-label={label}
+      className={`align-top md:table-cell md:px-5 md:py-3 ${mono ? "data" : ""} ${
+        eerste
+          ? "block pb-1 text-base font-medium md:text-sm md:font-normal"
+          : "grid grid-cols-[6.5rem_minmax(0,1fr)] items-start justify-items-start gap-3 py-1 before:content-[attr(data-label)] before:pt-0.5 before:font-[family-name:var(--font-mono)] before:text-[10px] before:uppercase before:tracking-widest before:text-staal-tekst md:before:content-none"
+      }`}
+    >
+      {children}
+    </td>
   );
 }
 
@@ -139,5 +184,5 @@ export function Status({ waarde }: { waarde: string }) {
 }
 
 export function Leeg({ tekst }: { tekst: string }) {
-  return <p className="px-5 py-8 text-sm text-staal-tekst">{tekst}</p>;
+  return <p className="px-4 py-8 text-sm text-staal-tekst sm:px-5">{tekst}</p>;
 }

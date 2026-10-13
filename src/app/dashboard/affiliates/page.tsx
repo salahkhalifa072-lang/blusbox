@@ -68,7 +68,7 @@ export default async function AffiliateBeheerPagina() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-3xl">Affiliates</h1>
+        <h1 className="font-display text-2xl max-lg:sr-only sm:text-3xl">Affiliates</h1>
         <p className="mt-1 max-w-2xl text-sm text-staal-tekst">
           {affiliates.length} deelnemer(s), {commissies.length} commissieregel(s).
           Commissie wordt berekend over de productwaarde na korting, zonder btw
@@ -76,7 +76,7 @@ export default async function AffiliateBeheerPagina() {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <Tegel label="Open aanvragen" waarde={String(aanvragen.length)} />
         <Tegel label="Open commissie" waarde={euro(totaalOpen)} />
         <Tegel label="Goedgekeurd" waarde={euro(totaalGoedgekeurd)} />
