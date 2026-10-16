@@ -62,15 +62,15 @@ const BEELDEN: Beeld[] = [
   },
   {
     soort: "foto",
-    src: "/media/verpakking-dicht.jpg",
-    alt: "Gesloten rode Blusbox-verpakking met logo en de tekst blusmodule voor de meterkast",
+    src: "/media/verpakking-voorkant.jpg",
+    alt: "Voorkant van de rode Blusbox-ophangdoos: brandblusser voor in de meterkast, grijpt zelf in bij 170 °C",
     label: "Verpakking",
   },
   {
     soort: "foto",
-    src: "/media/verpakking-open.jpg",
-    alt: "Geopende Blusbox-verpakking: de module met vastzittend lichtblauw detectiekoord, naast een rode kaart met het Blusbox-logo",
-    label: "Inhoud",
+    src: "/media/verpakking-achterkant.jpg",
+    alt: "Achterkant van de Blusbox-doos met werking in drie stappen, technische gegevens en inhoud",
+    label: "Achterkant",
   },
 ];
 

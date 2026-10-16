@@ -63,7 +63,8 @@ export async function GET() {
     // Vierkant en 1200 px: Merchant Center wil minstens 800 × 800 voor
     // de grote weergave, en de oude packshot was maar 448 breed.
     ["g:image_link", `${siteUrl}/media/google/blusbox-module-11.jpg`],
-    ["g:additional_image_link", `${siteUrl}/media/verpakking-open.jpg`],
+    ["g:additional_image_link", `${siteUrl}/media/verpakking-voor-en-achter.jpg`],
+    ["g:additional_image_link", `${siteUrl}/media/verpakking-voorkant.jpg`],
     ["g:additional_image_link", `${siteUrl}/media/meterkast-front.jpg`],
     ["g:availability", "in_stock"],
     /*

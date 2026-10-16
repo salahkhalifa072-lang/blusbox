@@ -159,8 +159,8 @@ export default function Home() {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="relative aspect-square overflow-hidden rounded-2xl">
                     <Image
-                      src="/media/verpakking-dicht.jpg"
-                      alt="Gesloten rode Blusbox-verpakking met het logo en de tekst blusmodule voor de meterkast"
+                      src="/media/verpakking-voorkant.jpg"
+                      alt="Voorkant van de rode Blusbox-ophangdoos: brandblusser voor in de meterkast, grijpt zelf in bij 170 °C, met een tekening van de module op de DIN-rail"
                       fill
                       sizes="(min-width: 640px) 33vw, 100vw"
                       className="object-cover"
@@ -168,8 +168,8 @@ export default function Home() {
                   </div>
                   <div className="relative aspect-square overflow-hidden rounded-2xl">
                     <Image
-                      src="/media/verpakking-open.jpg"
-                      alt="Geopende Blusbox-verpakking: de module met vastzittend lichtblauw detectiekoord, naast een rode kaart met het Blusbox-logo"
+                      src="/media/verpakking-achterkant.jpg"
+                      alt="Achterkant van de Blusbox-doos: zo werkt Blusbox in drie stappen, technische gegevens, inhoud en waarschuwingen"
                       fill
                       sizes="(min-width: 640px) 33vw, 100vw"
                       className="object-cover"

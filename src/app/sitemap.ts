@@ -34,7 +34,8 @@ const fotos: Record<string, string[]> = {
   "/blusbox": [
     "/media/google/blusbox-module-11.jpg",
     "/media/google/blusbox-module-34.jpg",
-    "/media/verpakking-open.jpg",
+    "/media/verpakking-voorkant.jpg",
+    "/media/verpakking-achterkant.jpg",
     "/media/meterkast-front.jpg",
   ],
 };
