@@ -13,6 +13,7 @@ import { NieuwsEnModule } from "@/components/home/nieuws-en-module";
 import { Partnerband } from "@/components/home/partnerband";
 import { Reviews } from "@/components/reviews/reviews";
 import { gratisVerzending, prijsIncl, verzendwaarde } from "@/lib/pricing";
+import { VerpakkingZweeft } from "@/components/home/verpakking-zweeft";
 
 /**
  * §5.1 Home. Layout follows the client's reference: dark full-bleed hero with
@@ -157,14 +158,9 @@ export default function Home() {
 
               <Reveal delay={100}>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="relative aspect-square overflow-hidden rounded-2xl">
-                    <Image
-                      src="/media/verpakking-voorkant.jpg"
-                      alt="Voorkant van de rode Blusbox-ophangdoos: brandblusser voor in de meterkast, grijpt zelf in bij 170 °C, met een tekening van de module op de DIN-rail"
-                      fill
-                      sizes="(min-width: 640px) 33vw, 100vw"
-                      className="object-cover"
-                    />
+                  {/* Geen kader: de doos zweeft vrij boven de pagina. */}
+                  <div className="relative aspect-square">
+                    <VerpakkingZweeft />
                   </div>
                   <div className="relative aspect-square overflow-hidden rounded-2xl">
                     <Image
