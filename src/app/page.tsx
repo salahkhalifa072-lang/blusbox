@@ -3,7 +3,6 @@ import { ButtonLink } from "@/components/ui/button";
 import { SiteHeader } from "@/components/site/header";
 import { SiteFooter } from "@/components/site/footer";
 import { ScrollScrub } from "@/components/home/scroll-scrub";
-import { VideoBlock } from "@/components/ui/video-block";
 import { Reveal } from "@/components/ui/reveal";
 import { LogoBadge } from "@/components/site/logo";
 import { UspBar } from "@/components/site/usp-bar";
@@ -197,17 +196,18 @@ export default function Home() {
               <Reveal className="lg:col-span-2">
                 <figure>
                   <div className="relative overflow-hidden rounded-2xl">
-                    <VideoBlock
-                      src="/media/discharge.mp4"
-            av1Src="/media/discharge.av1.mp4"
-                      poster="/media/discharge.jpg"
-                      label="Filmfragment: een wit aerosolfront rolt door het industriële landschap en dooft de vuurgloed"
+                    <Image
+                      src="/media/man-met-blusbox-en-doos.webp"
+                      alt="Man bij zijn open meterkast met in de ene hand de rode Blusbox-module en in de andere hand de rode Blusbox-verpakking"
+                      width={1920}
+                      height={1086}
+                      sizes="(min-width: 1024px) 66vw, 100vw"
                       className="aspect-video w-full object-cover"
                     />
                     <LogoBadge />
                   </div>
                   <figcaption className="data mt-3 text-xs text-railstaal">
-                    De onderdrukking · beeld is een weergave
+                    Blusbox in huis · beeld is een weergave
                   </figcaption>
                 </figure>
               </Reveal>
