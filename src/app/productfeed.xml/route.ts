@@ -2,7 +2,6 @@ import { siteUrl } from "@/lib/site";
 import { bedrijf } from "@/lib/bedrijf";
 import { PRIJS_INCL_CENTEN } from "@/lib/pricing";
 import { MODULE_PAKKET } from "@/lib/verzending";
-import { gemiddeldeWaardering, REVIEWS } from "@/lib/reviews";
 import { GTIN } from "@/lib/product-facts";
 
 /**
@@ -39,8 +38,6 @@ function bedrag(centen: number): string {
 }
 
 export async function GET() {
-  const gemiddelde = gemiddeldeWaardering();
-
   const omschrijving = [
     "Blusbox is een automatische blusmodule voor de meterkast.",
     "De module klikt op de DIN-rail naast de hoofdschakelaar en aardlekschakelaar en heeft geen stroom of bedrading nodig.",
@@ -52,6 +49,11 @@ export async function GET() {
   /*
    * GTIN plus merk: zo koppelt Google de vermelding aan het product op de
    * verpakking. De mpn blijft erbij als eigen artikelnummer.
+   */
+  /*
+   * Geen reviewvelden: product_review_average/-count bestaan niet in de
+   * productfeed (Merchant Center meldde ze als niet-herkend). Reviews lopen
+   * bij Google via het programma Productbeoordelingen, met een eigen feed.
    */
   const velden: [string, string][] = [
     ["g:id", "BB-MODULE-01"],
@@ -80,12 +82,6 @@ export async function GET() {
     // Categorienummer uit de taxonomie van Google: brandbestrijding.
     ["g:google_product_category", "3348"],
     ["g:shipping_weight", `${MODULE_PAKKET.gewichtGram} g`],
-    ...(gemiddelde !== null && REVIEWS.length > 0
-      ? ([
-          ["g:product_review_count", String(REVIEWS.length)],
-          ["g:product_review_average", gemiddelde.toFixed(1)],
-        ] as [string, string][])
-      : []),
   ];
 
   const feed = `<?xml version="1.0" encoding="UTF-8"?>
