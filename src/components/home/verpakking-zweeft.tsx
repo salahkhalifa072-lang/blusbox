@@ -28,12 +28,13 @@ const BRONNEN = {
     naam: "verpakking-zweeft",
     label: "De rode Blusbox-verpakking zweeft zachtjes: brandblusser voor in de meterkast, grijpt zelf in bij 170 °C",
   },
-  // Draait van voor via de BLUSBOX-zijkant naar achter en terug. Een volle
-  // 360° uit twee AI-clips gaf een zichtbare sprong waar ze aansloten;
-  // heen-en-terug van één clip loopt naadloos en toont alleen echt drukwerk.
+  // Volle 360°: twee AI-clips (voor→achter, achter→voor) achter elkaar.
+  // Op de aansluiting verspringt de pose licht; de klant koos deze toch
+  // boven de heen-en-terugversie. De kleine tekst op de achterkant is door
+  // de AI nagetekend, daarom staat "Beeld is een weergave" eronder.
   draait: {
-    naam: "verpakking-draait",
-    label: "De rode Blusbox-verpakking draait van de voorkant via de zijkant naar de achterkant met uitleg en technische gegevens, en weer terug",
+    naam: "verpakking-360",
+    label: "De rode Blusbox-verpakking draait een volle slag rond: voorkant, zijkant, achterkant met uitleg en technische gegevens, andere zijkant",
   },
 } as const;
 
