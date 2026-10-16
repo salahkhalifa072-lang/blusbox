@@ -7,11 +7,13 @@ import { SiteFooter } from "@/components/site/footer";
 import { Reveal } from "@/components/ui/reveal";
 import { ClaimSource } from "@/components/ui/claim-source";
 import { LogoBadge } from "@/components/site/logo";
+import { ARTIKELEN } from "@/lib/kennisbank";
 
 export const metadata: Metadata = {
-  title: "Brand in de meterkast",
+  // De zoekterm vooraan, en de belofte erachter: zo leest hij in Google.
+  title: { absolute: "Brand in de meterkast: oorzaken, signalen en hoe je het voorkomt" },
   description:
-    "Hoe brand in een meterkast of groepenkast ontstaat, waarom een aardlekschakelaar die niet tegenhoudt, en welke maatregelen wél helpen.",
+    "Hoe brand in een meterkast of groepenkast ontstaat, waaraan je het herkent, waarom een aardlekschakelaar het niet altijd tegenhoudt en welke maatregelen wél helpen.",
   alternates: { canonical: "/meterkastbrand" },
 };
 
@@ -204,6 +206,22 @@ export default function MeterkastbrandPage() {
             </Reveal>
           </div>
         </section>
+        <nav aria-label="Verder lezen" className="mx-auto max-w-6xl px-6 pb-20">
+          <h2 className="font-display text-2xl">Verder lezen</h2>
+          <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {ARTIKELEN.map((a) => (
+              <li key={a.slug}>
+                <Link
+                  href={`/kennisbank/${a.slug}`}
+                  className="flex items-center justify-between gap-4 rounded-2xl border border-railstaal/60 px-5 py-4 transition-colors hover:border-antraciet"
+                >
+                  <span>{a.kop}</span>
+                  <span aria-hidden>→</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </main>
       <SiteFooter />
     </>

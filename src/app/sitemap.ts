@@ -1,11 +1,14 @@
 import type { MetadataRoute } from "next";
 import { siteUrl } from "@/lib/site";
+import { ARTIKELEN } from "@/lib/kennisbank";
 
 /** Marketing and service routes. /winkelwagen and /design stay out. */
 const routes: { path: string; priority: number }[] = [
   { path: "/", priority: 1 },
   { path: "/blusbox", priority: 0.9 },
   { path: "/meterkastbrand", priority: 0.8 },
+  { path: "/kennisbank", priority: 0.7 },
+  ...ARTIKELEN.map((a) => ({ path: `/kennisbank/${a.slug}`, priority: 0.6 })),
   { path: "/hoe-het-werkt", priority: 0.8 },
   { path: "/zakelijk", priority: 0.8 },
   { path: "/installateurs", priority: 0.7 },

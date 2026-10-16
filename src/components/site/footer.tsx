@@ -24,6 +24,7 @@ const columns = [
     title: "Service",
     links: [
       { href: "/veelgestelde-vragen", label: "Veelgestelde vragen" },
+      { href: "/kennisbank", label: "Kennisbank" },
       { href: "/retourneren", label: "Retourneren" },
       { href: "/herroepingsrecht", label: "Herroepingsrecht" },
       { href: "/garantie", label: "Garantie" },
