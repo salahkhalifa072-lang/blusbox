@@ -23,7 +23,28 @@ function isWebKit(): boolean {
   return navigator.vendor?.includes("Apple") ?? false;
 }
 
-export function VerpakkingZweeft({ className = "" }: { className?: string }) {
+const BRONNEN = {
+  zweeft: {
+    naam: "verpakking-zweeft",
+    label: "De rode Blusbox-verpakking zweeft zachtjes: brandblusser voor in de meterkast, grijpt zelf in bij 170 °C",
+  },
+  // Draait van voor via de BLUSBOX-zijkant naar achter en terug. Een volle
+  // 360° uit twee AI-clips gaf een zichtbare sprong waar ze aansloten;
+  // heen-en-terug van één clip loopt naadloos en toont alleen echt drukwerk.
+  draait: {
+    naam: "verpakking-draait",
+    label: "De rode Blusbox-verpakking draait van de voorkant via de zijkant naar de achterkant met uitleg en technische gegevens, en weer terug",
+  },
+} as const;
+
+export function VerpakkingZweeft({
+  className = "",
+  variant = "zweeft",
+}: {
+  className?: string;
+  variant?: keyof typeof BRONNEN;
+}) {
+  const bron = BRONNEN[variant];
   const video = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -38,8 +59,8 @@ export function VerpakkingZweeft({ className = "" }: { className?: string }) {
         if (!e.isIntersecting) return;
         kijker.disconnect();
         v.src = isWebKit()
-          ? "/media/verpakking/verpakking-zweeft-hevc.mov"
-          : "/media/verpakking/verpakking-zweeft.webm";
+          ? `/media/verpakking/${bron.naam}-hevc.mov`
+          : `/media/verpakking/${bron.naam}.webm`;
         v.play().catch(() => {
           // Autoplay geweigerd (spaarstand): de poster blijft gewoon staan.
         });
@@ -48,17 +69,17 @@ export function VerpakkingZweeft({ className = "" }: { className?: string }) {
     );
     kijker.observe(v);
     return () => kijker.disconnect();
-  }, []);
+  }, [bron.naam]);
 
   return (
     <video
       ref={video}
-      poster="/media/verpakking/verpakking-zweeft-poster.webp"
+      poster={`/media/verpakking/${bron.naam}-poster.webp`}
       muted
       loop
       playsInline
       preload="none"
-      aria-label="De rode Blusbox-verpakking zweeft zachtjes: brandblusser voor in de meterkast, grijpt zelf in bij 170 °C"
+      aria-label={bron.label}
       className={`h-full w-full object-contain ${className}`}
     />
   );

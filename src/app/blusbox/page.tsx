@@ -17,6 +17,7 @@ import { faqUitgelicht } from "@/lib/faq";
 import { LEVERTIJD } from "@/lib/verzending";
 import { koopNu, voegToeAanWagen } from "@/app/winkelwagen/acties";
 import { RookmelderOptie } from "@/components/product/rookmelder-optie";
+import { VerpakkingZweeft } from "@/components/home/verpakking-zweeft";
 import {
   IcoonLevensduur,
   IcoonRetour,
@@ -382,6 +383,36 @@ export default function BlusboxPage() {
           <Reviews titel="Beoordelingen" />
         </div>
 
+        {/* De verpakking, groot en draaiend. Donker vlak zodat de rode doos
+            eruit springt; de video heeft zelf geen achtergrond. */}
+        <section className="overflow-hidden bg-antraciet py-16 text-kastwit sm:py-20">
+          <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-8 px-6 lg:grid-cols-[1fr_1.1fr]">
+            <div className="order-2 lg:order-1">
+              <p className="data text-xs uppercase tracking-widest text-railstaal">De verpakking</p>
+              <h2 className="font-display mt-3 text-[clamp(2.25rem,5vw,3.75rem)] leading-[1.02]">
+                Zo komt hij <span className="text-blusrood-op-donker">bij je binnen.</span>
+              </h2>
+              <p className="mt-5 max-w-md text-kastwit/75">
+                Eén module in een stevige ophangdoos. Op de achterkant staat in
+                drie stappen hoe hij werkt, met alle technische gegevens en
+                waarschuwingen erbij.
+              </p>
+              <ul className="mt-6 space-y-2 text-sm text-kastwit/80">
+                {inDoos.map((item) => (
+                  <li key={item} className="flex gap-3">
+                    <span aria-hidden className="data text-blusrood-op-donker">—</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="data mt-6 text-[11px] text-kastwit/45">Beeld is een weergave.</p>
+            </div>
+            <div className="order-1 mx-auto h-[min(78vh,44rem)] w-full max-w-md lg:order-2">
+              <VerpakkingZweeft variant="draait" />
+            </div>
+          </div>
+        </section>
+
         <section id="specificaties" className="mx-auto max-w-6xl scroll-mt-24 px-6 py-20">
           <div className="grid gap-12 lg:grid-cols-[1fr_1.4fr]">
             <div>
@@ -393,18 +424,6 @@ export default function BlusboxPage() {
             </div>
             <div>
               <SpecTable rows={productFacts} />
-
-              <h3 className="font-display mt-12 text-xl">Wat je ontvangt</h3>
-              <ul className="mt-4 space-y-2 text-sm text-staal-tekst">
-                {inDoos.map((item) => (
-                  <li key={item} className="flex gap-3">
-                    <span className="data text-blusrood-op-donker" aria-hidden>
-                      —
-                    </span>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
             </div>
           </div>
         </section>
