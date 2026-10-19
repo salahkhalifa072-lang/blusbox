@@ -33,6 +33,74 @@ export type Artikel = {
 
 export const ARTIKELEN: Artikel[] = [
   {
+    slug: "meterkast-uitgelegd",
+    titel: "Meterkast: wat zit erin, wat kan er misgaan en hoe houd je hem veilig?",
+    kop: "De meterkast uitgelegd",
+    omschrijving:
+      "Wat zit er in een meterkast, wie is waarvoor verantwoordelijk, welke signalen wijzen op een probleem en hoe houd je je meterkast veilig? Helder uitgelegd.",
+    intro:
+      "Bijna elk Nederlands huis heeft er een, maar weinig mensen kijken er ooit in. De meterkast is de plek waar stroom, gas en water je huis binnenkomen. Dit is wat erin zit en waar je op let.",
+    gepubliceerd: "2026-10-19",
+    bijgewerkt: "2026-10-19",
+    leestijd: 5,
+    inhoud: [
+      { soort: "h2", tekst: "Wat zit er in een meterkast?" },
+      {
+        soort: "lijst",
+        items: [
+          "De elektriciteitsmeter en de hoofdzekering, waar de stroomkabel van de netbeheerder binnenkomt.",
+          "De hoofdschakelaar, waarmee je de stroom in het hele huis in één keer uitzet.",
+          "Eén of meer aardlekschakelaars, die de stroom uitschakelen als er stroom weglekt, bijvoorbeeld door een defect apparaat.",
+          "De groepen (installatieautomaten): elke groep voedt een deel van het huis en schakelt uit bij overbelasting of kortsluiting.",
+          "Vaak ook de gasmeter met de hoofdgaskraan en de watermeter met de hoofdkraan.",
+          "Steeds vaker: een glasvezel- of kabelmodem, een omvormer voor zonnepanelen of een groep voor de laadpaal.",
+        ],
+      },
+      { soort: "h2", tekst: "Wie is waarvoor verantwoordelijk?" },
+      {
+        soort: "p",
+        tekst:
+          "Het deel tot en met de meters is van de netbeheerder; daar zit je zelf niet aan. Alles daarna — hoofdschakelaar, aardlekschakelaars, groepen en de bedrading naar je stopcontacten — is jouw installatie. Werk daaraan laat je doen door een erkend installateur.",
+      },
+      { soort: "h2", tekst: "Wat kan er misgaan?" },
+      {
+        soort: "p",
+        tekst:
+          "In de meterkast komen alle stroomkringen van het huis samen. Een verbinding die loszit, een groep die structureel te zwaar belast wordt of een verouderde installatie kan daar warm worden. Dat gaat langzaam en zonder geluid, en het gebeurt precies op een plek waar je zelden kijkt.",
+      },
+      {
+        soort: "lijst",
+        items: [
+          "De kast of de deur voelt warm aan.",
+          "Je ruikt verbrand plastic.",
+          "Je hoort zoemen of knetteren.",
+          "Een groep of aardlekschakelaar valt regelmatig uit zonder duidelijke reden.",
+        ],
+      },
+      {
+        soort: "let-op",
+        tekst:
+          "Zie je rook of vuur? Ga niet zelf aan de kast zitten, haal iedereen naar buiten en bel 112. Gebruik nooit water op een elektrische installatie.",
+      },
+      { soort: "h2", tekst: "Zo houd je je meterkast veilig" },
+      {
+        soort: "lijst",
+        items: [
+          "Gebruik de meterkast niet als opbergruimte: houd hem vrij en goed bereikbaar.",
+          "Laat een oudere installatie controleren, zeker als er grote verbruikers bij zijn gekomen zoals inductiekoken, een laadpaal of een warmtepomp.",
+          "Laat extra groepen of een nieuwe groepenkast aanleggen door een erkend installateur.",
+          "Zorg voor werkende rookmelders: die zijn sinds 1 juli 2022 verplicht op elke woonverdieping.",
+          "Overweeg een automatische blusmodule in de kast zelf, voor het geval er iets misgaat als niemand kijkt.",
+        ],
+      },
+      {
+        soort: "p",
+        tekst:
+          "Blusbox is zo'n automatische blusmodule. Hij klikt op de DIN-rail naast je groepen, heeft geen stroom nodig en grijpt vanzelf in bij 170 °C. Hij vervangt geen rookmelder of aardlekschakelaar, maar vult ze aan op de plek waar een brand vaak begint.",
+      },
+    ],
+  },
+  {
     slug: "meterkast-wordt-warm",
     titel: "Meterkast wordt warm of ruikt verbrand: wat moet je doen?",
     kop: "Meterkast warm of brandlucht",

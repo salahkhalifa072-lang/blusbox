@@ -208,8 +208,13 @@ export default function BlusboxPage() {
               <p className="data text-xs uppercase tracking-widest text-railstaal">
                 blusmodule · meterkast
               </p>
-              <h1 className="font-display mt-4 text-[clamp(2.5rem,6vw,4.5rem)]">
+              {/* De zoekterm in de kop zelf: Google weegt de h1 zwaar, en
+                  "Blusbox" alleen zegt niemand die het merk niet kent iets. */}
+              <h1 className="font-display mt-4 text-[clamp(2.5rem,6vw,4.5rem)] leading-[1.02]">
                 Blusbox
+                <span className="mt-2 block text-[clamp(1.25rem,2.6vw,1.75rem)] leading-tight text-kastwit/80">
+                  automatische brandblusser voor de meterkast
+                </span>
               </h1>
 
               {/* Waardering direct onder de titel. Verdwijnt vanzelf zolang

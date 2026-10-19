@@ -8,6 +8,8 @@ import { Reveal } from "@/components/ui/reveal";
 import { ClaimSource } from "@/components/ui/claim-source";
 import { LogoBadge } from "@/components/site/logo";
 import { ARTIKELEN } from "@/lib/kennisbank";
+import { FaqList } from "@/components/ui/accordion";
+import type { FaqItem } from "@/lib/faq";
 
 export const metadata: Metadata = {
   // De zoekterm vooraan, en de belofte erachter: zo leest hij in Google.
@@ -37,6 +39,49 @@ const oorzaken = [
     b: "Omvormers en accusystemen brengen extra vermogen, extra componenten en extra warmte bij de verdeelinrichting. Meer aansluitingen betekent meer plekken waar het mis kan gaan.",
   },
 ];
+
+/*
+ * Vragen zoals mensen ze in Google typen. Google kan ze uitklapbaar onder
+ * het zoekresultaat tonen, maar alleen als ze ook zichtbaar op de pagina
+ * staan — daarom één lijst voor allebei.
+ */
+const vragen: FaqItem[] = [
+  {
+    vraag: "Hoe ontstaat brand in de meterkast?",
+    antwoord:
+      "Meestal door warmte op één punt: een verbinding die loszit, een groep die structureel te zwaar belast wordt of een verouderde installatie. Zo'n plek wordt langzaam warmer tot isolatiemateriaal kan gaan smeulen of ontbranden.",
+  },
+  {
+    vraag: "Houdt een aardlekschakelaar brand in de meterkast tegen?",
+    antwoord:
+      "Niet altijd. Een aardlekschakelaar schakelt uit als er stroom weglekt naar aarde, en een groep schakelt uit bij overbelasting of kortsluiting. Een losse verbinding die warm wordt terwijl de stroom gewoon blijft lopen, wordt door geen van beide gezien.",
+  },
+  {
+    vraag: "Wat moet je doen bij brand in de meterkast?",
+    antwoord:
+      "Haal iedereen naar buiten, sluit de deuren achter je en bel 112. Gebruik nooit water op een elektrische installatie. Ruik je alleen brandlucht of is de kast warm zonder rook of vuur, zet dan als het veilig kan de hoofdschakelaar uit en bel een erkend installateur.",
+  },
+  {
+    vraag: "Welke brandblusser is geschikt voor de meterkast?",
+    antwoord:
+      "Voor een elektrische installatie is een CO₂-blusser bedoeld; die laat geen residu achter. Een poederblusser blust ook, maar het poeder verspreidt zich door de hele ruimte. Een handblusser werkt alleen als iemand de brand ziet. Een automatische blusmodule zoals Blusbox hangt in de kast zelf en grijpt bij 170 °C vanzelf in, zonder stroom.",
+  },
+  {
+    vraag: "Is een brandblusser in de meterkast verplicht?",
+    antwoord:
+      "Voor een gewone woning niet. Verplicht zijn rookmelders: sinds 1 juli 2022 op elke verdieping met een woon- of slaapruimte. Een blusmiddel bij de meterkast is een vrijwillige extra maatregel.",
+  },
+];
+
+const vragenData = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: vragen.map((v) => ({
+    "@type": "Question",
+    name: v.vraag,
+    acceptedAnswer: { "@type": "Answer", text: v.antwoord },
+  })),
+};
 
 export default function MeterkastbrandPage() {
   return (
@@ -206,6 +251,17 @@ export default function MeterkastbrandPage() {
             </Reveal>
           </div>
         </section>
+        <section className="mx-auto max-w-3xl px-6 pb-20">
+          <SectionTitle>Veelgestelde vragen over brand in de meterkast</SectionTitle>
+          <div className="mt-8">
+            <FaqList items={vragen} />
+          </div>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(vragenData) }}
+          />
+        </section>
+
         <nav aria-label="Verder lezen" className="mx-auto max-w-6xl px-6 pb-20">
           <h2 className="font-display text-2xl">Verder lezen</h2>
           <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">

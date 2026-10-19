@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { ButtonLink } from "@/components/ui/button";
 import { SiteHeader } from "@/components/site/header";
 import { SiteFooter } from "@/components/site/footer";
@@ -260,6 +261,25 @@ export default function Home() {
                 </Reveal>
               ))}
             </div>
+            {/* Links met de zoekterm als tekst: zo weet Google waar die
+                pagina's over gaan, en bezoekers kunnen verder lezen. */}
+            <ul className="mt-8 flex flex-col gap-3 text-sm sm:flex-row sm:flex-wrap sm:gap-x-8">
+              <li>
+                <Link href="/meterkastbrand" className="underline underline-offset-4 hover:text-blusrood-op-licht">
+                  Brand in de meterkast: oorzaken en signalen →
+                </Link>
+              </li>
+              <li>
+                <Link href="/kennisbank/welke-brandblusser-meterkast" className="underline underline-offset-4 hover:text-blusrood-op-licht">
+                  Welke brandblusser past bij de meterkast? →
+                </Link>
+              </li>
+              <li>
+                <Link href="/kennisbank/meterkast-uitgelegd" className="underline underline-offset-4 hover:text-blusrood-op-licht">
+                  De meterkast uitgelegd →
+                </Link>
+              </li>
+            </ul>
           </div>
         </section>
 
