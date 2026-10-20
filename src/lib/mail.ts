@@ -17,6 +17,7 @@ import { siteUrl } from "./site";
 import { bedrijf, verzendadres } from "./bedrijf";
 import { haalBestelling } from "./bestelling";
 import { contactadresVanBestelling } from "@/db/queries";
+import { TRUSTPILOT_UITNODIGING } from "./trustpilot";
 import {
   MailNietGeconfigureerd,
   mailBeschikbaar,
@@ -102,6 +103,54 @@ export async function stuurBestelbevestiging(
         content: Buffer.from(formulier).toString("base64"),
       },
     ],
+  });
+}
+
+/**
+ * Trustpilot-uitnodiging voor een betaalde bestelling.
+ *
+ * Trustpilot vraagt om de bestelbevestiging in bcc te zetten. Dat doen we
+ * niet, om dezelfde reden als bij stuurBerichtkopie: het bcc-adres reist
+ * mee naar de klant. In plaats daarvan krijgt Trustpilot een eigen mail
+ * met de gegevens in hun gestructureerde vorm (application/json+trustpilot).
+ * Trustpilot wacht daarna zelf de ingestelde dagen voordat het de klant
+ * om een review vraagt.
+ *
+ * Elke betaalde bestelling krijgt er een, zonder selectie: Trustpilot staat
+ * niet toe dat je alleen tevreden klanten uitnodigt.
+ */
+export async function stuurTrustpilotUitnodiging(
+  ordernummer: string,
+  ontvanger?: string,
+): Promise<MailResultaat> {
+  if (!mailBeschikbaar()) {
+    return { verstuurd: false, reden: "MAILERSEND_API_TOKEN ontbreekt" };
+  }
+
+  const gegevens = await haalBestelling(ordernummer);
+  if (!gegevens) {
+    return { verstuurd: false, reden: `Bestelling ${ordernummer} niet gevonden` };
+  }
+  const naar = ontvanger ?? (await contactadresVanBestelling(ordernummer));
+  if (!naar) {
+    return { verstuurd: false, reden: "Geen e-mailadres bij deze bestelling" };
+  }
+
+  const { order } = gegevens;
+  const data: Record<string, string> = {
+    recipientEmail: naar,
+    referenceId: order.ordernummer,
+  };
+  if (order.klantNaam) data.recipientName = order.klantNaam;
+
+  // "<" ontsnappen, zodat een naam met "</script>" het blok niet breekt.
+  const json = JSON.stringify(data).replace(/</g, "\\u003c");
+
+  return verstuurMail({
+    naar: TRUSTPILOT_UITNODIGING,
+    onderwerp: `Bestelling ${order.ordernummer} — Blusbox`,
+    html: `<p>Bestelling ${order.ordernummer}</p><script type="application/json+trustpilot">${json}</script>`,
+    tekst: `Bestelling ${order.ordernummer}`,
   });
 }
 

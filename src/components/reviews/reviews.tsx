@@ -8,6 +8,7 @@ import Image from "next/image";
 import { VideoBlock } from "@/components/ui/video-block";
 import { formatteerNl } from "@/lib/levensduur";
 import { Sterren } from "./sterren";
+import { TrustpilotWidget } from "./trustpilot-widget";
 
 /**
  * Beoordelingen: gemiddelde, verdeling en de reacties zelf.
@@ -173,6 +174,17 @@ export function Reviews({
           hebben. Wij korten ze niet in, schrijven ze niet om en
           verwijderen geen kritiek.
         </p>
+
+        {/* Reviews op Trustpilot staan los van de kaarten hierboven: die
+            komen bij ons binnen, deze bij Trustpilot. Zolang er daar nog
+            geen score is, staat hier alleen de knop om er een te geven. */}
+        <div className="mt-10 max-w-md rounded-2xl border border-railstaal/40 bg-kastwit p-5">
+          <p className="font-medium text-antraciet">Heb je zelf een Blusbox?</p>
+          <p className="mt-1 text-sm text-staal-tekst">
+            Vertel andere kopers hoe hij bevalt, op Trustpilot.
+          </p>
+          <TrustpilotWidget className="mt-4" />
+        </div>
       </div>
     </section>
   );

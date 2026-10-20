@@ -4,6 +4,7 @@ import { leesWebhookGebeurtenis, naarOrderStatus } from "@/lib/stripe";
 import { markeerBetaald, vulAdresAan } from "@/lib/bestelling";
 import {
   stuurBestelbevestiging,
+  stuurTrustpilotUitnodiging,
   stuurBestelmelding,
   stuurFactuurBetaaldMelding,
 } from "@/lib/mail";
@@ -188,6 +189,22 @@ export async function POST(request: Request) {
           } else if (!bevestiging.value.verstuurd) {
             console.error(
               `Bevestigingsmail voor ${ordernummer} niet verstuurd: ${bevestiging.value.reden}`,
+            );
+          }
+
+          // Los en als laatste: een mislukte uitnodiging is jammer, maar
+          // raakt de klant en de winkelier niet.
+          try {
+            const uitnodiging = await stuurTrustpilotUitnodiging(ordernummer, klantEmail);
+            if (!uitnodiging.verstuurd) {
+              console.error(
+                `Trustpilot-uitnodiging voor ${ordernummer} niet verstuurd: ${uitnodiging.reden}`,
+              );
+            }
+          } catch (fout) {
+            console.error(
+              `Trustpilot-uitnodiging voor ${ordernummer} gooide:`,
+              (fout as Error).message,
             );
           }
 

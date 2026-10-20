@@ -98,6 +98,10 @@ export default function PrivacyverklaringPage() {
               @blusbox.nl-adres stuurt, wordt doorgestuurd naar een mailbox bij
               Google;
             </li>
+            <li>
+              Trustpilot, dat je na een bestelling om een review vraagt (zie
+              hieronder);
+            </li>
             <li>de vervoerder die je pakket bezorgt.</li>
           </ul>
           <p>
@@ -126,6 +130,20 @@ export default function PrivacyverklaringPage() {
             verwachte leverdatum en de productcode, om je die enquête te
             sturen. Zeg je nee of sluit je het venster, dan gebeurt er niets.
             Voor de enquête zelf geldt het privacybeleid van Google.
+          </p>
+
+          <h2>Reviews via Trustpilot</h2>
+          <p>
+            Na een betaalde bestelling geven wij je naam, e-mailadres en
+            bestelnummer door aan Trustpilot A/S. Trustpilot stuurt je een
+            paar dagen later één uitnodiging om een review over je aankoop te
+            schrijven. Dat doen wij bij elke bestelling, ongeacht wat je
+            ervan vindt. Grondslag: ons gerechtvaardigd belang om
+            beoordelingen van echte kopers te verzamelen. Wil je geen
+            uitnodiging, laat het ons dan weten via{" "}
+            <Link href="/contact">contact</Link>, of meld je af via de link in
+            de uitnodiging zelf. Voor wat Trustpilot met je review doet, geldt
+            het privacybeleid van Trustpilot.
           </p>
 
           <h2>Je rechten</h2>
