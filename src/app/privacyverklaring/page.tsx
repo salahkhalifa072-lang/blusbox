@@ -83,14 +83,38 @@ export default function PrivacyverklaringPage() {
           <h2>Ontvangers</h2>
           <p>
             Wij delen gegevens uitsluitend met partijen die nodig zijn om te
-            kunnen leveren: de betaaldienstverlener, de vervoerder, de
-            e-maildienst voor transactionele berichten en onze hostingpartij.
-            Met elk van hen sluiten wij een verwerkersovereenkomst. Concreet
-            zijn dat Stripe (betalingen), Vercel (hosting) en Neon (database,
-            servers in Frankfurt). Jouw gegevens blijven daarmee binnen de
-            Europese Economische Ruimte, behalve waar Stripe voor
-            fraudebestrijding gegevens buiten de EER verwerkt op grond van
-            standaardcontractbepalingen.
+            kunnen leveren en met je te communiceren. Concreet zijn dat:
+          </p>
+          <ul>
+            <li>Stripe, voor het afhandelen van betalingen;</li>
+            <li>Vercel, waar de website draait;</li>
+            <li>Neon, voor onze database (servers in Frankfurt);</li>
+            <li>
+              MailerSend, dat onze transactionele e-mails verstuurt, zoals de
+              orderbevestiging, de factuur en berichten over je bestelling;
+            </li>
+            <li>
+              Theory7, dat onze e-maildomeinen host. E-mail die je naar een
+              @blusbox.nl-adres stuurt, wordt doorgestuurd naar een mailbox bij
+              Google;
+            </li>
+            <li>de vervoerder die je pakket bezorgt.</li>
+          </ul>
+          <p>
+            Met deze partijen maken wij afspraken over de verwerking van je
+            gegevens. Een deel van hen kan gegevens ook buiten de Europese
+            Economische Ruimte verwerken. Dat gebeurt dan op grond van
+            standaardcontractbepalingen van de Europese Commissie of een
+            adequaatheidsbesluit.
+          </p>
+
+          <h2>Advertenties en statistieken</h2>
+          <p>
+            Als je daar in de cookiebanner toestemming voor geeft, meten wij met
+            Google Ads en Google Analytics of onze advertenties tot bestellingen
+            leiden. Geef je geen toestemming, dan worden die diensten niet
+            geladen. Welke cookies dat zijn en hoe je je toestemming intrekt,
+            lees je in ons <Link href="/cookiebeleid">cookiebeleid</Link>.
           </p>
 
           <h2>Google Klantenreviews</h2>
