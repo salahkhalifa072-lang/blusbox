@@ -109,14 +109,26 @@ export const LANDKEUZE = TOEGESTANE_LANDEN.map((code) => ({
  * een brievenbuspakje uitsluit — PostNL en DHL houden 3,2 cm aan. Elke
  * zending is daardoor een gewoon pakket. Dat is geen fout in deze
  * getallen maar een eigenschap van het product, en het verklaart waarom
- * de verzendkosten hoger uitvallen dan je bij 40 gram zou verwachten.
+ * de verzendkosten hoger uitvallen dan je bij 150 gram zou verwachten.
  */
 export const MODULE_PAKKET = {
-  /** Gram, module plus omdoos. */
-  gewichtGram: 40,
-  lengteCm: 10,
-  breedteCm: 6,
-  hoogteCm: 4,
+  /**
+   * Gram, module plus ophangdoos. De module weegt ±120 g (datasheet, zo ook
+   * op de doos); de doos zelf is niet gewogen, dus ruim geschat.
+   */
+  gewichtGram: 150,
+  // Packly-ophangdoos 110 × 30 × 184 mm.
+  lengteCm: 18.4,
+  breedteCm: 11,
+  hoogteCm: 3,
+} as const;
+
+/** De module zelf, zoals op de doos en in de datasheet. */
+export const MODULE_MATEN = {
+  breedteMm: 77,
+  hoogteMm: 62,
+  diepteMm: 19,
+  gewichtGram: 120,
 } as const;
 
 /**

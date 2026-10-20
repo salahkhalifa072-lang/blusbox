@@ -1,7 +1,7 @@
 import { siteUrl } from "@/lib/site";
 import { bedrijf } from "@/lib/bedrijf";
 import { PRIJS_INCL_CENTEN } from "@/lib/pricing";
-import { MODULE_PAKKET } from "@/lib/verzending";
+import { MODULE_MATEN, MODULE_PAKKET } from "@/lib/verzending";
 import { GTIN } from "@/lib/product-facts";
 
 /**
@@ -43,7 +43,7 @@ export async function GET() {
     "De module klikt op de DIN-rail naast de hoofdschakelaar en aardlekschakelaar en heeft geen stroom of bedrading nodig.",
     "Bij 170 °C activeert het detectiekoord de module, die de beginnende brand in de kast dooft met condensed aerosol.",
     "Het residu is niet-geleidend en niet-corrosief, zodat de installatie intact blijft.",
-    `Afmetingen circa ${MODULE_PAKKET.lengteCm} × ${MODULE_PAKKET.breedteCm} × ${MODULE_PAKKET.hoogteCm} cm, gewicht ${MODULE_PAKKET.gewichtGram} gram. Levensduur tien jaar.`,
+    `Afmetingen ${MODULE_MATEN.breedteMm} × ${MODULE_MATEN.hoogteMm} × ${MODULE_MATEN.diepteMm} mm, gewicht ±${MODULE_MATEN.gewichtGram} gram. Levensduur tien jaar.`,
   ].join(" ");
 
   /*

@@ -32,8 +32,8 @@ export const productFacts: SpecRow[] = [
     label: "Residu",
     value: "Niet-geleidend, niet-corrosief voor de omliggende installatie",
   },
-  { label: "Gewicht", value: "30 g — 40 g inclusief verpakking", isData: true },
-  { label: "Afmetingen", value: "circa 10 × 6 × 4 cm", isData: true },
+  { label: "Gewicht", value: "±120 g", isData: true },
+  { label: "Afmetingen", value: "77 × 62 × 19 mm", isData: true },
 ];
 
 /**
