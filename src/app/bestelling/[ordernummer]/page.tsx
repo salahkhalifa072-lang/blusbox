@@ -9,6 +9,10 @@ import { formatteerNl } from "@/lib/levensduur";
 import { Aankoop } from "@/components/meting/aankoop";
 import { LeegWagen } from "@/components/winkel/leeg-wagen";
 import { isBetaald } from "@/lib/meting";
+import { GoogleReviews } from "@/components/meting/google-reviews";
+import { verwachteLeverdatum } from "@/lib/leverdatum";
+import { contactadresVanBestelling } from "@/db/queries";
+import { GTIN } from "@/lib/product-facts";
 
 export const metadata: Metadata = {
   title: "Bestelling",
@@ -74,9 +78,26 @@ export default async function BestellingPage({
     stukprijsCenten: r.stukprijsExclBtwCenten,
   }));
 
+  // Google Klantenreviews: alleen bij betaald en met een adres om op te mailen.
+  const reviewEmail = isBetaald(order.status)
+    ? await contactadresVanBestelling(order.ordernummer)
+    : null;
+  const reviewGtins = regels.some((r) => r.slug === "blusbox" || r.slug === "vervangmodule")
+    ? [GTIN]
+    : [];
+
   return (
     <>
       {isBetaald(order.status) && <LeegWagen />}
+      {reviewEmail && (
+        <GoogleReviews
+          ordernummer={order.ordernummer}
+          email={reviewEmail}
+          landcode={order.landcode || "NL"}
+          leverdatum={verwachteLeverdatum(order.geplaatstOp)}
+          gtins={reviewGtins}
+        />
+      )}
       {isBetaald(order.status) && (
         <Aankoop
           ordernummer={order.ordernummer}

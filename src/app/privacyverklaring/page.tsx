@@ -93,6 +93,17 @@ export default function PrivacyverklaringPage() {
             standaardcontractbepalingen.
           </p>
 
+          <h2>Google Klantenreviews</h2>
+          <p>
+            Na een betaalde bestelling vraagt Google je op de
+            bevestigingspagina of je na levering een korte enquête over je
+            aankoop wilt ontvangen. Alleen als je daar ja op zegt, ontvangt
+            Google je e-mailadres, je bestelnummer, het land van levering, de
+            verwachte leverdatum en de productcode, om je die enquête te
+            sturen. Zeg je nee of sluit je het venster, dan gebeurt er niets.
+            Voor de enquête zelf geldt het privacybeleid van Google.
+          </p>
+
           <h2>Je rechten</h2>
           <p>
             Je hebt recht op inzage, correctie, verwijdering, beperking,
