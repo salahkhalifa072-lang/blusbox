@@ -34,7 +34,7 @@ export type Artikel = {
 export const ARTIKELEN: Artikel[] = [
   {
     slug: "meterkast-uitgelegd",
-    titel: "Meterkast: wat zit erin, wat kan er misgaan en hoe houd je hem veilig?",
+    titel: "Meterkast uitgelegd: wat zit erin en hoe houd je hem veilig?",
     kop: "De meterkast uitgelegd",
     omschrijving:
       "Wat zit er in een meterkast, wie is waarvoor verantwoordelijk, welke signalen wijzen op een probleem en hoe houd je je meterkast veilig? Helder uitgelegd.",
@@ -159,7 +159,7 @@ export const ARTIKELEN: Artikel[] = [
   },
   {
     slug: "welke-brandblusser-meterkast",
-    titel: "Welke brandblusser past bij de meterkast? Poeder, CO₂, schuim of automatisch",
+    titel: "Welke brandblusser voor de meterkast? Poeder, CO₂ of automatisch",
     kop: "Welke brandblusser voor de meterkast?",
     omschrijving:
       "Poeder, CO₂, schuim, blusdeken of een automatische blusmodule: wat je wel en niet gebruikt bij brand in de meterkast, en waarom.",

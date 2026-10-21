@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     absolute: `Blusbox kopen — brandblusser voor de meterkast · ${prijsIncl}`,
   },
   description:
-    `Automatische blusmodule voor de meterkast voor ${prijsIncl}. Activeert zichzelf bij 170 °C, zonder stroom of bediening. Tien jaar levensduur, gratis verzending, 14 dagen bedenktijd.`,
+    `Automatische blusmodule voor de meterkast voor ${prijsIncl}. Grijpt zelf in bij 170 °C, zonder stroom of bediening. Tien jaar levensduur en gratis verzending.`,
   alternates: { canonical: "/blusbox" },
   openGraph: {
     type: "website",

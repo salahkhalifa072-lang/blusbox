@@ -11,7 +11,8 @@ export function Prose({ children }: { children: ReactNode }) {
         mx-auto max-w-2xl px-6 py-20
         [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-blusrood-op-licht
         [&_h2]:font-display [&_h2]:mt-12 [&_h2]:text-2xl [&_h2]:first:mt-0
-        [&_h3]:mt-8 [&_h3]:font-medium
+        [&_h2]:hyphens-auto [&_h2]:break-words
+        [&_h3]:mt-8 [&_h3]:font-medium [&_h3]:hyphens-auto [&_h3]:break-words
         [&_li]:text-staal-tekst
         [&_ol]:mt-4 [&_ol]:list-decimal [&_ol]:space-y-2 [&_ol]:pl-5
         [&_p]:mt-4 [&_p]:leading-relaxed [&_p]:text-staal-tekst

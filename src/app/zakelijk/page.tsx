@@ -12,7 +12,7 @@ import { productFacts } from "@/lib/product-facts";
 export const metadata: Metadata = {
   title: "Zakelijk",
   description:
-    "Blusbox voor installateurs, VvE's, woningcorporaties en KAM-beheer. Een consequentiebeperkende maatregel in uw RI&E, met staffelprijzen en levering op rekening.",
+    "Blusbox voor installateurs, VvE's, woningcorporaties en KAM-beheer. Consequentiebeperkende maatregel in uw RI&E, met staffelprijzen en levering op rekening.",
   alternates: { canonical: "/zakelijk" },
 };
 

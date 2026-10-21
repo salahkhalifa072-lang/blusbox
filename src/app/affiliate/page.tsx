@@ -21,7 +21,7 @@ import { PROGRAMMA, STAPPEN, VOORWAARDEN_KORT, VRAGEN } from "@/lib/affiliate/te
  */
 export const metadata: Metadata = {
   title: `Affiliateprogramma — verdien ${PROGRAMMA.percentage}% commissie`,
-  description: `Partnerprogramma van Blusbox: verdien ${PROGRAMMA.percentage}% commissie over elke verkoop van de automatische blusmodule voor de meterkast. Gratis aanmelden, eigen link, ${PROGRAMMA.attributieDagen} dagen geldig, maandelijkse uitbetaling.`,
+  description: `Partnerprogramma van Blusbox: verdien ${PROGRAMMA.percentage}% commissie op elke verkoop van de blusmodule voor de meterkast. Gratis aanmelden, eigen link, maandelijkse uitbetaling.`,
   alternates: { canonical: "/affiliate" },
   openGraph: {
     type: "website",
