@@ -16,8 +16,15 @@
  * Het is een ontvangstadres, geen sleutel.
  */
 
-/** Conversie-id uit Google Ads, in de vorm AW-1234567890. */
-export const GOOGLE_ADS_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID?.trim() ?? "";
+/**
+ * Conversie-id uit Google Ads (account blusbox.nl, 386-282-9476), in de
+ * vorm AW-1234567890. De omgevingsvariabele gaat voor; zonder staat hier
+ * het echte account, zodat de meting niet afhangt van een instelling in
+ * Vercel die iemand vergeet. Een lege variabele zet de meting niet uit —
+ * daarvoor moet deze regel weg.
+ */
+export const GOOGLE_ADS_ID =
+  process.env.NEXT_PUBLIC_GOOGLE_ADS_ID?.trim() || "AW-18538501244";
 
 /**
  * Het conversielabel van de actie "Aankoop". Google toont id en label
@@ -25,7 +32,7 @@ export const GOOGLE_ADS_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID?.trim() ?? ""
  * streep.
  */
 export const GOOGLE_ADS_LABEL =
-  process.env.NEXT_PUBLIC_GOOGLE_ADS_CONVERSIE_LABEL?.trim() ?? "";
+  process.env.NEXT_PUBLIC_GOOGLE_ADS_CONVERSIE_LABEL?.trim() || "w4eHCOyEtKodEPyo7IdF";
 
 /** Meet-id van GA4, in de vorm G-XXXXXXXXXX. Optioneel. */
 export const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID?.trim() ?? "";

@@ -116,8 +116,11 @@ export default function PrivacyverklaringPage() {
           <p>
             Als je daar in de cookiebanner toestemming voor geeft, meten wij met
             Google Ads en Google Analytics of onze advertenties tot bestellingen
-            leiden. Geef je geen toestemming, dan worden die diensten niet
-            geladen. Welke cookies dat zijn en hoe je je toestemming intrekt,
+            leiden. Bij een bestelling geven we daarbij het ordernummer, het
+            bedrag exclusief btw en je e-mailadres door; dat laatste
+            versleuteld (gehasht) in je browser, zodat Google het niet kan
+            lezen. Geef je geen toestemming, dan worden die diensten niet
+            geladen en gaat er niets naar Google. Welke cookies dat zijn en hoe je je toestemming intrekt,
             lees je in ons <Link href="/cookiebeleid">cookiebeleid</Link>.
           </p>
 

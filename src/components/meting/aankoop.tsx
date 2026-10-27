@@ -59,8 +59,17 @@ export function Aankoop({
   ordernummer,
   waardeCenten,
   regels,
+  email,
 }: {
   ordernummer: string;
+  /**
+   * Voor verbeterde conversies. gtag normaliseert en hasht het adres in de
+   * browser (SHA-256) voordat het naar Google gaat; Google krijgt het nooit
+   * leesbaar. Het helpt een aankoop aan een klik te koppelen als de
+   * advertentiecookie ontbreekt, bijvoorbeeld bij kopen op een ander
+   * apparaat. Alleen na toestemming, zoals alles hier.
+   */
+  email?: string | null;
   /** Exclusief btw en exclusief verzendkosten. */
   waardeCenten: number;
   /**
@@ -84,6 +93,7 @@ export function Aankoop({
       const waarde = waardeCenten / 100;
 
       if (conversieDoel) {
+        if (email) gtag("set", "user_data", { email });
         gtag("event", "conversion", {
           send_to: conversieDoel,
           value: waarde,
@@ -148,7 +158,7 @@ export function Aankoop({
       clearInterval(wachten);
       opzeggen();
     };
-  }, [ordernummer, waardeCenten, regels]);
+  }, [ordernummer, waardeCenten, regels, email]);
 
   return null;
 }

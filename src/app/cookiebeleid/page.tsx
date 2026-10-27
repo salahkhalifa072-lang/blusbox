@@ -52,8 +52,10 @@ export default function CookiebeleidPage() {
                 leiden. Daarvoor plaatst Google cookies die je bezoek koppelen
                 aan de advertentie waarop je hebt geklikt, en geeft onze site
                 bij een afgeronde bestelling het ordernummer en het bedrag
-                exclusief btw door. Je naam, adres en e-mailadres gaan daar
-                niet in mee.
+                exclusief btw door. Daarbij gaat ook je e-mailadres mee, maar
+                versleuteld (gehasht) in je eigen browser: Google kan het
+                niet lezen, alleen vergelijken met een account dat het al
+                kent. Je naam en adres gaan niet mee.
               </p>
               <p>
                 Dit gebeurt alleen als je op &ldquo;Akkoord&rdquo; drukt. Kies

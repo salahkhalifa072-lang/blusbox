@@ -88,7 +88,7 @@ window.gtag=gtag;
 gtag('js',new Date());
 gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'denied'});
 gtag('consent','update',{ad_storage:'granted',ad_user_data:'granted',ad_personalization:'granted',analytics_storage:'granted'});
-${GOOGLE_ADS_ID ? `gtag('config','${GOOGLE_ADS_ID}');` : ""}
+${GOOGLE_ADS_ID ? `gtag('config','${GOOGLE_ADS_ID}',{allow_enhanced_conversions:true});` : ""}
 ${GA4_ID ? `gtag('config','${GA4_ID}');` : ""}`}
           </Script>
           <Script

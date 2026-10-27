@@ -103,6 +103,7 @@ export default async function BestellingPage({
           ordernummer={order.ordernummer}
           waardeCenten={order.subtotaalExclBtwCenten}
           regels={meetregels}
+          email={reviewEmail}
         />
       )}
       <PageHeader
