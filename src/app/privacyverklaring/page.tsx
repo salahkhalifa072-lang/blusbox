@@ -132,7 +132,12 @@ export default function PrivacyverklaringPage() {
             Meta Platforms Ireland Limited ziet dan welke pagina&apos;s van
             onze winkel je bezoekt en krijgt bij een bestelling het
             ordernummer, het bedrag exclusief btw, de bestelde producten en
-            je e-mailadres, gehasht in je browser. Voor wat Meta daar zelf
+            je e-mailadres, gehasht in je browser. Omdat een adblocker die
+            melding kan tegenhouden, sturen wij hem na de betaling ook
+            rechtstreeks vanaf onze server, met hetzelfde gehashte
+            e-mailadres, het IP-adres en de browsergegevens van het moment
+            van afrekenen. Dat gebeurt alleen als je op dat moment
+            toestemming had gegeven. Voor wat Meta daar zelf
             mee doet, geldt het privacybeleid van Meta. Grondslag voor beide:
             je toestemming, die je altijd kunt intrekken. Welke cookies dat zijn en hoe je je toestemming intrekt,
             lees je in ons <Link href="/cookiebeleid">cookiebeleid</Link>.
