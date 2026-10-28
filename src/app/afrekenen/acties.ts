@@ -28,6 +28,7 @@ import {
 } from "@/lib/stripe";
 import { berekenWagen, regelKortingBp } from "@/lib/winkelwagen";
 import { vindItem } from "@/lib/catalogus";
+import { metaKoppelingBijAfrekenen } from "@/lib/meta-capi";
 import { beoordeelVerzending } from "@/lib/verzending";
 import { koppelAffiliateAanBestelling } from "@/lib/affiliate/koppelen";
 
@@ -243,6 +244,7 @@ export async function rekenAf(
       email,
       ordernummer: bestelling.ordernummer,
       orderId: bestelling.id,
+      meta: await metaKoppelingBijAfrekenen(),
       succesUrl: `${basis}/bestelling/${bestelling.ordernummer}`,
       annuleerUrl: `${basis}/winkelwagen`,
       btwVerlegd: overzicht.totalen.btwVerlegd,
@@ -345,6 +347,7 @@ export async function snelAfrekenen(): Promise<void> {
       })),
       ordernummer: bestelling.ordernummer,
       orderId: bestelling.id,
+      meta: await metaKoppelingBijAfrekenen(),
       succesUrl: `${basis}/bestelling/${bestelling.ordernummer}`,
       annuleerUrl: `${basis}/afrekenen`,
       vraagAdres: true,

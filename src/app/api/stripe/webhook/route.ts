@@ -9,6 +9,7 @@ import {
   stuurFactuurBetaaldMelding,
 } from "@/lib/mail";
 import { markeerFactuurBetaald } from "@/db/facturen";
+import { meldMetaAankoop } from "@/lib/meta-capi";
 import {
   draaiCommissieTerug,
   maakCommissieVoorBestelling,
@@ -207,6 +208,14 @@ export async function POST(request: Request) {
               (fout as Error).message,
             );
           }
+
+          // Aankoop ook vanaf de server naar Meta, alleen als de klant bij
+          // het afrekenen toestemming had gegeven. Gooit nooit.
+          await meldMetaAankoop({
+            ordernummer,
+            metadata: sessie.metadata,
+            email: klantEmail,
+          });
 
           if (melding.status === "rejected") {
             console.error(

@@ -78,6 +78,11 @@ export async function maakCheckoutSessie(opts: {
    * Wallet; de webhook zet het daarna in de bestelling.
    */
   vraagAdres?: boolean;
+  /**
+   * Koppelgegevens voor de Meta Conversions API, alleen als de klant
+   * toestemming gaf. Zie lib/meta-capi.
+   */
+  meta?: Record<string, string | undefined> | null;
 }): Promise<{ id: string; url: string | null }> {
   const stripe = stripeClient();
 
@@ -139,6 +144,9 @@ export async function maakCheckoutSessie(opts: {
       btwVerlegd: opts.btwVerlegd ? "ja" : "nee",
       bron: opts.bron ?? "webshop",
       snel: opts.vraagAdres ? "ja" : "nee",
+      ...Object.fromEntries(
+        Object.entries(opts.meta ?? {}).filter(([, v]) => v),
+      ),
     },
   });
 
