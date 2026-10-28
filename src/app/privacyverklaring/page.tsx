@@ -102,6 +102,10 @@ export default function PrivacyverklaringPage() {
               Trustpilot, dat je na een bestelling om een review vraagt (zie
               hieronder);
             </li>
+            <li>
+              Google en Meta, alleen als je toestemming geeft voor
+              advertentiemeting (zie hieronder);
+            </li>
             <li>de vervoerder die je pakket bezorgt.</li>
           </ul>
           <p>
@@ -120,7 +124,17 @@ export default function PrivacyverklaringPage() {
             bedrag exclusief btw en je e-mailadres door; dat laatste
             versleuteld (gehasht) in je browser, zodat Google het niet kan
             lezen. Geef je geen toestemming, dan worden die diensten niet
-            geladen en gaat er niets naar Google. Welke cookies dat zijn en hoe je je toestemming intrekt,
+            geladen en gaat er niets naar Google.
+          </p>
+          <p>
+            Met dezelfde toestemming meten wij ook met de Meta-pixel of onze
+            advertenties op Facebook en Instagram tot bestellingen leiden.
+            Meta Platforms Ireland Limited ziet dan welke pagina&apos;s van
+            onze winkel je bezoekt en krijgt bij een bestelling het
+            ordernummer, het bedrag exclusief btw, de bestelde producten en
+            je e-mailadres, gehasht in je browser. Voor wat Meta daar zelf
+            mee doet, geldt het privacybeleid van Meta. Grondslag voor beide:
+            je toestemming, die je altijd kunt intrekken. Welke cookies dat zijn en hoe je je toestemming intrekt,
             lees je in ons <Link href="/cookiebeleid">cookiebeleid</Link>.
           </p>
 

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { abonneer, leesKeuze } from "@/lib/toestemming";
-import { conversieDoel, GA4_ID } from "@/lib/meting";
+import { conversieDoel, GA4_ID, META_PIXEL_ID } from "@/lib/meting";
 
 /**
  * De aankoopconversie op de bestelbevestiging.
@@ -25,13 +25,22 @@ import { conversieDoel, GA4_ID } from "@/lib/meting";
  *    maakt er op papier quitte uit.
  */
 
-const VOORVOEGSEL = "blusbox-conversie-";
+/**
+ * Per platform bijgehouden: blokkeert een adblocker alleen de Meta-pixel,
+ * dan mag dat niet betekenen dat Google de aankoop ook niet krijgt — of
+ * dat hij bij een volgend bezoek alsnog dubbel naar Google gaat.
+ */
+const VOORVOEGSEL = {
+  google: "blusbox-conversie-",
+  meta: "blusbox-meta-conversie-",
+} as const;
+type Platform = keyof typeof VOORVOEGSEL;
 
 type GtagFn = (...args: unknown[]) => void;
 
-function alGemeld(ordernummer: string): boolean {
+function alGemeld(platform: Platform, ordernummer: string): boolean {
   try {
-    return localStorage.getItem(VOORVOEGSEL + ordernummer) !== null;
+    return localStorage.getItem(VOORVOEGSEL[platform] + ordernummer) !== null;
   } catch {
     // Privémodus of geblokkeerde opslag: dan vertrouwen we op de
     // ontdubbeling van Google via transaction_id.
@@ -39,9 +48,9 @@ function alGemeld(ordernummer: string): boolean {
   }
 }
 
-function onthoud(ordernummer: string): void {
+function onthoud(platform: Platform, ordernummer: string): void {
   try {
-    localStorage.setItem(VOORVOEGSEL + ordernummer, String(Date.now()));
+    localStorage.setItem(VOORVOEGSEL[platform] + ordernummer, String(Date.now()));
   } catch {
     /* niets te doen */
   }
@@ -80,17 +89,18 @@ export function Aankoop({
   regels: AankoopRegel[];
 }) {
   useEffect(() => {
-    if (!conversieDoel && !GA4_ID) return;
-    if (alGemeld(ordernummer)) return;
+    const open = new Set<Platform>();
+    if ((conversieDoel || GA4_ID) && !alGemeld("google", ordernummer)) open.add("google");
+    if (META_PIXEL_ID && !alGemeld("meta", ordernummer)) open.add("meta");
+    if (open.size === 0) return;
 
     let gestopt = false;
     let wachten: ReturnType<typeof setInterval> | undefined;
+    const waarde = waardeCenten / 100;
 
-    function meld() {
+    function meldGoogle() {
       const gtag = (window as unknown as { gtag?: GtagFn }).gtag;
       if (!gtag) return false;
-
-      const waarde = waardeCenten / 100;
 
       if (conversieDoel) {
         if (email) gtag("set", "user_data", { email });
@@ -116,12 +126,55 @@ export function Aankoop({
         });
       }
 
-      onthoud(ordernummer);
       return true;
     }
 
     /**
-     * gtag bestaat pas zodra het basisscript is uitgevoerd, en dat gebeurt
+     * Purchase naar Meta. Het ordernummer gaat mee als eventID: komt er
+     * later een server-koppeling (Conversions API) bij die dezelfde
+     * aankoop meldt, dan telt Meta hem op dat id maar één keer.
+     *
+     * Het e-mailadres gaat via een tweede `init` mee ("advanced
+     * matching"); de pixel normaliseert en hasht het in de browser
+     * voordat het verstuurd wordt.
+     */
+    function meldMeta() {
+      const fbq = (window as unknown as { fbq?: GtagFn }).fbq;
+      if (!fbq) return false;
+      if (email) fbq("init", META_PIXEL_ID, { em: email.trim().toLowerCase() });
+      fbq(
+        "track",
+        "Purchase",
+        {
+          value: waarde,
+          currency: "EUR",
+          content_type: "product",
+          content_ids: regels.map((r) => r.id),
+          contents: regels.map((r) => ({
+            id: r.id,
+            quantity: r.aantal,
+            item_price: r.stukprijsCenten / 100,
+          })),
+          num_items: regels.reduce((n, r) => n + r.aantal, 0),
+        },
+        { eventID: ordernummer },
+      );
+      return true;
+    }
+
+    function meld() {
+      for (const platform of [...open]) {
+        const gelukt = platform === "google" ? meldGoogle() : meldMeta();
+        if (gelukt) {
+          onthoud(platform, ordernummer);
+          open.delete(platform);
+        }
+      }
+      return open.size === 0;
+    }
+
+    /**
+     * gtag en fbq bestaan pas zodra hun basisscript is uitgevoerd, en dat gebeurt
      * ná deze render. Even wachten dus — maar niet eindeloos: blokkeert een
      * adblocker het script, dan blijft dit anders elke seconde draaien
      * zolang de pagina openstaat.

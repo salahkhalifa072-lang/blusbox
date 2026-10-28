@@ -3,6 +3,7 @@ import { Anton, Manrope, Geist_Mono } from "next/font/google";
 import { siteUrl } from "@/lib/site";
 import { OrganisatieData } from "@/components/site/gestructureerde-data";
 import { Meting } from "@/components/meting/meting";
+import { META_DOMEINVERIFICATIE } from "@/lib/meting";
 import "./globals.css";
 
 /**
@@ -53,9 +54,16 @@ export const metadata: Metadata = {
    * Zonder geverifieerd domein weigert Merchant Center de productfeed,
    * dus dit is geen bijzaak maar een voorwaarde.
    */
-  ...(process.env.GOOGLE_SITE_VERIFICATION
-    ? { verification: { google: process.env.GOOGLE_SITE_VERIFICATION } }
-    : {}),
+  verification: {
+    ...(process.env.GOOGLE_SITE_VERIFICATION
+      ? { google: process.env.GOOGLE_SITE_VERIFICATION }
+      : {}),
+    // Meta: nodig om aankopen op blusbox.nl als advertentiedoel te mogen
+    // gebruiken. Zie lib/meting.
+    ...(META_DOMEINVERIFICATIE
+      ? { other: { "facebook-domain-verification": META_DOMEINVERIFICATIE } }
+      : {}),
+  },
   // §11: nl-NL now, with nl-BE ready to switch on when we ship to Belgium.
   alternates: {
     canonical: "/",

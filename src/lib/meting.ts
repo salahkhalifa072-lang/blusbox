@@ -1,5 +1,5 @@
 /**
- * Meting: Google Ads-conversies en GA4.
+ * Meting: Google Ads-conversies, GA4 en de Meta-pixel.
  *
  * Alles hangt aan omgevingsvariabelen en niets staat hard in de code. Dat
  * is hier geen netheid maar een schakelaar: staan ze leeg, dan wordt er
@@ -38,13 +38,29 @@ export const GOOGLE_ADS_LABEL =
 export const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID?.trim() ?? "";
 
 /**
+ * Pixel-id uit Meta Events Manager (gegevensbron "Blusbox"). Net als de
+ * Google-id geen geheim: hij staat in de broncode van elke pagina waar
+ * de pixel draait. De omgevingsvariabele gaat voor.
+ */
+export const META_PIXEL_ID =
+  process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim() || "1283982580559306";
+
+/**
+ * Domeinverificatie van Meta (Bedrijfsinstellingen → Merkveiligheid →
+ * Domeinen). Zonder geverifieerd domein mag Meta aankopen op blusbox.nl
+ * niet als advertentiedoel gebruiken. Een openbare meta-tag, geen sleutel.
+ */
+export const META_DOMEINVERIFICATIE =
+  process.env.META_DOMEINVERIFICATIE?.trim() || "mckjggh48dhd5v5i47ongkv0krih0v";
+
+/**
  * Het script laadt onder één id. Staat Ads ingesteld, dan die; anders GA4.
  * Beide tegelijk kan: gtag stuurt daarna naar allebei door.
  */
 export const METING_ID = GOOGLE_ADS_ID || GA4_ID;
 
 /** Valt er iets te meten, en dus iets te vragen? */
-export const metingActief = METING_ID !== "";
+export const metingActief = METING_ID !== "" || META_PIXEL_ID !== "";
 
 /**
  * Waar de aankoopconversie heen gaat. Zonder label kan Google de conversie

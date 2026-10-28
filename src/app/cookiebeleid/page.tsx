@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/site/page-header";
 import { SiteFooter } from "@/components/site/footer";
 import { Prose, DraftNotice } from "@/components/site/prose";
 import { KeuzeAanpassen } from "@/components/meting/keuze-aanpassen";
-import { GA4_ID, GOOGLE_ADS_ID, metingActief } from "@/lib/meting";
+import { GA4_ID, GOOGLE_ADS_ID, META_PIXEL_ID, metingActief } from "@/lib/meting";
 
 export const metadata: Metadata = {
   title: "Cookiebeleid",
@@ -57,10 +57,22 @@ export default function CookiebeleidPage() {
                 niet lezen, alleen vergelijken met een account dat het al
                 kent. Je naam en adres gaan niet mee.
               </p>
+              {META_PIXEL_ID && (
+                <p>
+                  Hetzelfde doen wij met de Meta-pixel, voor advertenties op
+                  Facebook en Instagram. Meta plaatst daarvoor een cookie
+                  (onder meer <code>_fbp</code>), ziet welke pagina&apos;s
+                  van onze winkel je bezoekt en krijgt bij een bestelling het
+                  ordernummer, het bedrag exclusief btw, welke producten het
+                  zijn en je e-mailadres, ook dat gehasht in je browser.
+                  Heb je een account bij Facebook of Instagram, dan kan Meta
+                  je bezoek daaraan koppelen.
+                </p>
+              )}
               <p>
                 Dit gebeurt alleen als je op &ldquo;Akkoord&rdquo; drukt. Kies
                 je &ldquo;Weigeren&rdquo;, dan wordt er geen enkel script van
-                Google geladen en gaat er ook geen verzoek naar Google — de
+                Google of Meta geladen en gaat er ook geen verzoek naar hen — de
                 winkel werkt dan precies hetzelfde.
               </p>
               <p>
@@ -68,7 +80,8 @@ export default function CookiebeleidPage() {
                 {[GOOGLE_ADS_ID ? "Google Ads" : null, GA4_ID ? "Google Analytics 4" : null]
                   .filter(Boolean)
                   .join(" en ")}
-                , van Google Ireland Limited.
+                , van Google Ireland Limited
+                {META_PIXEL_ID ? ", en de Meta-pixel, van Meta Platforms Ireland Limited" : ""}.
               </p>
             </>
           ) : (

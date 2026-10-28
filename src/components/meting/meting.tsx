@@ -1,20 +1,27 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   abonneer,
   bewaarKeuze,
   leesKeuze,
   type Keuze,
 } from "@/lib/toestemming";
-import { GA4_ID, GOOGLE_ADS_ID, METING_ID, metingActief } from "@/lib/meting";
+import {
+  GA4_ID,
+  GOOGLE_ADS_ID,
+  META_PIXEL_ID,
+  METING_ID,
+  metingActief,
+} from "@/lib/meting";
 
 /**
  * De toestemmingsvraag en, ná een ja, de meetscripts.
  *
- * Vóór toestemming wordt er niets van Google geladen. Dat is strenger dan
+ * Vóór toestemming wordt er niets van Google of Meta geladen. Dat is strenger dan
  * de toestemmingsmodus die Google zelf aanraadt, waarbij gtag.js meteen
  * laadt en alleen geen cookies zet. Die variant stuurt nog steeds een
  * verzoek naar Google mét het IP-adres van de bezoeker, en dat is op zich
@@ -49,6 +56,26 @@ function BannerKnop({
       {children}
     </button>
   );
+}
+
+/**
+ * De Meta-pixel telt uit zichzelf alleen de eerste pagina: daarna wisselt
+ * Next van pagina zonder dat de browser opnieuw laadt. Elke volgende
+ * pagina melden we hier. De eerste slaan we over, die meldt het
+ * basisscript al — anders telt elke landingspagina dubbel.
+ */
+function MetaPaginaweergave() {
+  const pad = usePathname();
+  const eerste = useRef(true);
+  useEffect(() => {
+    if (eerste.current) {
+      eerste.current = false;
+      return;
+    }
+    const fbq = (window as unknown as { fbq?: (...a: unknown[]) => void }).fbq;
+    fbq?.("track", "PageView");
+  }, [pad]);
+  return null;
 }
 
 export function Meting() {
@@ -96,6 +123,21 @@ ${GA4_ID ? `gtag('config','${GA4_ID}');` : ""}`}
             strategy="afterInteractive"
             src={`https://www.googletagmanager.com/gtag/js?id=${METING_ID}`}
           />
+          {META_PIXEL_ID && (
+            <>
+              {/* De standaardcode van Meta, alleen ingekort. */}
+              <Script id="meting-meta" strategy="afterInteractive">
+                {`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','${META_PIXEL_ID}');
+fbq('track','PageView');`}
+              </Script>
+              <MetaPaginaweergave />
+            </>
+          )}
         </>
       )}
 
@@ -109,7 +151,8 @@ ${GA4_ID ? `gtag('config','${GA4_ID}');` : ""}`}
         >
           <div className="mx-auto flex max-w-5xl flex-col gap-4 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
             <p className="max-w-prose text-sm leading-relaxed">
-              Wij meten met Google of onze advertenties bestellingen opleveren.
+              Wij meten met Google en Meta (Facebook, Instagram) of onze
+              advertenties bestellingen opleveren.
               Daar zijn cookies voor nodig. Zonder jouw toestemming plaatsen we
               ze niet en werkt de winkel gewoon.{" "}
               <Link
