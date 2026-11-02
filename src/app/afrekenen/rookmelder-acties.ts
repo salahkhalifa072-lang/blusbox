@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { leesWagen, schrijfWagen } from "@/lib/winkelwagen-cookie";
 import { verwijder, voegToe } from "@/lib/winkelwagen";
 import { ROOKMELDER_SLUG } from "@/lib/catalogus";
+import { onthoudToevoeging } from "@/lib/trechter-server";
 
 /**
  * De rookmelder aan- of uitzetten vanaf de afrekenpagina.
@@ -18,9 +19,11 @@ import { ROOKMELDER_SLUG } from "@/lib/catalogus";
  */
 export async function zetRookmelder(formData: FormData): Promise<void> {
   const aan = formData.get("aan") === "ja";
-  let wagen = verwijder(await leesWagen(), ROOKMELDER_SLUG);
+  const oud = await leesWagen();
+  let wagen = verwijder(oud, ROOKMELDER_SLUG);
   if (aan) wagen = voegToe(wagen, ROOKMELDER_SLUG, 1);
   await schrijfWagen(wagen);
+  await onthoudToevoeging(oud, wagen);
   revalidatePath("/afrekenen");
   revalidatePath("/winkelwagen");
 }

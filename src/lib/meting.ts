@@ -34,6 +34,12 @@ export const GOOGLE_ADS_ID =
 export const GOOGLE_ADS_LABEL =
   process.env.NEXT_PUBLIC_GOOGLE_ADS_CONVERSIE_LABEL?.trim() || "w4eHCOyEtKodEPyo7IdF";
 
+/** Labels van de tussenstappen, zelfde vorm als hierboven. */
+export const GOOGLE_ADS_LABEL_WAGEN =
+  process.env.NEXT_PUBLIC_GOOGLE_ADS_LABEL_WAGEN?.trim() || "_Oj2CPSosK4dEPyo7IdF";
+export const GOOGLE_ADS_LABEL_AFREKENEN =
+  process.env.NEXT_PUBLIC_GOOGLE_ADS_LABEL_AFREKENEN?.trim() || "RCKCCPeosK4dEPyo7IdF";
+
 /** Meet-id van GA4, in de vorm G-XXXXXXXXXX. Optioneel. */
 export const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID?.trim() ?? "";
 
@@ -86,6 +92,14 @@ export const BETAALDE_STATUSSEN = [
   "verzonden",
   "geleverd",
 ] as const;
+
+/**
+ * Het product-id richting Google en Meta, gelijk aan dat in de productfeed.
+ * Blusbox en vervangmodule zijn één product met twee ingangen.
+ */
+export function meetId(slug: string): string {
+  return slug === "blusbox" || slug === "vervangmodule" ? "BB-MODULE-01" : slug;
+}
 
 export function isBetaald(status: string): boolean {
   return (BETAALDE_STATUSSEN as readonly string[]).includes(status);

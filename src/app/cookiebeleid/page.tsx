@@ -57,6 +57,13 @@ export default function CookiebeleidPage() {
                 niet lezen, alleen vergelijken met een account dat het al
                 kent. Je naam en adres gaan niet mee.
               </p>
+              <p>
+                Ook geven we door wanneer je iets in de winkelwagen legt en
+                wanneer je begint met afrekenen, met het product en het bedrag
+                exclusief btw. Dan zien we waar bezoekers afhaken. Daarvoor
+                bewaren we na het toevoegen maximaal twee minuten een cookie
+                (<code>blusbox-toegevoegd</code>) met wat je toevoegde.
+              </p>
               {META_PIXEL_ID && (
                 <p>
                   Hetzelfde doen wij met de Meta-pixel, voor advertenties op
@@ -64,7 +71,8 @@ export default function CookiebeleidPage() {
                   (onder meer <code>_fbp</code>), ziet welke pagina&apos;s
                   van onze winkel je bezoekt en krijgt bij een bestelling het
                   ordernummer, het bedrag exclusief btw, welke producten het
-                  zijn en je e-mailadres, ook dat gehasht in je browser.
+                  zijn en je e-mailadres, ook dat gehasht in je browser. Ook
+                  krijgt Meta dezelfde tussenstappen door als Google.
                   Heb je een account bij Facebook of Instagram, dan kan Meta
                   je bezoek daaraan koppelen.
                 </p>

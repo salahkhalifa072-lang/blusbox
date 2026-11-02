@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { leesWagen, schrijfWagen } from "@/lib/winkelwagen-cookie";
 import { geldigeSlugs, verwijder, voegToe, wijzigAantal, type Winkelwagen } from "@/lib/winkelwagen";
 import { ROOKMELDER_SLUG } from "@/lib/catalogus";
+import { onthoudToevoeging } from "@/lib/trechter-server";
 
 /**
  * Cart server actions. Every action re-validates the slug against the
@@ -21,9 +22,10 @@ export async function voegToeAanWagen(formData: FormData) {
   if (!geldig(slug)) return;
 
   const aantal = Number(formData.get("aantal") ?? 1);
-  await schrijfWagen(
-    metRookmelder(voegToe(await leesWagen(), slug, aantal), formData),
-  );
+  const oud = await leesWagen();
+  const nieuw = metRookmelder(voegToe(oud, slug, aantal), formData);
+  await schrijfWagen(nieuw);
+  await onthoudToevoeging(oud, nieuw);
 
   revalidatePath("/winkelwagen");
   revalidatePath("/blusbox");
@@ -82,7 +84,8 @@ export async function koopNu(formData: FormData) {
   if (!geldig(slug)) return;
 
   const ruw = formData.get("aantal");
-  let wagen = await leesWagen();
+  const oud = await leesWagen();
+  let wagen = oud;
   const huidig = wagen.regels.find((r) => r.slug === slug)?.aantal ?? 0;
   const gewenst = ruw === null ? Math.max(1, huidig) : Number(ruw);
   if (!Number.isFinite(gewenst) || gewenst < 1) return;
@@ -90,7 +93,9 @@ export async function koopNu(formData: FormData) {
   // Aantal aanpassen als hij er al in zat, zodat de volgorde in het
   // overzicht niet verspringt; anders toevoegen.
   wagen = huidig > 0 ? wijzigAantal(wagen, slug, gewenst) : voegToe(wagen, slug, gewenst);
-  await schrijfWagen(metRookmelder(wagen, formData));
+  wagen = metRookmelder(wagen, formData);
+  await schrijfWagen(wagen);
+  await onthoudToevoeging(oud, wagen);
 
   revalidatePath("/winkelwagen");
   revalidatePath("/afrekenen");

@@ -5,6 +5,7 @@ import {
   naarCookie,
   normaliseerWagen,
   uitCookie,
+  verschilWagen,
   verwijder,
   voegToe,
   wijzigAantal,
@@ -39,6 +40,23 @@ describe("wagen bewerken", () => {
 
   it("verwijdert een onbekend artikel zonder te klagen", () => {
     expect(verwijder({ regels: [] }, "bestaat-niet").regels).toHaveLength(0);
+  });
+});
+
+describe("wat er bij kwam", () => {
+  it("telt alleen de toename, per artikel", () => {
+    const oud = voegToe({ regels: [] }, "blusbox", 2);
+    const nieuw = voegToe(voegToe(oud, "blusbox", 1), "rookmelder", 1);
+    expect(verschilWagen(oud, nieuw).regels).toEqual([
+      { slug: "blusbox", aantal: 1 },
+      { slug: "rookmelder", aantal: 1 },
+    ]);
+  });
+
+  it("geeft niets bij gelijk of minder", () => {
+    const oud = voegToe({ regels: [] }, "blusbox", 2);
+    expect(verschilWagen(oud, oud).regels).toEqual([]);
+    expect(verschilWagen(oud, wijzigAantal(oud, "blusbox", 1)).regels).toEqual([]);
   });
 });
 

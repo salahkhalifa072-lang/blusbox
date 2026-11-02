@@ -6,6 +6,7 @@ import { useFormStatus } from "react-dom";
 import { zetRookmelder } from "@/app/afrekenen/rookmelder-acties";
 import { ROOKMELDER_SLUG, vindItem } from "@/lib/catalogus";
 import { euro } from "@/lib/pricing";
+import { meldToevoeging } from "@/lib/trechter";
 
 /**
  * Het rookmelderaanbod in de bestellingssamenvatting.
@@ -63,7 +64,13 @@ function Knop({ aan }: { aan: boolean }) {
 
 function Schakelaar({ aan }: { aan: boolean }) {
   return (
-    <form action={zetRookmelder}>
+    // Hier geen paginawissel: de melding moet dus na het antwoord van de server.
+    <form
+      action={async (formData) => {
+        await zetRookmelder(formData);
+        meldToevoeging();
+      }}
+    >
       <input type="hidden" name="aan" value={aan ? "nee" : "ja"} />
       <Knop aan={aan} />
     </form>

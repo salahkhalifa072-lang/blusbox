@@ -16,6 +16,8 @@ import { SnelAfrekenen } from "@/components/winkel/snel-afrekenen";
 import { ROOKMELDER_SLUG } from "@/lib/catalogus";
 import { leesKortingscode } from "@/lib/kortingscode-cookie";
 import { beoordeelInvoer } from "@/db/korting";
+import { AfrekenenGestart } from "@/components/meting/trechter";
+import { trechterStap } from "@/lib/trechter-server";
 
 export const metadata: Metadata = {
   title: "Afrekenen",
@@ -49,6 +51,7 @@ export default async function AfrekenenPage() {
 
   return (
     <>
+      <AfrekenenGestart {...trechterStap(overzicht)} />
       <PageHeader
         eyebrow="afrekenen"
         title="Bestelling afronden"

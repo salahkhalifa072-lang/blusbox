@@ -123,7 +123,9 @@ export default function PrivacyverklaringPage() {
             leiden. Bij een bestelling geven we daarbij het ordernummer, het
             bedrag exclusief btw en je e-mailadres door; dat laatste
             versleuteld (gehasht) in je browser, zodat Google het niet kan
-            lezen. Geef je geen toestemming, dan worden die diensten niet
+            lezen. Ook geven we door wanneer je iets in de winkelwagen legt
+            en begint met afrekenen, met het product en het bedrag exclusief
+            btw. Geef je geen toestemming, dan worden die diensten niet
             geladen en gaat er niets naar Google.
           </p>
           <p>
@@ -132,7 +134,8 @@ export default function PrivacyverklaringPage() {
             Meta Platforms Ireland Limited ziet dan welke pagina&apos;s van
             onze winkel je bezoekt en krijgt bij een bestelling het
             ordernummer, het bedrag exclusief btw, de bestelde producten en
-            je e-mailadres, gehasht in je browser. Omdat een adblocker die
+            je e-mailadres, gehasht in je browser, en dezelfde tussenstappen
+            in de winkelwagen en bij het afrekenen. Omdat een adblocker die
             melding kan tegenhouden, sturen wij hem na de betaling ook
             rechtstreeks vanaf onze server, met hetzelfde gehashte
             e-mailadres, het IP-adres en de browsergegevens van het moment

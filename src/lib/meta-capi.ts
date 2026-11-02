@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { cookies, headers } from "next/headers";
-import { META_PIXEL_ID, isBetaald } from "./meting";
-import { TOESTEMMING_COOKIE, TOESTEMMING_VERSIE } from "./toestemming";
+import { META_PIXEL_ID, isBetaald, meetId } from "./meting";
+import { heeftMeetToestemming } from "./trechter-server";
 import { haalBestelling } from "./bestelling";
 import { siteUrl } from "./site";
 import { contactadresVanBestelling } from "@/db/queries";
@@ -44,11 +44,9 @@ export type MetaKoppeling = {
  * toestemming. Stripe staat maximaal 500 tekens per waarde toe.
  */
 export async function metaKoppelingBijAfrekenen(): Promise<MetaKoppeling | null> {
-  if (!META_PIXEL_ID) return null;
-  const pot = await cookies();
-  const keuze = decodeURIComponent(pot.get(TOESTEMMING_COOKIE)?.value ?? "");
-  if (keuze !== `verleend.${TOESTEMMING_VERSIE}`) return null;
+  if (!META_PIXEL_ID || !(await heeftMeetToestemming())) return null;
 
+  const pot = await cookies();
   const kop = await headers();
   const ip = kop.get("x-forwarded-for")?.split(",")[0]?.trim() || kop.get("x-real-ip") || "";
   const kort = (s: string | undefined) => (s ? s.slice(0, 500) : undefined);
@@ -88,7 +86,7 @@ export async function meldMetaAankoop(opts: {
     // Zelfde id's en bedrag als de pixel op de bevestigingspagina, anders
     // ziet Meta twee verschillende aankopen.
     const contents = regels.map((r) => ({
-      id: r.slug === "blusbox" || r.slug === "vervangmodule" ? "BB-MODULE-01" : r.slug,
+      id: meetId(r.slug),
       quantity: r.aantal,
       item_price: r.stukprijsExclBtwCenten / 100,
     }));

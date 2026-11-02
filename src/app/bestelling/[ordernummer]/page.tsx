@@ -8,7 +8,7 @@ import { euro, verzendwaarde } from "@/lib/pricing";
 import { formatteerNl } from "@/lib/levensduur";
 import { Aankoop } from "@/components/meting/aankoop";
 import { LeegWagen } from "@/components/winkel/leeg-wagen";
-import { isBetaald } from "@/lib/meting";
+import { isBetaald, meetId } from "@/lib/meting";
 import { GoogleReviews } from "@/components/meting/google-reviews";
 import { verwachteLeverdatum } from "@/lib/leverdatum";
 import { contactadresVanBestelling } from "@/db/queries";
@@ -72,7 +72,7 @@ export default async function BestellingPage({
    * en zou anders als verkoop meetellen.
    */
   const meetregels = regels.map((r) => ({
-    id: r.slug === "blusbox" || r.slug === "vervangmodule" ? "BB-MODULE-01" : r.slug,
+    id: meetId(r.slug),
     naam: r.naam,
     aantal: r.aantal,
     stukprijsCenten: r.stukprijsExclBtwCenten,

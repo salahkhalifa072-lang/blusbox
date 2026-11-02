@@ -3,6 +3,7 @@ import { Anton, Manrope, Geist_Mono } from "next/font/google";
 import { siteUrl } from "@/lib/site";
 import { OrganisatieData } from "@/components/site/gestructureerde-data";
 import { Meting } from "@/components/meting/meting";
+import { ToevoegingMelder } from "@/components/meting/trechter";
 import { META_DOMEINVERIFICATIE } from "@/lib/meting";
 import "./globals.css";
 
@@ -98,6 +99,7 @@ export default function RootLayout({
         <OrganisatieData />
         {children}
         <Meting />
+        <ToevoegingMelder />
       </body>
     </html>
   );

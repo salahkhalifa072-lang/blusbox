@@ -61,6 +61,16 @@ export function verwijder(wagen: Winkelwagen, slug: string): Winkelwagen {
   return { regels: wagen.regels.filter((r) => r.slug !== slug) };
 }
 
+/** Wat er in `nieuw` meer in zit dan in `oud`; minder telt niet mee. */
+export function verschilWagen(oud: Winkelwagen, nieuw: Winkelwagen): Winkelwagen {
+  return {
+    regels: nieuw.regels.flatMap((r) => {
+      const was = oud.regels.find((o) => o.slug === r.slug)?.aantal ?? 0;
+      return r.aantal > was ? [{ slug: r.slug, aantal: r.aantal - was }] : [];
+    }),
+  };
+}
+
 export type WagenRegel = {
   item: CatalogusItem;
   aantal: number;
