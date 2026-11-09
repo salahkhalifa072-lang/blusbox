@@ -28,24 +28,27 @@ import { Reveal } from "@/components/ui/reveal";
  * verkleuren en het grijs erin op antraciet wegvalt.
  */
 
-const BRON = {
+export const NIEUWSBRON = {
+  /** Voor de nieuwsregel in de hero: het begin van de kop, letterlijk. */
+  kort: "Steeds vaker brand in meterkast",
   titel:
     "Steeds vaker brand in meterkast door verkeerd aansluiten van warmtepomp en laadpaal",
   medium: "NOS Nieuws",
   datum: "27 juli",
   url: "https://nos.nl/artikel/2624596-steeds-vaker-brand-in-meterkast-door-verkeerd-aansluiten-van-warmtepomp-en-laadpaal",
 } as const;
+const BRON = NIEUWSBRON;
 
 export function NieuwsEnModule() {
   return (
-    <section className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
+    <section id="nieuws" className="mx-auto max-w-6xl scroll-mt-28 px-4 py-10 sm:px-6 sm:py-20">
       <Reveal>
         <div className="overflow-hidden rounded-3xl bg-antraciet text-kastwit">
           {/* Warme accentlijn als bovenrand. Het enige kleurvlak in het
               blok, zodat het oog daar begint en niet bij het logo. */}
           <div className="h-1 w-full bg-gradient-to-r from-blusrood via-[#e0952f] to-blusrood" />
 
-          <div className="p-6 sm:p-9 lg:p-11">
+          <div className="p-5 sm:p-9 lg:p-11">
             {/* ---------------------------------------- het nieuws */}
             <div className="lg:grid lg:grid-cols-[1.5fr_1fr] lg:gap-10">
               <div>

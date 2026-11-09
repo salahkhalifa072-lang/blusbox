@@ -180,6 +180,23 @@ export const REVIEWS: Review[] = [
   },
 ];
 
+/**
+ * Reacties van klanten die via WhatsApp en e-mail binnenkwamen, opgegeven
+ * door de eigenaar (9 november 2026).
+ *
+ * Bewust géén score en niet opgeteld bij REVIEWS. Van deze reacties staat
+ * niets op de site en er is geen sterrenwaardering van bekend; ze tellen
+ * als aantal, niet als beoordeling. "4,9 uit 117" zou een gemiddelde
+ * beweren dat niemand heeft uitgerekend. Bewaar de berichten zelf: wie
+ * een aantal noemt, moet het kunnen laten zien (ACM, art. 6:193g BW).
+ * Werk het getal bij als er meer binnenkomen, en zet reacties waarvoor
+ * de klant toestemming geeft liever als echte beoordeling in REVIEWS.
+ */
+export const KLANTREACTIES = {
+  aantal: 117,
+  via: "WhatsApp en e-mail",
+} as const;
+
 /** Gemiddelde waardering, of null wanneer er nog niets is. */
 export function gemiddeldeWaardering(reviews: Review[] = REVIEWS): number | null {
   if (reviews.length === 0) return null;

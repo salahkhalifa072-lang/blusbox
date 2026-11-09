@@ -47,3 +47,6 @@ next-env.d.ts
 /playwright/.cache/
 /.next-e2e/
 /playwright/.auth/
+
+# Ruw beeldmateriaal van de eigenaar (GB's, niet voor de repo)
+/beeld materiaal /

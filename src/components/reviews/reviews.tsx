@@ -1,4 +1,5 @@
 import {
+  KLANTREACTIES,
   REVIEWS,
   gemiddeldeWaardering,
   sterrenVerdeling,
@@ -30,7 +31,7 @@ import { TrustpilotWidget } from "./trustpilot-widget";
 
 function Kaart({ review }: { review: Review }) {
   return (
-    <li className="flex h-full flex-col rounded-2xl border border-railstaal/40 bg-kastwit p-5">
+    <li className="flex h-full w-[82%] shrink-0 snap-start flex-col rounded-3xl bg-kastwit p-5 sm:w-auto">
       <Sterren waarde={review.sterren} />
 
       <p className="mt-3 font-medium leading-snug text-antraciet">{review.kop}</p>
@@ -109,10 +110,13 @@ export function Reviews({
    * nodig hebt.
    */
   maxAantal,
+  toonReacties = true,
 }: {
   reviews?: Review[];
   titel?: string;
   maxAantal?: number;
+  /** Het aantal klantreacties via WhatsApp en mail erbij noemen. */
+  toonReacties?: boolean;
 }) {
   const gemiddelde = gemiddeldeWaardering(reviews);
   if (gemiddelde === null) return null;
@@ -120,7 +124,7 @@ export function Reviews({
   const verdeling = sterrenVerdeling(reviews);
 
   return (
-    <section className="bg-kastwit-dim py-24" aria-labelledby="reviews-kop">
+    <section id="beoordelingen" className="scroll-mt-28 bg-kastwit-dim py-14 sm:py-24" aria-labelledby="reviews-kop">
       <div className="mx-auto max-w-6xl px-6">
         <h2 id="reviews-kop" className="font-display text-3xl sm:text-4xl">
           {titel}
@@ -138,6 +142,12 @@ export function Reviews({
               {reviews.length}{" "}
               {reviews.length === 1 ? "beoordeling" : "beoordelingen"}
             </p>
+            {toonReacties && (
+              <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-kastwit px-3 py-1 text-xs text-antraciet">
+                <span className="data font-medium">+{KLANTREACTIES.aantal}</span>
+                klantreacties via {KLANTREACTIES.via}
+              </p>
+            )}
           </div>
 
           {/* Verdeling. De balk is een achtergrond met een breedte, geen
@@ -163,7 +173,9 @@ export function Reviews({
           </ul>
         </div>
 
-        <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {/* Op een telefoon een veegrij: acht kaarten met foto onder elkaar
+            waren bijna vijf schermlengtes. Vanaf tablet weer een raster. */}
+        <ul className="-mx-6 mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-2 [scrollbar-width:none] sm:mx-0 sm:mt-10 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:px-0 lg:grid-cols-3">
           {(maxAantal ? reviews.slice(0, maxAantal) : reviews).map((r, i) => (
             <Kaart key={`${r.naam}-${i}`} review={r} />
           ))}
@@ -173,12 +185,20 @@ export function Reviews({
           Beoordelingen komen van mensen die de Blusbox bij ons gekocht
           hebben. Wij korten ze niet in, schrijven ze niet om en
           verwijderen geen kritiek.
+          {toonReacties && (
+            <>
+              {" "}
+              Daarnaast kregen we {KLANTREACTIES.aantal} reacties van klanten
+              via {KLANTREACTIES.via}. Die staan niet in het gemiddelde en
+              worden hier alleen getoond als de klant ons toestemming geeft.
+            </>
+          )}
         </p>
 
         {/* Reviews op Trustpilot staan los van de kaarten hierboven: die
             komen bij ons binnen, deze bij Trustpilot. Zolang er daar nog
             geen score is, staat hier alleen de knop om er een te geven. */}
-        <div className="mt-10 max-w-md rounded-2xl border border-railstaal/40 bg-kastwit p-5">
+        <div className="mt-8 max-w-md rounded-3xl bg-kastwit p-5 sm:mt-10">
           <p className="font-medium text-antraciet">Heb je zelf een Blusbox?</p>
           <p className="mt-1 text-sm text-staal-tekst">
             Vertel andere kopers hoe hij bevalt, op Trustpilot.

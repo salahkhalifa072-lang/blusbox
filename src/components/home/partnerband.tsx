@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SectieLabel } from "@/components/ui/sectielabel";
 import { PROGRAMMA } from "@/lib/affiliate/teksten";
 
 /**
@@ -21,9 +22,7 @@ export function Partnerband() {
     <section className="bg-antraciet py-14 text-kastwit">
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="max-w-xl">
-          <p className="data text-xs uppercase tracking-widest text-railstaal">
-            partnerprogramma
-          </p>
+          <SectieLabel donker>partnerprogramma</SectieLabel>
           <p className="font-display mt-2 text-2xl sm:text-3xl">
             Verdien <span className="accent">{PROGRAMMA.percentage}%</span> met
             je eigen link

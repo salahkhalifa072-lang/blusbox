@@ -87,7 +87,7 @@ const usps = [
 export function UspBar() {
   return (
     <section aria-label="Onze voorwaarden" className="bg-antraciet text-kastwit">
-      <div className="mx-auto max-w-6xl px-5 py-10 sm:px-6 sm:py-14">
+      <div className="mx-auto max-w-6xl px-5 py-6 sm:px-6 sm:py-14">
         <ul className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {usps.map(({ Icoon, kop, regel, kort, accent }) => (
             <li

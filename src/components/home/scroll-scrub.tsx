@@ -7,8 +7,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
  * meterkast scrubbed by scroll position: fire builds → the module releases →
  * aerosol fills the cabinet → it clears and the installation is intact.
  *
- * The wrapper is 420vh tall, so at a typical ~1000 px/s trackpad flick the
- * playthrough still takes well over 3 seconds of deliberate scrolling.
+ * The wrapper is 300vh tall: two screens of scrolling for the whole clip.
+ * It was 420vh, which made this one section a quarter of the homepage and
+ * left a long stretch where nothing but the video moved.
  *
  * Video frames are driven by currentTime, never by play() — that keeps the
  * timeline locked to the scroll position in both directions.
@@ -73,7 +74,7 @@ export function ScrollScrub() {
    * iOS tekent pas een frame uit `currentTime` nadat de video één keer via
    * een gebaar is afgespeeld, en tijdens een veegbeweging komen scroll-events
    * pas ná het uitrollen — je ziet dan niets bewegen en daarna een sprong.
-   * Bovendien kost 420vh aan scrollen op een klein scherm onredelijk veel
+   * Bovendien kost 300vh aan scrollen op een klein scherm onredelijk veel
    * duimwerk voor tien seconden beeld.
    */
   const [smal, setSmal] = useState(false);
@@ -251,7 +252,7 @@ export function ScrollScrub() {
           schermen. Op een telefoon is dit een gewone sectie met een video die
           zichzelf afspeelt; `svh` in plaats van `vh` omdat de adresbalk
           anders meetelt en het paneel niet past. */}
-      <div ref={wrapRef} className="relative lg:h-[420vh]">
+      <div ref={wrapRef} className="relative lg:h-[300vh]">
         <div className="py-12 lg:sticky lg:top-0 lg:flex lg:h-[100svh] lg:items-center lg:overflow-hidden lg:py-0">
           <div className="mx-auto w-full max-w-5xl px-6">
             <div className="relative mx-auto max-w-3xl">
