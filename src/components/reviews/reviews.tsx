@@ -1,6 +1,8 @@
 import {
-  KLANTREACTIES,
+  OVERIGE_BEOORDELINGEN,
   REVIEWS,
+  beoordelingenTotaal,
+  toonCijfer,
   gemiddeldeWaardering,
   sterrenVerdeling,
   type Review,
@@ -110,18 +112,19 @@ export function Reviews({
    * nodig hebt.
    */
   maxAantal,
-  toonReacties = true,
 }: {
   reviews?: Review[];
   titel?: string;
   maxAantal?: number;
-  /** Het aantal klantreacties via WhatsApp en mail erbij noemen. */
-  toonReacties?: boolean;
 }) {
-  const gemiddelde = gemiddeldeWaardering(reviews);
+  // Met de standaardlijst tellen ook de beoordelingen mee die niet als
+  // kaart op de site staan; met een eigen selectie alleen die selectie.
+  const totaal = reviews === REVIEWS ? beoordelingenTotaal() : null;
+  const gemiddelde = totaal?.gemiddelde ?? gemiddeldeWaardering(reviews);
   if (gemiddelde === null) return null;
 
-  const verdeling = sterrenVerdeling(reviews);
+  const verdeling = totaal?.verdeling ?? sterrenVerdeling(reviews);
+  const aantal = totaal?.aantal ?? reviews.length;
 
   return (
     <section id="beoordelingen" className="scroll-mt-28 bg-kastwit-dim py-14 sm:py-24" aria-labelledby="reviews-kop">
@@ -133,21 +136,14 @@ export function Reviews({
         <div className="mt-8 grid gap-8 sm:grid-cols-[auto_1fr] sm:items-center sm:gap-12">
           <div>
             <p className="font-display text-5xl leading-none text-antraciet">
-              {gemiddelde.toString().replace(".", ",")}
+              {toonCijfer(gemiddelde)}
             </p>
             <div className="mt-2">
               <Sterren waarde={gemiddelde} maat="h-5 w-5" />
             </div>
             <p className="data mt-2 text-xs text-staal-tekst">
-              {reviews.length}{" "}
-              {reviews.length === 1 ? "beoordeling" : "beoordelingen"}
+              {aantal} {aantal === 1 ? "beoordeling" : "beoordelingen"}
             </p>
-            {toonReacties && (
-              <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-kastwit px-3 py-1 text-xs text-antraciet">
-                <span className="data font-medium">+{KLANTREACTIES.aantal}</span>
-                klantreacties via {KLANTREACTIES.via}
-              </p>
-            )}
           </div>
 
           {/* Verdeling. De balk is een achtergrond met een breedte, geen
@@ -165,7 +161,7 @@ export function Reviews({
                     style={{ width: `${rij.deel * 100}%` }}
                   />
                 </span>
-                <span className="data w-6 shrink-0 text-right text-xs text-staal-tekst">
+                <span className="data w-8 shrink-0 text-right text-xs text-staal-tekst">
                   {rij.aantal}
                 </span>
               </li>
@@ -185,12 +181,12 @@ export function Reviews({
           Beoordelingen komen van mensen die de Blusbox bij ons gekocht
           hebben. Wij korten ze niet in, schrijven ze niet om en
           verwijderen geen kritiek.
-          {toonReacties && (
+          {totaal && (
             <>
               {" "}
-              Daarnaast kregen we {KLANTREACTIES.aantal} reacties van klanten
-              via {KLANTREACTIES.via}. Die staan niet in het gemiddelde en
-              worden hier alleen getoond als de klant ons toestemming geeft.
+              Hierboven staat een selectie; de andere{" "}
+              {OVERIGE_BEOORDELINGEN.aantal} kwamen binnen via{" "}
+              {OVERIGE_BEOORDELINGEN.herkomst} en tellen mee in de score.
             </>
           )}
         </p>

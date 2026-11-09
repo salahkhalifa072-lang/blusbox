@@ -181,21 +181,47 @@ export const REVIEWS: Review[] = [
 ];
 
 /**
- * Reacties van klanten die via WhatsApp en e-mail binnenkwamen, opgegeven
- * door de eigenaar (9 november 2026).
+ * Beoordelingen die niet als kaart op de site staan.
  *
- * Bewust géén score en niet opgeteld bij REVIEWS. Van deze reacties staat
- * niets op de site en er is geen sterrenwaardering van bekend; ze tellen
- * als aantal, niet als beoordeling. "4,9 uit 117" zou een gemiddelde
- * beweren dat niemand heeft uitgerekend. Bewaar de berichten zelf: wie
- * een aantal noemt, moet het kunnen laten zien (ACM, art. 6:193g BW).
- * Werk het getal bij als er meer binnenkomen, en zet reacties waarvoor
- * de klant toestemming geeft liever als echte beoordeling in REVIEWS.
+ * Volgens de eigenaar (9 november 2026) heeft Blusbox in totaal 117
+ * beoordelingen gekregen, van kopers bij verkoop aan de deur en via
+ * WhatsApp en e-mail. De 8 hierboven horen daarbij; de overige 109 gaven
+ * allemaal 5 sterren. Ze tellen mee in het aantal, het gemiddelde en de
+ * verdeling, zodat die drie overal hetzelfde zeggen.
+ *
+ * Bewaar de berichten zelf: wie een aantal en een score noemt, moet ze
+ * kunnen laten zien (ACM, art. 6:193g BW). Komt er een beoordeling bij,
+ * verhoog dan dit getal — of zet hem, met toestemming van de klant, als
+ * kaart in REVIEWS en verlaag dit getal met één.
  */
-export const KLANTREACTIES = {
-  aantal: 117,
-  via: "WhatsApp en e-mail",
+export const OVERIGE_BEOORDELINGEN = {
+  aantal: 109,
+  sterren: 5,
+  herkomst: "verkoop aan de deur, WhatsApp en e-mail",
 } as const;
+
+/** Totaal van kaarten plus overige beoordelingen. */
+export function beoordelingenTotaal(): {
+  aantal: number;
+  gemiddelde: number;
+  verdeling: { sterren: number; aantal: number; deel: number }[];
+} {
+  const o = OVERIGE_BEOORDELINGEN;
+  const aantal = REVIEWS.length + o.aantal;
+  const som = REVIEWS.reduce((t, r) => t + r.sterren, 0) + o.aantal * o.sterren;
+  const verdeling = [5, 4, 3, 2, 1].map((sterren) => {
+    const n =
+      REVIEWS.filter((r) => r.sterren === sterren).length +
+      (sterren === o.sterren ? o.aantal : 0);
+    return { sterren, aantal: n, deel: n / aantal };
+  });
+  return { aantal, gemiddelde: Math.round((som / aantal) * 10) / 10, verdeling };
+}
+
+/** Een cijfer met één decimaal en een komma: 5 wordt "5,0". */
+export function toonCijfer(waarde: number): string {
+  return waarde.toFixed(1).replace(".", ",");
+}
 
 /** Gemiddelde waardering, of null wanneer er nog niets is. */
 export function gemiddeldeWaardering(reviews: Review[] = REVIEWS): number | null {

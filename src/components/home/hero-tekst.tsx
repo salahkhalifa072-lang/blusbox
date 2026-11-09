@@ -9,7 +9,7 @@ import {
 } from "@/lib/pricing";
 import { koopNu } from "@/app/winkelwagen/acties";
 import { Sterren } from "@/components/reviews/sterren";
-import { gemiddeldeWaardering, KLANTREACTIES, REVIEWS } from "@/lib/reviews";
+import { beoordelingenTotaal, toonCijfer } from "@/lib/reviews";
 import { NIEUWSBRON } from "@/components/home/nieuws-en-module";
 
 /**
@@ -28,7 +28,7 @@ import { NIEUWSBRON } from "@/components/home/nieuws-en-module";
  * van op een eigen regel.
  */
 export function HeroTekst() {
-  const gemiddelde = gemiddeldeWaardering();
+  const { gemiddelde, aantal } = beoordelingenTotaal();
 
   return (
     <div className="relative flex flex-col px-6 pb-10 lg:px-0 lg:pb-0">
@@ -116,17 +116,14 @@ export function HeroTekst() {
 
         {/* De beoordeling naast de knop: daar valt de beslissing, niet
             halverwege de pagina waar het reviewblok staat. */}
-        {gemiddelde !== null && (
-          <a
-            href="#beoordelingen"
-            className="mt-4 flex w-fit flex-wrap items-center gap-x-2 gap-y-1 text-sm text-kastwit/70 hover:text-kastwit"
-          >
-            <Sterren waarde={gemiddelde} />
-            <span className="data text-kastwit">{gemiddelde.toString().replace(".", ",")}</span>
-            <span>· {REVIEWS.length} reviews</span>
-            <span className="text-kastwit/50">· {KLANTREACTIES.aantal} klantreacties</span>
-          </a>
-        )}
+        <a
+          href="#beoordelingen"
+          className="mt-4 flex w-fit items-center gap-2 text-sm text-kastwit/70 hover:text-kastwit"
+        >
+          <Sterren waarde={gemiddelde} />
+          <span className="data text-kastwit">{toonCijfer(gemiddelde)}</span>
+          <span>· {aantal} beoordelingen</span>
+        </a>
       </div>
 
       {/* Op een telefoon weg: daar staat de zakelijke route in het menu

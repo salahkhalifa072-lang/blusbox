@@ -34,7 +34,7 @@ import {
 } from "@/lib/pricing";
 import { Reviews } from "@/components/reviews/reviews";
 import { Sterren } from "@/components/reviews/sterren";
-import { REVIEWS, gemiddeldeWaardering } from "@/lib/reviews";
+import { beoordelingenTotaal, toonCijfer } from "@/lib/reviews";
 
 export const metadata: Metadata = {
   // absolute: the product name is already the brand name, so the
@@ -112,7 +112,7 @@ function maakProductData(gemiddelde: number | null, aantal: number) {
       ? {
           aggregateRating: {
             "@type": "AggregateRating",
-            ratingValue: gemiddelde.toString(),
+            ratingValue: gemiddelde.toFixed(1),
             reviewCount: aantal,
             bestRating: "5",
             worstRating: "1",
@@ -184,7 +184,7 @@ function maakProductData(gemiddelde: number | null, aantal: number) {
 
 
 export default function BlusboxPage() {
-  const gemiddelde = gemiddeldeWaardering();
+  const { gemiddelde, aantal } = beoordelingenTotaal();
 
   return (
     <>
@@ -193,7 +193,7 @@ export default function BlusboxPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(maakProductData(gemiddelde, REVIEWS.length)),
+          __html: JSON.stringify(maakProductData(gemiddelde, aantal)),
         }}
       />
       <main className="pb-24">
@@ -226,13 +226,8 @@ export default function BlusboxPage() {
                   className="mt-3 inline-flex items-center gap-2 text-sm text-kastwit/80 underline-offset-4 hover:underline"
                 >
                   <Sterren waarde={gemiddelde} />
-                  <span className="data">
-                    {gemiddelde.toString().replace(".", ",")}
-                  </span>
-                  <span className="text-kastwit/60">
-                    · {REVIEWS.length}{" "}
-                    {REVIEWS.length === 1 ? "beoordeling" : "beoordelingen"}
-                  </span>
+                  <span className="data">{toonCijfer(gemiddelde)}</span>
+                  <span className="text-kastwit/60">· {aantal} beoordelingen</span>
                 </a>
               )}
               {/* Kenmerken in het kort, zoals een marktplaats dat onder de

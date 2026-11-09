@@ -4,7 +4,7 @@ import { koopNu } from "@/app/winkelwagen/acties";
 import { SectieLabel } from "@/components/ui/sectielabel";
 import { Reveal } from "@/components/ui/reveal";
 import { Sterren } from "@/components/reviews/sterren";
-import { gemiddeldeWaardering, REVIEWS } from "@/lib/reviews";
+import { beoordelingenTotaal, toonCijfer } from "@/lib/reviews";
 import { adviesprijs, gratisVerzending, prijsIncl, TOON_ADVIESPRIJS, verzendwaarde } from "@/lib/pricing";
 
 /**
@@ -21,7 +21,7 @@ const beloften = [
 ];
 
 export function SlotCta() {
-  const gemiddelde = gemiddeldeWaardering();
+  const { gemiddelde, aantal } = beoordelingenTotaal();
 
   return (
     <section className="px-3 pb-3 sm:px-4 sm:pb-4" aria-labelledby="slot-kop">
@@ -65,13 +65,11 @@ export function SlotCta() {
                 <span aria-hidden className="transition-transform group-hover:translate-x-0.5">→</span>
               </button>
             </form>
-            {gemiddelde !== null && (
-              <a href="#beoordelingen" className="flex items-center gap-2 text-sm text-kastwit/70 hover:text-kastwit">
-                <Sterren waarde={gemiddelde} />
-                <span className="data">{gemiddelde.toString().replace(".", ",")}</span>
-                <span>· {REVIEWS.length} beoordelingen</span>
-              </a>
-            )}
+            <a href="#beoordelingen" className="flex items-center gap-2 text-sm text-kastwit/70 hover:text-kastwit">
+              <Sterren waarde={gemiddelde} />
+              <span className="data">{toonCijfer(gemiddelde)}</span>
+              <span>· {aantal} beoordelingen</span>
+            </a>
           </div>
 
           <p className="mt-8 border-t border-kastwit/15 pt-6 text-sm text-kastwit/60">
