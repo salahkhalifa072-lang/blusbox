@@ -58,3 +58,35 @@ export async function stuurHerstelmail(opts: {
     tekst,
   });
 }
+
+/**
+ * Uitnodiging voor een nieuwe verkoper: een link om zelf een wachtwoord te
+ * kiezen. Zo hoeft er nooit een wachtwoord via de beheerder te lopen.
+ */
+export async function stuurVerkoperUitnodiging(opts: {
+  naar: string;
+  naam: string | null;
+  token: string;
+}): Promise<MailResultaat> {
+  const link = herstelUrl(siteUrl, opts.token);
+  const aanhef = opts.naam ? `Hoi ${opts.naam},` : "Hoi,";
+  const alineas = [
+    aanhef,
+    "Je hebt een verkoopaccount bij Blusbox gekregen. Kies via deze link je wachtwoord:",
+    link,
+    `De link werkt ${GELDIGHEID_MINUTEN} minuten. Te laat? Vraag dan via ${siteUrl}/wachtwoord-vergeten een nieuwe aan met dit e-mailadres.`,
+    `Daarna log je in op ${siteUrl}/account en kom je direct op je verkooppagina. Zet die op je beginscherm (deel-knop → Zet op beginscherm), dan heb je hem aan de deur meteen bij de hand.`,
+  ];
+  return verstuurMail({
+    naar: opts.naar,
+    onderwerp: "Je verkoopaccount bij Blusbox",
+    tekst: [...alineas, "", bedrijf.volledig].join("\n\n"),
+    html: `<!doctype html><html lang="nl"><body style="margin:0;padding:24px 0;background:#e8e9e6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif"><div style="max-width:560px;margin:0 auto;background:#ffffff;padding:32px">${alineas
+      .map((a) =>
+        a === link
+          ? `<p style="margin:0 0 14px"><a href="${link}" style="font-family:ui-monospace,Menlo,monospace;color:#b81e1b;word-break:break-all">${link}</a></p>`
+          : `<p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#16181a">${a.replace(/</g, "&lt;")}</p>`,
+      )
+      .join("")}<p style="margin:24px 0 0;font-size:13px;color:#5f666b">${bedrijf.volledig}</p></div></body></html>`,
+  });
+}

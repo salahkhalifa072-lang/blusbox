@@ -32,6 +32,8 @@ export const rolEnum = pgEnum("rol", [
   "installateur",
   "affiliate",
   "klant",
+  /** Deurverkoop: alleen eigen verkopen invoeren en laten afrekenen. */
+  "verkoper",
 ]);
 
 /** §2 — je/u is a token on the account, never duplicated copy. */
@@ -246,6 +248,15 @@ export const orders = pgTable(
      * De betaling volgt achteraf, via de factuur.
      */
     balieverkoop: boolean("balieverkoop").notNull().default(false),
+    /**
+     * Wie deze verkoop aan de deur invoerde. Alleen bij deurverkoop; een
+     * balieverkoop uit het dashboard en een webshopbestelling laten hem
+     * leeg. De factuur krijgt pas een nummer als er betaald is, zodat een
+     * afgebroken verkoop geen gat in de factuurreeks achterlaat.
+     */
+    verkoperId: uuid("verkoper_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
     /** Alleen bij een zakelijke afnemer; staat dan op de factuur */
     bedrijfsnaam: text("bedrijfsnaam"),
     /**

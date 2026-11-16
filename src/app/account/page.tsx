@@ -26,6 +26,7 @@ export default async function AccountPage({
   if (actor) {
     if (magDashboard(actor.rol)) redirect("/dashboard");
     if (magInstallateursportaal(actor.rol)) redirect("/portaal");
+    if (actor.rol === "verkoper") redirect("/verkoop");
 
     /*
      * Partners horen op hun eigen dashboard.

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { magDashboard, magInstallateursportaal, vereis } from "@/lib/rollen";
+import { magDashboard, magInstallateursportaal, magVerkopen, vereis } from "@/lib/rollen";
 import type { Rol } from "@/db/schema";
 
 export type Actor = { id: string; rol: Rol; email: string };
@@ -27,6 +27,13 @@ export async function vereisLogin(): Promise<Actor> {
 export async function vereisDashboard(): Promise<Actor> {
   const actor = await vereisLogin();
   vereis(magDashboard(actor.rol), "dashboard openen");
+  return actor;
+}
+
+/** /verkoop: deurverkoop, voor verkopers en de admin. */
+export async function vereisVerkoper(): Promise<Actor> {
+  const actor = await vereisLogin();
+  vereis(magVerkopen(actor.rol), "verkopen invoeren");
   return actor;
 }
 

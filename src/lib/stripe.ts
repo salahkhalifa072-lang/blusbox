@@ -71,7 +71,7 @@ export async function maakCheckoutSessie(opts: {
    * handelt die anders af: geen bestelbevestiging, en een verlopen sessie
    * annuleert niets — de klant kan de link later opnieuw openen.
    */
-  bron?: "webshop" | "factuur";
+  bron?: "webshop" | "factuur" | "deur";
   /**
    * Snel afrekenen: de klant heeft op onze site geen adres ingevuld, dus
    * Stripe vraagt erom. Met Apple Pay komt het met één aanraking uit de
@@ -118,7 +118,8 @@ export async function maakCheckoutSessie(opts: {
     // Niet bij een factuur: die klant heeft de module al meegenomen, en
     // "gratis verzending" op de betaalpagina zou suggereren dat er nog een
     // pakket komt.
-    ...(opts.bron === "factuur"
+    // Ook niet aan de deur: de klant heeft de module al in handen.
+    ...(opts.bron === "factuur" || opts.bron === "deur"
       ? {}
       : {
           shipping_options: [
@@ -151,6 +152,18 @@ export async function maakCheckoutSessie(opts: {
   });
 
   return { id: sessie.id, url: sessie.url };
+}
+
+/**
+ * Waar de klant nu kan betalen: de url van een sessie zolang die open is.
+ * Voor de korte link achter de QR-code van een deurverkoop.
+ */
+export async function sessieStand(
+  sessieId: string,
+): Promise<{ open: true; url: string } | { open: false; betaald: boolean }> {
+  const sessie = await stripeClient().checkout.sessions.retrieve(sessieId);
+  if (sessie.status === "open" && sessie.url) return { open: true, url: sessie.url };
+  return { open: false, betaald: sessie.payment_status === "paid" };
 }
 
 /**

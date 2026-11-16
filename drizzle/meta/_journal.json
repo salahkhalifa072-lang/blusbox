@@ -71,6 +71,13 @@
       "when": 1791236623649,
       "tag": "0009_rookmelder",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794820831918,
+      "tag": "0010_deurverkoop",
+      "breakpoints": true
     }
   ]
 }

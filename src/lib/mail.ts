@@ -705,6 +705,63 @@ export async function stuurFactuur(
 }
 
 /**
+ * Factuur van een verkoop aan de deur, na betaling.
+ *
+ * Een verkoop aan de deur is wettelijk een overeenkomst buiten de
+ * verkoopruimte (art. 6:230t BW): de klant heeft veertien dagen
+ * bedenktijd, en de bevestiging moet op een duurzame drager komen met de
+ * informatie over herroeping en het modelformulier. Deze mail is die
+ * bevestiging: factuur (als voldaan), de termijn en het formulier erbij.
+ *
+ * Geen betaallink: er is al betaald. Het adres komt uit de bestelling.
+ */
+export async function stuurDeurverkoopFactuur(
+  factuurnummer: string,
+): Promise<MailResultaat> {
+  if (!mailBeschikbaar()) {
+    return { verstuurd: false, reden: "MAILERSEND_API_TOKEN ontbreekt" };
+  }
+  const factuur = await haalFactuur({ factuurnummer });
+  if (!factuur) return { verstuurd: false, reden: `Factuur ${factuurnummer} niet gevonden` };
+  if (!factuur.email) return { verstuurd: false, reden: "Geen e-mailadres bij deze factuur" };
+
+  const resultaat = await factuurPdf(factuur);
+  if ("fout" in resultaat) return { verstuurd: false, reden: resultaat.fout };
+  const formulier = await maakHerroepingsformulier();
+
+  const totaal = euro(factuur.totalen.totaalInclBtwCenten);
+  const uiterlijk = formatteerNl(herroepingUiterlijk(factuur.leverdatum));
+  const aanhef = factuur.klantNaam || "klant";
+  const alineas = [
+    `Beste ${aanhef},`,
+    `Bedankt voor je aankoop van de Blusbox. Je betaling van ${totaal} is ontvangen; in de bijlage vind je factuur ${factuur.factuurnummer}.`,
+    `Bedenktijd: je hebt tot en met ${uiterlijk} het recht om de koop zonder opgave van redenen te herroepen. Gebruik daarvoor het modelformulier in de bijlage, of laat het ons op een andere duidelijke manier weten via ${bedrijf.email}. Je krijgt dan het volledige bedrag terug; de module stuur je ongebruikt terug.`,
+    `Plaatsing en gebruik staan in de handleiding in de doos en op ${siteUrl}/installatie. Registreer je module op ${siteUrl}/account, dan krijg je bericht voordat hij na tien jaar vervangen moet worden.`,
+    `Vragen? Bel ${bedrijf.telefoon} of mail ${bedrijf.email}, met het factuurnummer erbij. Onze algemene voorwaarden staan op ${siteUrl}/algemene-voorwaarden.`,
+  ];
+  const voet = `${bedrijf.volledig} · KvK ${bedrijf.kvk} · ${bedrijf.telefoon} · ${bedrijf.email}`;
+
+  return verstuurMail({
+    naar: factuur.email,
+    onderwerp: `Factuur ${factuur.factuurnummer} van Blusbox — betaald, ${totaal}`,
+    html:
+      alineas.map((a) => `<p style="font:15px/1.6 -apple-system,Segoe UI,Arial,sans-serif;color:#16181a;margin:0 0 14px">${escapeHtml(a)}</p>`).join("") +
+      `<p style="font:12px/1.5 -apple-system,Segoe UI,Arial,sans-serif;color:#5f666b;margin:24px 0 0">${escapeHtml(voet)}</p>`,
+    tekst: [...alineas, "", "—", voet].join("\n\n"),
+    bijlagen: [
+      {
+        filename: `factuur-${factuur.factuurnummer}.pdf`,
+        content: Buffer.from(resultaat.pdf).toString("base64"),
+      },
+      {
+        filename: "modelformulier-herroeping-blusbox.pdf",
+        content: Buffer.from(formulier).toString("base64"),
+      },
+    ],
+  });
+}
+
+/**
  * Kopie van een verstuurde factuur voor de eigen administratie, met de pdf.
  *
  * Eigen mail en niet stuurBerichtkopie: die zegt "dit kreeg de klant te

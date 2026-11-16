@@ -86,7 +86,20 @@ export async function maakBalieFactuur(
   }
 }
 
-function isUniekConflict(fout: unknown): boolean {
+/**
+ * Het eerstvolgende factuurnummer van dit jaar. Binnen een transactie
+ * aanroepen: de unieke index op factuurnummer laat bij twee gelijktijdige
+ * aanroepen er één winnen, en de aanroeper probeert het dan opnieuw.
+ */
+export async function volgendVrijFactuurnummer(tx: Db, jaar: number): Promise<string> {
+  const [hoogste] = await tx
+    .select({ nummer: sql<string | null>`max(${orders.factuurnummer})` })
+    .from(orders)
+    .where(sql`${orders.factuurnummer} like ${`F-${jaar}-%`}`);
+  return volgendFactuurnummer(jaar, hoogste?.nummer);
+}
+
+export function isUniekConflict(fout: unknown): boolean {
   for (let f = fout as { code?: string; cause?: unknown } | undefined; f; ) {
     if (f.code === "23505") return true;
     f = f.cause as typeof f;
@@ -136,11 +149,7 @@ function maakInTransactie(
     );
 
     const ordernummer = await volgendOrdernummer(tx, jaar);
-    const [hoogste] = await tx
-      .select({ nummer: sql<string | null>`max(${orders.factuurnummer})` })
-      .from(orders)
-      .where(sql`${orders.factuurnummer} like ${`F-${jaar}-%`}`);
-    const factuurnummer = volgendFactuurnummer(jaar, hoogste?.nummer);
+    const factuurnummer = await volgendVrijFactuurnummer(tx, jaar);
     const betaaltoken = randomBytes(24).toString("base64url");
 
     const [order] = await tx

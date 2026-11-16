@@ -24,6 +24,7 @@ const nav: (NavItem & { alleenFactureren?: boolean })[] = [
   { href: "/dashboard", label: "Overzicht", groep: "Verkoop", kort: "Overzicht" },
   { href: "/dashboard/bestellingen", label: "Bestellingen", groep: "Verkoop", kort: "Bestellingen" },
   { href: "/dashboard/facturen", label: "Facturen", groep: "Verkoop", kort: "Facturen", alleenFactureren: true },
+  { href: "/dashboard/verkopers", label: "Verkopers aan de deur", groep: "Verkoop", alleenFactureren: true },
   { href: "/dashboard/kortingscodes", label: "Kortingscodes", groep: "Verkoop" },
   { href: "/dashboard/retouren", label: "Retouren", groep: "Verkoop" },
   { href: "/dashboard/affiliates", label: "Affiliates", groep: "Partners", kort: "Affiliates" },

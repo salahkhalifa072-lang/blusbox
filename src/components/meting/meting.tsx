@@ -78,7 +78,11 @@ function MetaPaginaweergave() {
   return null;
 }
 
+/** Interne pagina's: geen banner en geen meting. Daar komen geen bezoekers van advertenties. */
+const INTERN = ["/verkoop", "/dashboard", "/betaald", "/b/"];
+
 export function Meting() {
+  const pad = usePathname();
   /*
    * `undefined` is "nog niet gekeken" en `null` is "gekeken, niets
    * gevonden". Zonder dat onderscheid knippert de banner bij iedereen even
@@ -93,6 +97,7 @@ export function Meting() {
   }, []);
 
   if (!metingActief) return null;
+  if (INTERN.some((p) => pad === p || pad.startsWith(p.endsWith("/") ? p : `${p}/`))) return null;
 
   function kies(nieuw: Keuze) {
     bewaarKeuze(nieuw);

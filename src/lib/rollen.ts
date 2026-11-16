@@ -16,6 +16,7 @@ export const ROLLEN: readonly Rol[] = [
   // iemand later op bouwt zonder te merken dat er een geval ontbreekt.
   "affiliate",
   "klant",
+  "verkoper",
 ] as const;
 
 /** Full back-office: lots, recalls, content, users. */
@@ -34,6 +35,20 @@ export function magRecallOpenen(rol: Rol): boolean {
  * alleen te crediteren.
  */
 export function magFactureren(rol: Rol): boolean {
+  return rol === "admin";
+}
+
+/**
+ * Verkopen aan de deur invoeren en laten afrekenen. Een verkoper ziet
+ * alleen zijn eigen verkopen en kan geen prijzen aanpassen; de admin mag
+ * meekijken en zelf ook verkopen.
+ */
+export function magVerkopen(rol: Rol): boolean {
+  return rol === "verkoper" || rol === "admin";
+}
+
+/** Verkopers toevoegen: wie mag er namens Blusbox geld innen. Admin only. */
+export function magVerkopersBeheren(rol: Rol): boolean {
   return rol === "admin";
 }
 

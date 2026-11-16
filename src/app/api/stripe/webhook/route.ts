@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { leesWebhookGebeurtenis, naarOrderStatus } from "@/lib/stripe";
-import { markeerBetaald, vulAdresAan } from "@/lib/bestelling";
+import { haalBestelling, markeerBetaald, vulAdresAan } from "@/lib/bestelling";
+import { markeerDeurverkoopBetaald } from "@/db/deurverkoop";
 import {
   stuurBestelbevestiging,
   stuurTrustpilotUitnodiging,
   stuurBestelmelding,
   stuurFactuurBetaaldMelding,
+  stuurDeurverkoopFactuur,
+  stuurFactuurKopie,
 } from "@/lib/mail";
 import { markeerFactuurBetaald } from "@/db/facturen";
 import { meldMetaAankoop } from "@/lib/meta-capi";
@@ -81,6 +84,43 @@ export async function POST(request: Request) {
         // bestelbevestiging met herroepingsformulier (er is geen koop op
         // afstand) en geen bestelmelding (er valt niets te verzenden) —
         // alleen een seintje aan de winkelier dat het geld binnen is.
+        // Verkoop aan de deur: eerst betaald, nu pas gefactureerd. De
+        // factuur gaat als voldaan naar de klant, met de bedenktijd en het
+        // herroepingsformulier (overeenkomst buiten de verkoopruimte), en
+        // een kopie naar de eigen administratie.
+        if (sessie.metadata?.bron === "deur") {
+          if (status !== "betaald") break;
+          const uitkomst = await markeerDeurverkoopBetaald(orderId, sessie.id);
+          if (uitkomst === "herhaald" || !ordernummer) break;
+          const gegevens = await haalBestelling(ordernummer);
+          const factuurnummer = gegevens?.order.factuurnummer;
+          if (uitkomst === "dubbel") {
+            console.error(`Dubbele betaling op deurverkoop ${ordernummer}: sessie ${sessie.id} moet terugbetaald worden.`);
+            await stuurFactuurBetaaldMelding(ordernummer, {
+              sessieId: sessie.id,
+              betalingId: typeof sessie.payment_intent === "string" ? sessie.payment_intent : (sessie.payment_intent?.id ?? null),
+              bedragCenten: sessie.amount_total ?? null,
+            }).catch((fout: unknown) => console.error("Melding dubbele betaling mislukt:", fout));
+            break;
+          }
+          if (!factuurnummer) {
+            console.error(`Deurverkoop ${ordernummer} betaald maar zonder factuurnummer.`);
+            break;
+          }
+          const [klant, kopie] = await Promise.allSettled([
+            stuurDeurverkoopFactuur(factuurnummer),
+            stuurFactuurKopie(factuurnummer),
+          ]);
+          for (const [wat, r] of [["Factuurmail", klant], ["Factuurkopie", kopie]] as const) {
+            if (r.status === "rejected") console.error(`${wat} ${factuurnummer} gooide:`, r.reason);
+            else if (!r.value.verstuurd) console.error(`${wat} ${factuurnummer} niet verstuurd: ${r.value.reden}`);
+          }
+          await stuurTrustpilotUitnodiging(ordernummer).catch((fout: unknown) =>
+            console.error(`Trustpilot-uitnodiging ${ordernummer} mislukt:`, fout),
+          );
+          break;
+        }
+
         if (sessie.metadata?.bron === "factuur") {
           if (status !== "betaald") break;
           const uitkomst = await markeerFactuurBetaald(orderId, sessie.id);
@@ -238,7 +278,9 @@ export async function POST(request: Request) {
         // Een factuur blijft openstaan als één betaalpoging strandt of
         // verloopt: de link in de mail maakt bij de volgende klik gewoon
         // een nieuwe sessie.
-        if (orderId && sessie.metadata?.bron !== "factuur") {
+        // Een deurverkoop ook niet: de verkoper maakt zo nodig een nieuwe
+        // betaalpagina, of annuleert zelf als de klant afhaakt.
+        if (orderId && sessie.metadata?.bron !== "factuur" && sessie.metadata?.bron !== "deur") {
           await markeerBetaald(orderId, sessie.id, "geannuleerd");
           await draaiCommissieTerug({
             orderId,
