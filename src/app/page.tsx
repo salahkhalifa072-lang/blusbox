@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site/header";
 import { SiteFooter } from "@/components/site/footer";
-import { ScrollScrub } from "@/components/home/scroll-scrub";
+import { Uitlegvideo } from "@/components/home/uitlegvideo";
 import { Reveal } from "@/components/ui/reveal";
 import { LogoBadge } from "@/components/site/logo";
 import { UspBar } from "@/components/site/usp-bar";
@@ -22,7 +22,7 @@ import { SectieLabel } from "@/components/ui/sectielabel";
 /**
  * §5.1 Home. Layout follows the client's reference: dark full-bleed hero with
  * the product centred, two-tone condensed headline split to the corners,
- * floating info cards, then the scroll-scrubbed meterkast sequence.
+ * floating info cards, then the explainer video.
  */
 
 const panels = [
@@ -83,34 +83,10 @@ export default function Home() {
             eerst het gedoe wegnemen, dan laten zien wat het doet. */}
         <ZoWerktHet />
 
-        {/* Signature element — scroll-scrubbed real footage */}
-        <ScrollScrub />
-
-        {/* Wat je ziet, uitgelegd */}
-        <section className="bg-antraciet pb-14 text-kastwit sm:pb-24">
-          <div className="mx-auto grid max-w-6xl gap-10 px-6 lg:grid-cols-2">
-            <Reveal>
-              <SectieLabel donker>wat je ziet</SectieLabel>
-              <h2 className="font-display mt-4 text-[clamp(2rem,5vw,3.5rem)]">
-                Van vlam tot stilte,
-                <br />
-                <span className="accent">zonder één handeling</span>
-              </h2>
-            </Reveal>
-            <Reveal delay={80}>
-              <p className="text-kastwit/70">
-                Een losse verbinding gaat gloeien. De warmte loopt op tot het
-                detectiekoord 170 °C bereikt — dan activeert de module zichzelf
-                en vult de kast met aerosol. De vlam dooft, het residu is
-                niet-geleidend en niet-corrosief, en de installatie blijft
-                intact.
-              </p>
-              <p className="data mt-6 text-xs text-railstaal">
-                Beeld is een weergave.
-              </p>
-            </Reveal>
-          </div>
-        </section>
+        {/* De uitlegvideo: waarom de meterkast, hoe hij ingrijpt en hoe
+            je hem plaatst, met een echt persoon in een echte meterkast.
+            Staat waar de scrollvideo stond, die twee schermen kostte. */}
+        <Uitlegvideo />
 
         {/* Het nieuwsbericht en het product in één blok: dit is het
             probleem, dit is wat wij eraan doen. Uit elkaar namen ze bijna
