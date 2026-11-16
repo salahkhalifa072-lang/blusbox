@@ -28,7 +28,7 @@ export default async function Betaald({ searchParams }: { searchParams: Promise<
             : "De factuur en het herroepingsformulier komen binnen een paar minuten in je mailbox. Je hebt 14 dagen bedenktijd."}
         </p>
         <p className="data mt-6 text-xs text-kastwit/50">
-          {bedrijf.volledig} · {bedrijf.telefoon}
+          {bedrijf.volledig} · {bedrijf.email}
         </p>
       </div>
     </main>
