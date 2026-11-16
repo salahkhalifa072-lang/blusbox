@@ -14,15 +14,20 @@ export function Betaalstatus({
   ordernummer,
   beginstatus,
   email,
+  begincontant,
+  beginfactuur,
   children,
 }: {
   ordernummer: string;
   beginstatus: string;
   email: string | null;
+  begincontant: boolean;
+  beginfactuur: string | null;
   children: ReactNode;
 }) {
   const [status, setStatus] = useState(beginstatus);
-  const [factuur, setFactuur] = useState<string | null>(null);
+  const [contant, setContant] = useState(begincontant);
+  const [factuur, setFactuur] = useState<string | null>(beginfactuur);
 
   useEffect(() => {
     if (status !== "nieuw") return;
@@ -32,6 +37,7 @@ export function Betaalstatus({
       if (!actief || !s) return;
       setStatus(s.status);
       setFactuur(s.factuurnummer);
+      setContant(s.contant);
     }, 3000);
     return () => {
       actief = false;
@@ -43,7 +49,7 @@ export function Betaalstatus({
     return (
       <div role="status" className="mt-4 rounded-3xl bg-[#2c6b4d] p-6 text-center text-kastwit">
         <p className="text-5xl" aria-hidden>✓</p>
-        <p className="font-display mt-2 text-3xl">Betaald</p>
+        <p className="font-display mt-2 text-3xl">{contant ? "Contant betaald" : "Betaald"}</p>
         <p className="mt-2 text-sm text-kastwit/85">
           {factuur ? `Factuur ${factuur} ` : "De factuur "}
           gaat nu per mail naar {email ?? "de klant"}, met het herroepingsformulier erbij.

@@ -87,3 +87,15 @@ describe("deurverkoop", () => {
     expect(await deurverkopen({ id: collega, rol: "verkoper" }, 30, h())).toHaveLength(0);
   });
 });
+
+describe("contant aan de deur", () => {
+  it("rondt af met factuurnummer en onthoudt dat het contant was", async () => {
+    const v = await maakDeurverkoop(invoer(), h());
+    expect(await markeerDeurverkoopBetaald(v.orderId, `contant:${verkoper}`, h())).toBe("voldaan");
+    const d = await haalDeurverkoop(v.ordernummer, { id: verkoper, rol: "verkoper" }, h());
+    expect(d?.contant).toBe(true);
+    expect(d?.factuurnummer).toMatch(/^F-\d{4}-\d{4}$/);
+    // Een late kaartbetaling op dezelfde verkoop is een dubbele betaling.
+    expect(await markeerDeurverkoopBetaald(v.orderId, "cs_laat", h())).toBe("dubbel");
+  });
+});

@@ -1,15 +1,14 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { leesWebhookGebeurtenis, naarOrderStatus } from "@/lib/stripe";
-import { haalBestelling, markeerBetaald, vulAdresAan } from "@/lib/bestelling";
+import { markeerBetaald, vulAdresAan } from "@/lib/bestelling";
+import { rondDeurverkoopAf } from "@/lib/deurverkoop-afronden";
 import { markeerDeurverkoopBetaald } from "@/db/deurverkoop";
 import {
   stuurBestelbevestiging,
   stuurTrustpilotUitnodiging,
   stuurBestelmelding,
   stuurFactuurBetaaldMelding,
-  stuurDeurverkoopFactuur,
-  stuurFactuurKopie,
 } from "@/lib/mail";
 import { markeerFactuurBetaald } from "@/db/facturen";
 import { meldMetaAankoop } from "@/lib/meta-capi";
@@ -92,8 +91,6 @@ export async function POST(request: Request) {
           if (status !== "betaald") break;
           const uitkomst = await markeerDeurverkoopBetaald(orderId, sessie.id);
           if (uitkomst === "herhaald" || !ordernummer) break;
-          const gegevens = await haalBestelling(ordernummer);
-          const factuurnummer = gegevens?.order.factuurnummer;
           if (uitkomst === "dubbel") {
             console.error(`Dubbele betaling op deurverkoop ${ordernummer}: sessie ${sessie.id} moet terugbetaald worden.`);
             await stuurFactuurBetaaldMelding(ordernummer, {
@@ -103,21 +100,7 @@ export async function POST(request: Request) {
             }).catch((fout: unknown) => console.error("Melding dubbele betaling mislukt:", fout));
             break;
           }
-          if (!factuurnummer) {
-            console.error(`Deurverkoop ${ordernummer} betaald maar zonder factuurnummer.`);
-            break;
-          }
-          const [klant, kopie] = await Promise.allSettled([
-            stuurDeurverkoopFactuur(factuurnummer),
-            stuurFactuurKopie(factuurnummer),
-          ]);
-          for (const [wat, r] of [["Factuurmail", klant], ["Factuurkopie", kopie]] as const) {
-            if (r.status === "rejected") console.error(`${wat} ${factuurnummer} gooide:`, r.reason);
-            else if (!r.value.verstuurd) console.error(`${wat} ${factuurnummer} niet verstuurd: ${r.value.reden}`);
-          }
-          await stuurTrustpilotUitnodiging(ordernummer).catch((fout: unknown) =>
-            console.error(`Trustpilot-uitnodiging ${ordernummer} mislukt:`, fout),
-          );
+          await rondDeurverkoopAf(ordernummer);
           break;
         }
 

@@ -41,16 +41,38 @@ function Veld({
   );
 }
 
-function Knop() {
-  const { pending } = useFormStatus();
+/**
+ * Twee manieren van afrekenen. Contant vraagt eerst om bevestiging met het
+ * bedrag: daarna gaat de factuur als voldaan naar de klant, en dat is niet
+ * terug te draaien met een tik.
+ */
+function Knoppen({ totaal }: { totaal: string }) {
+  const { pending, data } = useFormStatus();
+  const bezigMet = data?.get("betaalwijze");
   return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="w-full rounded-full bg-blusrood-vlak px-6 py-4 text-base font-semibold text-kastwit disabled:opacity-60"
-    >
-      {pending ? "Betaling klaarzetten…" : "Naar betalen →"}
-    </button>
+    <div className="grid gap-3">
+      <button
+        type="submit"
+        name="betaalwijze"
+        value="qr"
+        disabled={pending}
+        className="w-full rounded-full bg-blusrood-vlak px-6 py-4 text-base font-semibold text-kastwit disabled:opacity-60"
+      >
+        {pending && bezigMet === "qr" ? "Betaling klaarzetten…" : "Naar betalen (QR-code) →"}
+      </button>
+      <button
+        type="submit"
+        name="betaalwijze"
+        value="contant"
+        disabled={pending}
+        onClick={(e) => {
+          if (!window.confirm(`Heb je ${totaal} contant ontvangen van de klant?`)) e.preventDefault();
+        }}
+        className="w-full rounded-full border-2 border-antraciet bg-kastwit px-6 py-3.5 text-base font-semibold disabled:opacity-60"
+      >
+        {pending && bezigMet === "contant" ? "Afronden…" : `Contant betaald · ${totaal}`}
+      </button>
+    </div>
   );
 }
 
@@ -191,7 +213,7 @@ export function VerkoopFormulier({
         </span>
       </label>
 
-      <Knop />
+      <Knoppen totaal={euro(berekend.totaalCenten)} />
     </form>
   );
 }

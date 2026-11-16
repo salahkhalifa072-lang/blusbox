@@ -3,6 +3,7 @@ import { vereisVerkoper } from "@/lib/sessie";
 import { deurverkopen } from "@/db/deurverkoop";
 import { euro } from "@/lib/pricing";
 import { DEUR_ARTIKELEN, MAX_DEURKORTING_PROCENT } from "./artikelen";
+import { isContant } from "@/lib/contant";
 import { VerkoopFormulier } from "./formulier";
 
 const STATUS: Record<string, { tekst: string; kleur: string }> = {
@@ -45,7 +46,11 @@ export default async function VerkoopPagina() {
         ) : (
           <ul className="mt-3 divide-y divide-railstaal/40 overflow-hidden rounded-3xl bg-kastwit">
             {lijst.map((r) => {
-              const s = STATUS[r.status] ?? { tekst: r.status, kleur: "bg-railstaal/30" };
+              const basis = STATUS[r.status] ?? { tekst: r.status, kleur: "bg-railstaal/30" };
+              const s =
+                r.status === "geleverd" && isContant(r.betaalreferentie)
+                  ? { ...basis, tekst: "Betaald · contant" }
+                  : basis;
               return (
                 <li key={r.ordernummer}>
                   <Link href={`/verkoop/${r.ordernummer}`} className="flex items-center justify-between gap-3 px-4 py-3">

@@ -770,6 +770,8 @@ export async function stuurDeurverkoopFactuur(
  */
 export async function stuurFactuurKopie(
   factuurnummer: string,
+  /** Extra regel bovenaan, bijvoorbeeld dat er contant is betaald. */
+  notitie?: string,
 ): Promise<MailResultaat> {
   if (!mailBeschikbaar()) {
     return { verstuurd: false, reden: "MAILERSEND_API_TOKEN ontbreekt" };
@@ -786,11 +788,11 @@ export async function stuurFactuurKopie(
 
   const klant = [factuur.bedrijfsnaam, factuur.klantNaam].filter(Boolean).join(" · ");
   const totaal = euro(factuur.totalen.totaalInclBtwCenten);
-  const regel = `Factuur ${factuur.factuurnummer} (${klant}, ${totaal}) is verstuurd aan ${factuur.email}. De pdf zit in de bijlage.`;
+  const regel = `${notitie ? `${notitie} ` : ""}Factuur ${factuur.factuurnummer} (${klant}, ${totaal}) is verstuurd aan ${factuur.email}. De pdf zit in de bijlage.`;
 
   return verstuurMail({
     naar,
-    onderwerp: `Kopie · factuur ${factuur.factuurnummer} · ${klant} · ${totaal}`,
+    onderwerp: `${notitie ? "CONTANT · " : ""}Kopie · factuur ${factuur.factuurnummer} · ${klant} · ${totaal}`,
     html: `<p>${escapeHtml(regel)}</p>`,
     tekst: regel,
     antwoordNaar: factuur.email ?? undefined,

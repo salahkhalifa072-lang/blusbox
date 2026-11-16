@@ -20,6 +20,8 @@ export default async function VerkopersPagina() {
       naam: users.name,
       verkocht: sql<number>`count(${orders.id}) filter (where ${orders.status} = 'geleverd')::int`,
       omzet: sql<number>`coalesce(sum(${orders.totaalInclBtwCenten}) filter (where ${orders.status} = 'geleverd'), 0)::int`,
+      // Wat de verkoper contant ontving en dus nog moet afdragen.
+      contant: sql<number>`coalesce(sum(${orders.totaalInclBtwCenten}) filter (where ${orders.status} = 'geleverd' and ${orders.mollieId} like 'contant:%'), 0)::int`,
     })
     .from(users)
     .leftJoin(orders, eq(orders.verkoperId, users.id))
@@ -33,7 +35,7 @@ export default async function VerkopersPagina() {
         <p className="mt-1 max-w-2xl text-sm text-staal-tekst">
           Verkopers aan de deur loggen in op blusbox.nl/account en komen dan op hun verkooppagina. Ze zien
           alleen hun eigen verkopen en kunnen geen prijzen aanpassen. Na elke betaling krijg jij een kopie
-          van de factuur. <Link href="/verkoop" className="underline underline-offset-4">Zelf een verkoop invoeren →</Link>
+          van de factuur; bij contant staat erin wie het geld heeft. <Link href="/verkoop" className="underline underline-offset-4">Zelf een verkoop invoeren →</Link>
         </p>
       </div>
       <VerkoperFormulier />
@@ -45,7 +47,12 @@ export default async function VerkopersPagina() {
                 <span className="block text-sm font-medium">{v.naam ?? v.email}</span>
                 <span className="data text-xs text-staal-tekst">{v.email}</span>
               </span>
-              <span className="data text-sm">{v.verkocht} verkocht · {euro(v.omzet)}</span>
+              <span className="data text-right text-sm">
+                {v.verkocht} verkocht · {euro(v.omzet)}
+                {v.contant > 0 && (
+                  <span className="block text-xs text-staal-tekst">waarvan contant {euro(v.contant)}</span>
+                )}
+              </span>
               <form action={trekVerkoperIn}>
                 <input type="hidden" name="id" value={v.id} />
                 <button type="submit" className="text-xs text-blusrood-op-licht underline underline-offset-4">

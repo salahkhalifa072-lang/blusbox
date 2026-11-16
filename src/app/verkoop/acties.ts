@@ -9,7 +9,9 @@ import {
   haalDeurverkoop,
   koppelDeurSessie,
   maakDeurverkoop,
+  markeerDeurverkoopBetaald,
 } from "@/db/deurverkoop";
+import { CONTANT_VOORVOEGSEL, rondDeurverkoopAf } from "@/lib/deurverkoop-afronden";
 import { geldigEmail, geldigHuisnummer, geldigePostcode, normaliseerPostcode } from "@/lib/adres";
 import { verzendadres } from "@/lib/bedrijf";
 import { laatSessieVerlopen, maakCheckoutSessie, stripeBeschikbaar } from "@/lib/stripe";
@@ -76,7 +78,8 @@ export async function startDeurverkoop(_vorige: VerkoopStaat, formData: FormData
   if (Object.keys(velden).length > 0) {
     return { fase: "fout", melding: "Controleer de gemarkeerde velden.", velden, waarden };
   }
-  if (!stripeBeschikbaar()) return { fase: "fout", melding: "Betalen is nog niet ingesteld (Stripe).", waarden };
+  const contant = formData.get("betaalwijze") === "contant";
+  if (!contant && !stripeBeschikbaar()) return { fase: "fout", melding: "Betalen is nog niet ingesteld (Stripe).", waarden };
   // Zonder vestigingsadres kan er na de betaling geen factuur worden
   // gemaakt; dan liever nu stoppen dan straks een betaalde klant zonder factuur.
   if (!verzendadres()) {
@@ -98,7 +101,11 @@ export async function startDeurverkoop(_vorige: VerkoopStaat, formData: FormData
       kortingCenten,
     });
     ordernummer = verkoop.ordernummer;
-    await nieuweSessie(verkoop.orderId, ordernummer, email, regels);
+    if (contant) {
+      await ontvangContant(verkoop.orderId, ordernummer, actor);
+    } else {
+      await nieuweSessie(verkoop.orderId, ordernummer, email, regels);
+    }
   } catch (fout) {
     if (fout instanceof DeurverkoopGeweigerd) return { fase: "fout", melding: fout.message, waarden };
     console.error("Deurverkoop starten mislukt:", fout);
@@ -131,12 +138,39 @@ async function nieuweSessie(
   if (!(await koppelDeurSessie(orderId, sessie.id))) await laatSessieVerlopen(sessie.id);
 }
 
+/**
+ * Contant ontvangen: meteen afgerond, zonder betaallink. De referentie
+ * noemt de verkoper, zodat later te zien is wie het geld heeft.
+ */
+async function ontvangContant(orderId: string, ordernummer: string, actor: { id: string; email: string }) {
+  const uitkomst = await markeerDeurverkoopBetaald(orderId, `${CONTANT_VOORVOEGSEL}${actor.id}`);
+  if (uitkomst === "voldaan") await rondDeurverkoopAf(ordernummer, { verkoper: actor.email });
+}
+
+/**
+ * Vanaf het betaalscherm: de klant betaalt toch contant. Eerst de
+ * betaalpagina sluiten, zodat hij niet alsnog ook via de QR-code betaalt.
+ * Gebeurt dat precies tegelijk toch, dan meldt de webhook een dubbele
+ * betaling en zegt welke terug moet.
+ */
+export async function betaalContant(formData: FormData) {
+  const actor = await vereisVerkoper();
+  const ordernummer = String(formData.get("ordernummer") ?? "");
+  const v = await haalDeurverkoop(ordernummer, actor);
+  if (v && v.status === "nieuw") {
+    if (v.stripeSessie) await laatSessieVerlopen(v.stripeSessie).catch(() => undefined);
+    await ontvangContant(v.orderId, v.ordernummer, actor);
+  }
+  revalidatePath("/verkoop");
+  redirect(`/verkoop/${ordernummer}`);
+}
+
 /** Voor het betaalscherm: is er al betaald? */
 export async function deurverkoopStatus(ordernummer: string) {
   const actor = await vereisVerkoper();
   const v = await haalDeurverkoop(ordernummer, actor);
   if (!v) return null;
-  return { status: v.status, factuurnummer: v.factuurnummer, email: v.email };
+  return { status: v.status, factuurnummer: v.factuurnummer, email: v.email, contant: v.contant };
 }
 
 /**

@@ -5,7 +5,8 @@ import { vereisVerkoper } from "@/lib/sessie";
 import { haalDeurverkoop } from "@/db/deurverkoop";
 import { euro } from "@/lib/pricing";
 import { siteUrl } from "@/lib/site";
-import { annuleerVerkoop, vernieuwBetaling } from "../acties";
+import { annuleerVerkoop, betaalContant, vernieuwBetaling } from "../acties";
+import { ContantKnop } from "./contant-knop";
 import { Betaalstatus } from "./betaalstatus";
 
 /**
@@ -53,7 +54,7 @@ export default async function Betaalscherm({ params }: { params: Promise<{ order
         </ul>
       </div>
 
-      <Betaalstatus ordernummer={v.ordernummer} beginstatus={v.status} email={v.email}>
+      <Betaalstatus ordernummer={v.ordernummer} beginstatus={v.status} email={v.email} begincontant={v.contant} beginfactuur={v.factuurnummer}>
         {qr && link && (
           <div className="mt-4 rounded-3xl bg-kastwit p-5 text-center">
             <p className="text-sm font-medium">Laat de klant deze code scannen met de camera</p>
@@ -76,6 +77,10 @@ export default async function Betaalscherm({ params }: { params: Promise<{ order
           </div>
         )}
         {/* Binnen het wachtscherm: na de betaling verdwijnen ze vanzelf. */}
+        <form action={betaalContant} className="mt-4">
+          <input type="hidden" name="ordernummer" value={v.ordernummer} />
+          <ContantKnop totaal={euro(v.totaalInclBtwCenten)} />
+        </form>
         <div className="mt-6 grid grid-cols-2 gap-3">
           <form action={vernieuwBetaling}>
             <input type="hidden" name="ordernummer" value={v.ordernummer} />

@@ -5,6 +5,7 @@ import { orderLines, orders, products } from "./schema";
 import { volgendOrdernummer } from "./nummers";
 import { isUniekConflict, volgendVrijFactuurnummer, type FactuurBetaling } from "./facturen";
 import { berekenFactuur, datumNl } from "@/lib/factuur";
+import { isContant } from "@/lib/contant";
 
 /**
  * Verkoop aan de deur.
@@ -197,6 +198,8 @@ export type Deurverkoop = {
   adres: string;
   totaalInclBtwCenten: number;
   kortingCenten: number;
+  /** Contant afgerekend; het geld is bij de verkoper. */
+  contant: boolean;
   stripeSessie: string | null;
   /** Voor de korte betaallink achter de QR-code. */
   betaaltoken: string | null;
@@ -243,6 +246,7 @@ export async function haalDeurverkoop(
       .join(", "),
     totaalInclBtwCenten: o.totaalInclBtwCenten,
     kortingCenten: o.kortingBedragCenten,
+    contant: isContant(o.mollieId),
     stripeSessie: o.mollieId,
     betaaltoken: o.betaaltoken,
     verkoperId: o.verkoperId,
@@ -271,6 +275,7 @@ export async function deurverkopen(
       plaats: orders.plaats,
       totaalCenten: orders.totaalInclBtwCenten,
       geplaatstOp: orders.geplaatstOp,
+      betaalreferentie: orders.mollieId,
     })
     .from(orders)
     .where(
