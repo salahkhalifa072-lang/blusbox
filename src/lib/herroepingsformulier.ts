@@ -25,7 +25,6 @@ import { bedrijf } from "./bedrijf";
 export const HANDELAAR = {
   naam: bedrijf.volledig,
   kvk: `KvK ${bedrijf.kvk}`,
-  telefoon: bedrijf.telefoon,
   email: bedrijf.email,
 } as const;
 
@@ -165,7 +164,6 @@ export async function maakHerroepingsformulier(): Promise<Uint8Array> {
   schrijf("Stuur dit formulier naar:", { font: vet, grootte: 10, naRegel: 4 });
   schrijf(HANDELAAR.naam, { grootte: 10 });
   schrijf(HANDELAAR.kvk, { grootte: 10 });
-  schrijf(HANDELAAR.telefoon, { grootte: 10 });
   schrijf(HANDELAAR.email, { grootte: 10, naRegel: 14 });
 
   schrijf(

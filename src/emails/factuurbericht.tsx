@@ -28,7 +28,7 @@ export type FactuurberichtProps = {
   totaal: string;
   vervaldatum: string;
   betaalUrl: string;
-  bedrijf: { volledig: string; kvk: string; telefoon: string; email: string };
+  bedrijf: { volledig: string; kvk: string; email: string };
   siteUrl: string;
 };
 
@@ -133,8 +133,8 @@ export function Factuurbericht({
             Werkt de knop niet? Open dan deze link: {betaalUrl}
           </Text>
           <Text style={alinea}>
-            Vragen over de factuur? Bel ons op {bedrijf.telefoon} of mail naar{" "}
-            {bedrijf.email}, met het factuurnummer erbij.
+            Vragen over de factuur? Mail naar {bedrijf.email}, met het
+            factuurnummer erbij.
           </Text>
 
           <Hr style={{ borderColor: kleur.rail, margin: "28px 0 16px" }} />
@@ -143,7 +143,7 @@ export function Factuurbericht({
             {bedrijf.volledig}
           </Text>
           <Text style={{ margin: 0, fontSize: "13px", color: kleur.staal }}>
-            {bedrijf.telefoon} · {bedrijf.email}
+            {bedrijf.email}
           </Text>
           <Text style={{ margin: 0, fontSize: "13px", color: kleur.staal }}>
             KvK {bedrijf.kvk} · {siteUrl.replace(/^https?:\/\//, "")}

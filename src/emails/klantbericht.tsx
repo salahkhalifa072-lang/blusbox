@@ -29,7 +29,7 @@ export type KlantberichtProps = {
   ordernummer: string;
   bericht: string;
   siteUrl: string;
-  bedrijf: { volledig: string; kvk: string; telefoon: string; email: string };
+  bedrijf: { volledig: string; kvk: string; email: string };
 };
 
 const kleur = {
@@ -125,7 +125,7 @@ export function Klantbericht({
             {bedrijf.volledig}
           </Text>
           <Text style={{ margin: 0, fontSize: "13px", color: kleur.staal }}>
-            {bedrijf.telefoon} · {bedrijf.email}
+            {bedrijf.email}
           </Text>
           <Text style={{ margin: 0, fontSize: "13px", color: kleur.staal }}>
             KvK {bedrijf.kvk} · {siteUrl.replace(/^https?:\/\//, "")}

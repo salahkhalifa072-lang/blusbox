@@ -239,7 +239,7 @@ export async function maakFactuurPdf(f: FactuurGegevens): Promise<Uint8Array> {
     `${lev.postcode} ${lev.plaats}`,
     `KvK ${bedrijf.kvk}`,
     `Btw-id ${bedrijf.btwId}`,
-    `${bedrijf.telefoon} · ${bedrijf.email}`,
+    bedrijf.email,
   ];
   const kenmerken: [string, string][] = [
     ["Factuurnummer", f.factuurnummer],

@@ -301,7 +301,6 @@ export async function stuurBerichtAanKlant(
       bedrijf: {
         volledig: bedrijf.volledig,
         kvk: bedrijf.kvk,
-        telefoon: bedrijf.telefoon,
         email: bedrijf.email,
       },
     }),
@@ -316,7 +315,7 @@ export async function stuurBerichtAanKlant(
     "",
     "—",
     bedrijf.volledig,
-    `${bedrijf.telefoon} · ${bedrijf.email}`,
+    bedrijf.email,
   ].join("\n");
 
   return verstuurMail({
@@ -668,7 +667,6 @@ export async function stuurFactuur(
       bedrijf: {
         volledig: bedrijf.volledig,
         kvk: bedrijf.kvk,
-        telefoon: bedrijf.telefoon,
         email: bedrijf.email,
       },
       siteUrl,
@@ -683,11 +681,11 @@ export async function stuurFactuur(
     "",
     link,
     "",
-    `Vragen over de factuur? Bel ons op ${bedrijf.telefoon} of mail naar ${bedrijf.email}, met het factuurnummer erbij.`,
+    `Vragen over de factuur? Mail naar ${bedrijf.email}, met het factuurnummer erbij.`,
     "",
     "—",
     bedrijf.volledig,
-    `${bedrijf.telefoon} · ${bedrijf.email}`,
+    bedrijf.email,
   ].join("\n");
 
   return verstuurMail({
@@ -737,9 +735,9 @@ export async function stuurDeurverkoopFactuur(
     `Bedankt voor je aankoop van de Blusbox. Je betaling van ${totaal} is ontvangen; in de bijlage vind je factuur ${factuur.factuurnummer}.`,
     `Bedenktijd: je hebt tot en met ${uiterlijk} het recht om de koop zonder opgave van redenen te herroepen. Gebruik daarvoor het modelformulier in de bijlage, of laat het ons op een andere duidelijke manier weten via ${bedrijf.email}. Je krijgt dan het volledige bedrag terug; de module stuur je ongebruikt terug.`,
     `Plaatsing en gebruik staan in de handleiding in de doos en op ${siteUrl}/installatie. Registreer je module op ${siteUrl}/account, dan krijg je bericht voordat hij na tien jaar vervangen moet worden.`,
-    `Vragen? Bel ${bedrijf.telefoon} of mail ${bedrijf.email}, met het factuurnummer erbij. Onze algemene voorwaarden staan op ${siteUrl}/algemene-voorwaarden.`,
+    `Vragen? Mail ${bedrijf.email}, met het factuurnummer erbij. Onze algemene voorwaarden staan op ${siteUrl}/algemene-voorwaarden.`,
   ];
-  const voet = `${bedrijf.volledig} · KvK ${bedrijf.kvk} · ${bedrijf.telefoon} · ${bedrijf.email}`;
+  const voet = `${bedrijf.volledig} · KvK ${bedrijf.kvk} · ${bedrijf.email}`;
 
   return verstuurMail({
     naar: factuur.email,

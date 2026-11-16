@@ -48,7 +48,7 @@ export async function stuurHerstelmail(opts: {
 <p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#16181a">Heb je dit niet aangevraagd, dan hoef je niets te doen. Je wachtwoord blijft dan zoals het was.</p>
 <hr style="border:0;border-top:1px solid #9ba1a6;margin:28px 0 16px">
 <p style="margin:0;font-size:13px;color:#5f666b">${bedrijf.volledig}</p>
-<p style="margin:0;font-size:13px;color:#5f666b">${bedrijf.telefoon} · ${bedrijf.email}</p>
+<p style="margin:0;font-size:13px;color:#5f666b">${bedrijf.email}</p>
 </div></body></html>`;
 
   return verstuurMail({
