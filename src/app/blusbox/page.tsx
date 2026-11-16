@@ -7,6 +7,7 @@ import { KruimelData } from "@/components/site/gestructureerde-data";
 import { SpecTable } from "@/components/ui/spec-table";
 import { FaqList } from "@/components/ui/accordion";
 import { Galerij } from "@/components/product/galerij";
+import { Uitlegvideo } from "@/components/home/uitlegvideo";
 import { AantalKiezer } from "@/components/product/aantal-kiezer";
 import { Betaalmethoden } from "@/components/product/betaalmethoden";
 import { Prijsblok } from "@/components/product/prijsblok";
@@ -372,6 +373,10 @@ export default function BlusboxPage() {
           </div>
 
         </section>
+
+        {/* De uitlegvideo direct onder het koopblok: wie twijfelt, ziet hier
+            in 45 seconden waarom, hoe hij ingrijpt en hoe je hem plaatst. */}
+        <Uitlegvideo pad="/blusbox" aansluitend />
 
         {/* Specs */}
         {/* Beoordelingen boven de specificaties. Wie op deze hoogte van de

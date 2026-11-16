@@ -3,6 +3,7 @@ import { LogoMark } from "@/components/site/logo";
 import { ShippingBanner } from "@/components/site/usp-bar";
 import { WagenBadge } from "@/components/site/wagen-badge";
 import { MobielMenu } from "@/components/site/mobiel-menu";
+import { KopBijScrollen } from "@/components/site/kop-bij-scrollen";
 
 const nav = [
   { href: "/blusbox", label: "Product" },
@@ -15,13 +16,18 @@ const nav = [
 /**
  * Floating pill header over the dark hero — the reference pattern:
  * mark left, centred pill nav, single filled CTA right.
+ *
+ * Bij naar beneden scrollen schuift de pill weg en blijft alleen de
+ * verzendbalk staan; naar boven scrollen haalt hem terug. Zie KopBijScrollen.
  */
 export function SiteHeader() {
   return (
     <header className="pointer-events-none fixed inset-x-0 top-0 z-50">
-      <div className="pointer-events-auto">
+      {/* Boven de pill gestapeld: de pill schuift er bij het scrollen onder weg. */}
+      <div className="pointer-events-auto relative z-10">
         <ShippingBanner />
       </div>
+      <KopBijScrollen>
       {/* relative: het mobiele menupaneel hangt hieronder */}
       <div className="pointer-events-auto relative mx-4 mt-3 flex max-w-6xl items-center justify-between gap-4 rounded-full border border-kastwit/15 bg-antraciet/70 px-4 py-2.5 backdrop-blur-md sm:mx-6 lg:mx-auto lg:px-5">
         <Link
@@ -59,6 +65,7 @@ export function SiteHeader() {
           </Link>
         </div>
       </div>
+      </KopBijScrollen>
     </header>
   );
 }
