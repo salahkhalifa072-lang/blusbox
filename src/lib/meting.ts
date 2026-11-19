@@ -49,13 +49,15 @@ export const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID?.trim() ?? "";
  * de pixel draait. De omgevingsvariabele gaat voor.
  *
  * Sinds 19 november 2026 de nieuwe dataset onder advertentieaccount
- * 4046521502315595. De oude (1283982580559306) hing aan een portfolio dat
- * met een Instagram-account was aangemaakt en niet meer te beheren is.
+ * 4046521502315595, gekoppeld aan het bedrijfsportfolio (daardoor werkt de
+ * Conversions API erop). De oude (1283982580559306) hing aan een portfolio
+ * dat met een Instagram-account was aangemaakt en niet meer te beheren is.
+ * Een tussenversie met 1687659139639334 is vervallen.
  * Het CAPI-token (META_CAPI_TOKEN) hoort bij de dataset, dus dat is mee
  * vervangen.
  */
 export const META_PIXEL_ID =
-  process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim() || "1687659139639334";
+  process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim() || "1143142338086552";
 
 /**
  * Domeinverificatie van Meta (Bedrijfsinstellingen → Merkveiligheid →
