@@ -44,20 +44,28 @@ export const GOOGLE_ADS_LABEL_AFREKENEN =
 export const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID?.trim() ?? "";
 
 /**
- * Pixel-id uit Meta Events Manager (gegevensbron "Blusbox"). Net als de
+ * Pixel-id uit Meta Events Manager (dataset "Blusbox"). Net als de
  * Google-id geen geheim: hij staat in de broncode van elke pagina waar
  * de pixel draait. De omgevingsvariabele gaat voor.
+ *
+ * Sinds 19 november 2026 de nieuwe dataset onder advertentieaccount
+ * 4046521502315595. De oude (1283982580559306) hing aan een portfolio dat
+ * met een Instagram-account was aangemaakt en niet meer te beheren is.
+ * Het CAPI-token (META_CAPI_TOKEN) hoort bij de dataset, dus dat is mee
+ * vervangen.
  */
 export const META_PIXEL_ID =
-  process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim() || "1283982580559306";
+  process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim() || "1687659139639334";
 
 /**
  * Domeinverificatie van Meta (Bedrijfsinstellingen → Merkveiligheid →
  * Domeinen). Zonder geverifieerd domein mag Meta aankopen op blusbox.nl
  * niet als advertentiedoel gebruiken. Een openbare meta-tag, geen sleutel.
+ * Hoort bij het nieuwe portfolio; de tag van het oude is weg, dat portfolio
+ * is niet meer te beheren.
  */
 export const META_DOMEINVERIFICATIE =
-  process.env.META_DOMEINVERIFICATIE?.trim() || "mckjggh48dhd5v5i47ongkv0krih0v";
+  process.env.META_DOMEINVERIFICATIE?.trim() || "82jx1zn039r74c0av0gtfklk66zhp3";
 
 /**
  * Het script laadt onder één id. Staat Ads ingesteld, dan die; anders GA4.
