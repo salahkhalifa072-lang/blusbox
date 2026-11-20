@@ -12,6 +12,7 @@ import {
   maakBestelling,
   markeerBetaald,
 } from "@/lib/bestelling";
+import { leesHerkomst } from "@/lib/herkomst-cookie";
 import {
   geldigEmail,
   geldigHuisnummer,
@@ -153,6 +154,7 @@ export async function rekenAf(
       },
       undefined,
       korting,
+      await leesHerkomst(),
     );
   } catch (fout) {
     if (fout instanceof BestellingGeweigerd) {
@@ -302,6 +304,7 @@ export async function snelAfrekenen(): Promise<void> {
       },
       undefined,
       korting,
+      await leesHerkomst(),
     );
   } catch (fout) {
     if (fout instanceof BestellingGeweigerd) redirect("/winkelwagen");

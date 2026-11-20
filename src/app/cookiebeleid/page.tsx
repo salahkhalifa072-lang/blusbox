@@ -19,7 +19,7 @@ export default function CookiebeleidPage() {
       <PageHeader
         eyebrow="juridisch"
         title="Cookiebeleid"
-        lead="Zo min mogelijk. Wat wij niet nodig hebben om de winkel te laten werken, plaatsen wij alleen met jouw toestemming."
+        lead="Zo min mogelijk. Wat wij niet nodig hebben om de winkel te laten werken, plaatsen wij alleen met jouw toestemming, op één kleine uitzondering na: de herkomstcookie hieronder."
       />
       <main>
         <Prose>
@@ -42,6 +42,24 @@ export default function CookiebeleidPage() {
                 opnieuw moeten vragen.
               </>
             )}
+          </p>
+
+          <h2>Herkomstcookie</h2>
+          <p>
+            Kom je binnen via een link op een andere site, een advertentie of
+            een zoekmachine, dan onthouden wij dat 30 dagen in een eigen cookie
+            (<code>bb_herkomst</code>). Bestel je, dan gaat het mee op je
+            bestelling. Zo weten wij welke kanalen bestellingen opleveren.
+          </p>
+          <p>
+            Er staat alleen in waar je vandaan kwam (bijvoorbeeld
+            &ldquo;facebook&rdquo; of &ldquo;google, zoeken&rdquo;), de naam
+            van de campagne als die in de link stond, de domeinnaam van de
+            verwijzende site en de eerste pagina die je bij ons opende. Geen
+            klik-ID van Google of Meta, geen zoekterm, niets waarmee je te
+            herkennen bent. De cookie wordt alleen door onze eigen site
+            gelezen en met niemand gedeeld. Weggooien kan via je browser; de
+            winkel werkt dan precies hetzelfde.
           </p>
 
           {metingActief ? (

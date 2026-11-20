@@ -75,6 +75,15 @@ export default function PrivacyverklaringPage() {
               accounts over te nemen. Grondslag: gerechtvaardigd belang bij
               het beveiligen van accounts en de gegevens daarachter.
             </li>
+            <li>
+              <strong>Herkomst van je bestelling</strong> — via welk kanaal je
+              op de site kwam (bijvoorbeeld een advertentie op Facebook of een
+              zoekresultaat bij Google), de campagnenaam uit de link, de
+              domeinnaam van de verwijzende site en de pagina waarop je
+              binnenkwam. Dit staat bij je bestelling en wordt even lang
+              bewaard. Zo weten wij welke kanalen werken. Grondslag:
+              gerechtvaardigd belang. Zie ook het cookiebeleid.
+            </li>
           </ul>
 
           <h2>Bewaartermijnen</h2>

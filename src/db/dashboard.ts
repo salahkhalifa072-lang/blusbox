@@ -13,6 +13,7 @@ import {
 } from "./schema";
 import { affiliates } from "./affiliate-schema";
 import { plusMaanden, type IsoDatum } from "@/lib/levensduur";
+import { herkomstGroep } from "@/lib/herkomst";
 
 /**
  * Dashboard queries (§9). Read-only aggregates live here so the pages stay
@@ -165,6 +166,8 @@ export async function bestellingenLijst(
       geleverdOp: orders.geleverdOp,
       trackAndTrace: orders.trackAndTrace,
       balieverkoop: orders.balieverkoop,
+      deurverkoop: sql<boolean>`${orders.verkoperId} is not null`,
+      herkomst: orders.herkomst,
     })
     .from(orders)
     .where(and(...voorwaarden))
@@ -354,4 +357,37 @@ export async function recallOntvangersLijst(recallId: string) {
     .from(recallNotices)
     .where(eq(recallNotices.recallId, recallId))
     .orderBy(recallNotices.email);
+}
+
+/**
+ * Betaalde webshopbestellingen per herkomst, over de laatste dagen.
+ * Balie- en deurverkoop tellen niet mee: die komen niet via de site.
+ */
+export async function herkomstOverzicht(dagen = 90) {
+  const rijen = await db
+    .select({
+      herkomst: orders.herkomst,
+      totaal: orders.totaalInclBtwCenten,
+    })
+    .from(orders)
+    .where(
+      and(
+        sql`${orders.status} in ('betaald','in_behandeling','verzonden','geleverd')`,
+        eq(orders.balieverkoop, false),
+        isNull(orders.verkoperId),
+        gte(orders.geplaatstOp, sql`now() - make_interval(days => ${dagen})`),
+      ),
+    );
+
+  const groepen = new Map<string, { aantal: number; omzetCenten: number }>();
+  for (const r of rijen) {
+    const naam = herkomstGroep(r.herkomst);
+    const g = groepen.get(naam) ?? { aantal: 0, omzetCenten: 0 };
+    g.aantal += 1;
+    g.omzetCenten += r.totaal;
+    groepen.set(naam, g);
+  }
+  return [...groepen.entries()]
+    .map(([naam, g]) => ({ naam, ...g }))
+    .sort((a, b) => b.aantal - a.aantal || b.omzetCenten - a.omzetCenten);
 }

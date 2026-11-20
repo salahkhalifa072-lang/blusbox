@@ -6,6 +6,7 @@ import { volgendOrdernummer } from "@/db/nummers";
 import { naKorting } from "./korting";
 import { splitsIncl } from "./btw";
 import { splitsAdresregel } from "./adresregel";
+import { directeHerkomst, type Herkomst } from "./herkomst";
 
 
 /**
@@ -51,6 +52,8 @@ export async function maakBestelling(
   userId?: string,
   /** Een al beoordeelde kortingscode; de geldigheid is hier niet meer aan de orde. */
   korting?: { code: string; percentageBp: number } | null,
+  /** Waar de klant vandaan kwam; zonder bekende herkomst wordt het "direct". */
+  herkomst?: Herkomst | null,
 ): Promise<AangemaakteBestelling> {
   const overzicht = berekenWagen(wagen, {
     landcode: adres.landcode,
@@ -100,6 +103,7 @@ export async function maakBestelling(
         verzendregelToegepast: `gratis verzending · ${overzicht.aantalModules} module(s)`,
         kortingscode: overzicht.korting?.code ?? null,
         kortingBedragCenten: overzicht.korting?.bedragCenten ?? 0,
+        herkomst: herkomst ?? directeHerkomst(),
       })
       .returning({ id: orders.id, ordernummer: orders.ordernummer });
 

@@ -3,12 +3,14 @@ import {
   BESTELFILTERS,
   bestelfilterAantallen,
   bestellingenLijst,
+  herkomstOverzicht,
   isBestelfilter,
   type Bestelfilter,
 } from "@/db/dashboard";
 import { Cel, Leeg, Paneel, Rij, Status, Tabel } from "@/components/dashboard/ui";
 import { euro } from "@/lib/pricing";
 import { formatteerNl } from "@/lib/levensduur";
+import { herkomstTekst, type Herkomst } from "@/lib/herkomst";
 import { Afhandelen } from "./afhandelen";
 import { Bericht } from "./bericht";
 
@@ -37,9 +39,10 @@ export default async function BestellingenPagina({
   const ruwFilter = Array.isArray(sp.filter) ? sp.filter[0] : sp.filter;
   const filter: Bestelfilter = isBestelfilter(ruwFilter) ? ruwFilter : "alle";
 
-  const [bestellingen, aantallen] = await Promise.all([
+  const [bestellingen, aantallen, herkomsten] = await Promise.all([
     bestellingenLijst(200, { zoek, filter }),
     bestelfilterAantallen(),
+    herkomstOverzicht(90),
   ]);
 
   const filters = Object.keys(BESTELFILTERS) as Bestelfilter[];
@@ -113,6 +116,8 @@ export default async function BestellingenPagina({
         </ul>
       </nav>
 
+      {filter === "alle" && !zoek ? <HerkomstPaneel rijen={herkomsten} /> : null}
+
       <Paneel
         titel={
           zoek
@@ -146,6 +151,7 @@ export default async function BestellingenPagina({
               "E-mail",
               "Bezorging",
               "Totaal",
+              "Herkomst",
               "Geplaatst",
               "Afhandeling",
               "Bericht",
@@ -163,6 +169,13 @@ export default async function BestellingenPagina({
                   {[b.postcode, b.landcode].filter(Boolean).join(" · ") || "—"}
                 </Cel>
                 <Cel mono>{euro(b.totaalCenten)}</Cel>
+                <Cel>
+                  <HerkomstCel
+                    herkomst={b.herkomst}
+                    balie={b.balieverkoop}
+                    deur={b.deurverkoop}
+                  />
+                </Cel>
                 <Cel mono>
                   {formatteerNl(b.geplaatstOp.toISOString().slice(0, 10))}
                 </Cel>
@@ -184,5 +197,70 @@ export default async function BestellingenPagina({
         )}
       </Paneel>
     </div>
+  );
+}
+
+function HerkomstCel({
+  herkomst,
+  balie,
+  deur,
+}: {
+  herkomst: Herkomst | null;
+  balie: boolean;
+  deur: boolean;
+}) {
+  if (deur) return <span className="text-staal-tekst">Deurverkoop</span>;
+  if (balie) return <span className="text-staal-tekst">Balie</span>;
+  if (!herkomst) return <span className="text-staal-tekst">—</span>;
+  const details = [
+    herkomst.campagne ? `campagne ${herkomst.campagne}` : null,
+    herkomst.verwijzer ? `via ${herkomst.verwijzer}` : null,
+    herkomst.landing ? `binnen op ${herkomst.landing}` : null,
+  ].filter(Boolean);
+  return (
+    <span className="block">
+      <span className="whitespace-nowrap">{herkomstTekst(herkomst)}</span>
+      {details.length ? (
+        <span className="data block text-[11px] text-staal-tekst">{details.join(" · ")}</span>
+      ) : null}
+    </span>
+  );
+}
+
+function HerkomstPaneel({
+  rijen,
+}: {
+  rijen: { naam: string; aantal: number; omzetCenten: number }[];
+}) {
+  const totaal = rijen.reduce((n, r) => n + r.aantal, 0);
+  return (
+    <Paneel titel="Waar betaalde bestellingen vandaan kwamen · laatste 90 dagen">
+      {totaal === 0 ? (
+        <Leeg tekst="Nog geen betaalde webshopbestellingen in deze periode." />
+      ) : (
+        <ul className="divide-y divide-railstaal/50">
+          {rijen.map((r) => (
+            <li key={r.naam} className="flex items-center gap-3 px-4 py-2.5 text-sm sm:px-5">
+              <span className="min-w-0 flex-1 truncate">{r.naam}</span>
+              <span
+                className="hidden h-1.5 w-32 overflow-hidden rounded-full bg-kastwit-dim sm:block"
+                aria-hidden
+              >
+                <span
+                  className="block h-full rounded-full bg-antraciet"
+                  style={{ width: `${Math.round((r.aantal / totaal) * 100)}%` }}
+                />
+              </span>
+              <span className="data w-10 text-right">{r.aantal}</span>
+              <span className="data w-20 text-right text-staal-tekst">{euro(r.omzetCenten)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="border-t border-railstaal/50 px-4 py-3 text-xs text-staal-tekst sm:px-5">
+        Herkomst wordt bijgehouden vanaf 20 november 2026; oudere bestellingen
+        staan onder &ldquo;Onbekend&rdquo;. Balie- en deurverkoop tellen niet mee.
+      </p>
+    </Paneel>
   );
 }

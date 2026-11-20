@@ -12,6 +12,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
+import type { Herkomst } from "../lib/herkomst";
 
 /**
  * §10 data model. Two conventions applied throughout:
@@ -272,6 +273,13 @@ export const orders = pgTable(
      * laten bekijken door een nummer op te hogen.
      */
     betaaltoken: text("betaaltoken"),
+    /**
+     * Waar de klant vandaan kwam (zie lib/herkomst.ts): bron, soort en
+     * campagne uit de link, en het domein van de verwijzende site. Leeg
+     * bij bestellingen van vóór 20 november 2026 en bij balie- en
+     * deurverkoop.
+     */
+    herkomst: jsonb("herkomst").$type<Herkomst>(),
   },
   (t) => [
     uniqueIndex("orders_ordernummer_uniek").on(t.ordernummer),
