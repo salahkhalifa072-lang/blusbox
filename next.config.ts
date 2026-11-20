@@ -36,6 +36,21 @@ const nextConfig: NextConfig = {
    * tags and the sitemap agree with it.
    */
 
+  /**
+   * Eén makkelijk te onthouden adres voor de inlogpagina: /login.
+   *
+   * Bewust maar één. Extra adressen maken een site niet onveiliger (ze
+   * wijzen naar hetzelfde formulier, en bots vinden dat toch), maar ze
+   * maken hem ook niet veiliger. Wat wél beschermt, zit in het inloggen
+   * zelf: wachtwoord, code uit de app, slot na foute codes. Bekende
+   * scanpaden als /admin en /wp-admin geven gewoon een 404, zodat
+   * scanners hier niets herkennen. Tijdelijk (307), zodat browsers het
+   * niet voor altijd onthouden.
+   */
+  async redirects() {
+    return [{ source: "/login", destination: "/account", permanent: false }];
+  },
+
   async headers() {
     return [
       {

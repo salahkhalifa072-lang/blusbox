@@ -18,6 +18,8 @@
     "e2e": "playwright test",
     "e2e:ui": "playwright test --ui",
     "db:admin:prod": "tsx src/db/seed-admin.ts --vraag",
+    "db:tweestaps-uit": "tsx src/db/tweestaps-uit.ts",
+    "db:tweestaps-uit:prod": "tsx src/db/tweestaps-uit.ts --vraag",
     "db:migrate:prod": "tsx src/db/migreer.ts"
   },
   "dependencies": {

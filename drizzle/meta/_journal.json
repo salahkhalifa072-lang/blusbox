@@ -78,6 +78,13 @@
       "when": 1794820831918,
       "tag": "0010_deurverkoop",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1795169887860,
+      "tag": "0011_tweestaps",
+      "breakpoints": true
     }
   ]
 }

@@ -55,6 +55,27 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-3">
+          {/* Alleen op een laptop: op een telefoon is de balk al vol, en
+              inloggen is voor beheer en installateurs, niet voor klanten. */}
+          <Link
+            href="/account"
+            className="hidden items-center gap-1.5 whitespace-nowrap rounded-full border border-kastwit/25 px-3.5 py-2 text-sm text-kastwit/80 transition-colors hover:border-kastwit/60 hover:text-kastwit lg:flex"
+          >
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.75"
+              strokeLinecap="round"
+              aria-hidden
+            >
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" />
+            </svg>
+            Inloggen
+          </Link>
           <WagenBadge />
           <MobielMenu items={nav} />
           <Link

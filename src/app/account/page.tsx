@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/site/page-header";
 import { SiteFooter } from "@/components/site/footer";
@@ -7,6 +8,21 @@ import { signIn } from "@/auth";
 import { huidigeActor } from "@/lib/sessie";
 import { magDashboard, magInstallateursportaal } from "@/lib/rollen";
 import { affiliateVanGebruiker } from "@/db/affiliate";
+import { controleerWachtwoordLogin } from "@/lib/inloggen";
+import { leesTussenstap, maakTussenstap } from "@/lib/totp";
+import { tweestapsActief, tweestapsStatus } from "@/lib/tweestaps";
+
+/** Vijf minuten geldig, alleen voor deze pagina, niet leesbaar voor scripts. */
+const TUSSENSTAP_COOKIE = "blusbox-tussenstap";
+
+function isRedirect(e: unknown): boolean {
+  // next-auth signals a successful redirect by throwing; only a real
+  // failure should come back as an error.
+  return (
+    (e as Error)?.message === "NEXT_REDIRECT" ||
+    Boolean((e as { digest?: string })?.digest?.startsWith("NEXT_REDIRECT"))
+  );
+}
 
 export const metadata: Metadata = {
   title: "Inloggen",
@@ -16,9 +32,9 @@ export const metadata: Metadata = {
 export default async function AccountPage({
   searchParams,
 }: {
-  searchParams: Promise<{ fout?: string }>;
+  searchParams: Promise<{ fout?: string; stap?: string }>;
 }) {
-  const { fout } = await searchParams;
+  const { fout, stap } = await searchParams;
 
   // Already signed in: send people where they belong rather than showing
   // them a login form they do not need.
@@ -48,21 +64,148 @@ export default async function AccountPage({
     redirect("/");
   }
 
+  /*
+   * Stap 1: e-mail en wachtwoord.
+   *
+   * Staat tweestapsverificatie aan, dan wordt hier nog niet ingelogd. De
+   * browser krijgt een kortlevend briefje dat het wachtwoord klopte, en
+   * gaat door naar het codescherm.
+   */
   async function inloggen(formData: FormData) {
     "use server";
+    const email = String(formData.get("email") ?? "");
+    const wachtwoord = String(formData.get("wachtwoord") ?? "");
+
+    const gebruiker = await controleerWachtwoordLogin(email, wachtwoord);
+    if (!gebruiker) redirect("/account?fout=1");
+
+    if (await tweestapsActief(gebruiker.id)) {
+      (await cookies()).set(TUSSENSTAP_COOKIE, maakTussenstap(gebruiker.id), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/account",
+        maxAge: 5 * 60,
+      });
+      redirect("/account?stap=code");
+    }
+
+    try {
+      await signIn("credentials", { email, wachtwoord, redirectTo: "/account" });
+    } catch (e) {
+      if (isRedirect(e)) throw e;
+      redirect("/account?fout=1");
+    }
+  }
+
+  /* Stap 2: de code uit de authenticator-app, of een herstelcode. */
+  async function bevestigCode(formData: FormData) {
+    "use server";
+    const opslag = await cookies();
+    const tussenstap = opslag.get(TUSSENSTAP_COOKIE)?.value ?? "";
+    const userId = tussenstap ? leesTussenstap(tussenstap) : null;
+    if (!userId) redirect("/account?fout=verlopen");
+
+    if ((await tweestapsStatus(userId)).geblokkeerdTot) {
+      redirect("/account?stap=code&fout=slot");
+    }
+
     try {
       await signIn("credentials", {
-        email: String(formData.get("email") ?? ""),
-        wachtwoord: String(formData.get("wachtwoord") ?? ""),
+        tussenstap,
+        code: String(formData.get("code") ?? ""),
         redirectTo: "/account",
       });
     } catch (e) {
-      // next-auth signals a successful redirect by throwing; only a real
-      // failure should come back as an error.
-      if ((e as Error)?.message === "NEXT_REDIRECT") throw e;
-      if ((e as { digest?: string })?.digest?.startsWith("NEXT_REDIRECT")) throw e;
-      redirect("/account?fout=1");
+      if (isRedirect(e)) {
+        opslag.delete({ name: TUSSENSTAP_COOKIE, path: "/account" });
+        throw e;
+      }
+      const slot = (await tweestapsStatus(userId)).geblokkeerdTot;
+      redirect(`/account?stap=code&fout=${slot ? "slot" : "code"}`);
     }
+  }
+
+  // Het codescherm alleen tonen als het briefje er nog is; anders kan
+  // iemand met ?stap=code in de adresbalk een leeg codeveld openen.
+  const tussenstap = (await cookies()).get(TUSSENSTAP_COOKIE)?.value;
+  const codeStap = stap === "code" && Boolean(tussenstap && leesTussenstap(tussenstap));
+
+  if (codeStap) {
+    return (
+      <>
+        <PageHeader
+          eyebrow="account"
+          title="Code invoeren"
+          lead="Open je authenticator-app en typ de code van zes cijfers die bij Blusbox staat."
+        />
+        <main className="mx-auto max-w-md px-6 py-16">
+          {fout ? (
+            <div
+              role="alert"
+              className="mb-6 rounded-2xl border border-signaal bg-signaal/15 p-4"
+            >
+              {fout === "slot" ? (
+                <>
+                  <p className="text-sm font-medium">Even geduld</p>
+                  <p className="mt-1 text-sm">
+                    Te vaak een verkeerde code. Inloggen is een kwartier
+                    geblokkeerd voor dit account.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm font-medium">Code klopt niet</p>
+                  <p className="mt-1 text-sm">
+                    Neem de code die nu in de app staat. Elke code werkt één
+                    keer en ververst elke 30 seconden.
+                  </p>
+                </>
+              )}
+            </div>
+          ) : null}
+
+          <form action={bevestigCode} className="space-y-5">
+            <div>
+              <label htmlFor="code" className="block text-sm font-medium">
+                Code
+              </label>
+              <input
+                id="code"
+                name="code"
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                autoFocus
+                required
+                maxLength={9}
+                aria-describedby="code-hulp"
+                className="data mt-1.5 w-full rounded-[var(--radius-control)] border border-railstaal bg-kastwit px-4 py-3 text-lg tracking-[0.3em]"
+              />
+              <p id="code-hulp" className="mt-1.5 text-xs text-staal-tekst">
+                Telefoon kwijt? Typ dan een van je herstelcodes, zoals
+                ABCD-EFGH. Elke herstelcode werkt één keer.
+              </p>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full rounded-full bg-blusrood-vlak px-6 py-3.5 text-sm font-medium text-kastwit transition-colors hover:bg-[#9e1b18]"
+            >
+              Inloggen
+            </button>
+          </form>
+
+          <Link
+            href="/account"
+            className="mt-6 inline-block text-sm underline underline-offset-4 hover:text-staal-tekst"
+          >
+            Opnieuw beginnen
+          </Link>
+        </main>
+        <SiteFooter />
+      </>
+    );
   }
 
   return (
@@ -78,10 +221,23 @@ export default async function AccountPage({
             role="alert"
             className="mb-6 rounded-2xl border border-signaal bg-signaal/15 p-4"
           >
-            <p className="text-sm font-medium">Inloggen mislukt</p>
-            <p className="mt-1 text-sm">
-              Controleer je e-mailadres en wachtwoord en probeer het opnieuw.
-            </p>
+            {fout === "verlopen" ? (
+              <>
+                <p className="text-sm font-medium">Te lang gewacht</p>
+                <p className="mt-1 text-sm">
+                  Voor de veiligheid moet de code binnen vijf minuten na het
+                  wachtwoord. Log opnieuw in.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-sm font-medium">Inloggen mislukt</p>
+                <p className="mt-1 text-sm">
+                  Controleer je e-mailadres en wachtwoord en probeer het
+                  opnieuw.
+                </p>
+              </>
+            )}
           </div>
         ) : null}
 

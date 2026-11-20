@@ -1,5 +1,6 @@
 import {
   integer,
+  jsonb,
   pgTable,
   primaryKey,
   text,
@@ -63,6 +64,31 @@ export const credentials = pgTable("credentials", {
     .references(() => users.id, { onDelete: "cascade" }),
   wachtwoordHash: text("wachtwoord_hash").notNull(),
   bijgewerktOp: timestamp("bijgewerkt_op", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+/**
+ * Tweestapsverificatie met een authenticator-app.
+ *
+ * Een rij zonder `actiefOp` is een koppeling die gestart maar nog niet met
+ * een code bevestigd is; die telt bij het inloggen niet mee. Het geheim
+ * staat versleuteld (zie lib/totp.ts), herstelcodes alleen als hash.
+ */
+export const tweestaps = pgTable("tweestaps", {
+  userId: uuid("user_id")
+    .primaryKey()
+    .references(() => users.id, { onDelete: "cascade" }),
+  geheimVersleuteld: text("geheim_versleuteld").notNull(),
+  actiefOp: timestamp("actief_op", { withTimezone: true }),
+  /** Stap van de laatst gebruikte code; dezelfde code werkt geen tweede keer. */
+  laatsteStap: integer("laatste_stap").notNull().default(-1),
+  /** SHA-256 van de nog niet gebruikte herstelcodes. */
+  herstelcodes: jsonb("herstelcodes").$type<string[]>().notNull().default([]),
+  /** Foute codes op rij; bij vijf gaat het account een kwartier op slot. */
+  mislukt: integer("mislukt").notNull().default(0),
+  geblokkeerdTot: timestamp("geblokkeerd_tot", { withTimezone: true }),
+  aangemaaktOp: timestamp("aangemaakt_op", { withTimezone: true })
     .notNull()
     .defaultNow(),
 });

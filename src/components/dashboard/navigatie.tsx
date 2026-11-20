@@ -64,7 +64,13 @@ export function DashboardNavigatie({
   const onderbalk = items.filter((i) => i.kort);
 
   const Uitloggen = (
-    <form action={uitloggen}>
+    <form action={uitloggen} className="space-y-2">
+      <Link
+        href="/account/beveiliging"
+        className="data block w-full rounded-full border border-kastwit/25 px-3 py-2 text-center text-xs text-kastwit/80 transition-colors hover:bg-kastwit hover:text-antraciet"
+      >
+        Beveiliging
+      </Link>
       <button
         type="submit"
         className="data w-full rounded-full border border-kastwit/25 px-3 py-2 text-xs text-kastwit/80 transition-colors hover:bg-kastwit hover:text-antraciet"

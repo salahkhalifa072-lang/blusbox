@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { signOut } from "@/auth";
 import { vereisDashboard } from "@/lib/sessie";
+import Link from "next/link";
 import { magFactureren } from "@/lib/rollen";
+import { tweestapsActief } from "@/lib/tweestaps";
 import { DashboardNavigatie, type NavItem } from "@/components/dashboard/navigatie";
 
 /**
@@ -46,6 +48,8 @@ export default async function DashboardLayout({
     await signOut({ redirectTo: "/" });
   }
 
+  const beveiligd = await tweestapsActief(actor.id);
+
   const items = nav
     .filter((item) => !item.alleenFactureren || magFactureren(actor.rol))
     .map(({ href, label, groep, kort }) => ({ href, label, groep, kort }));
@@ -55,6 +59,19 @@ export default async function DashboardLayout({
       <DashboardNavigatie items={items} email={actor.email} uitloggen={uitloggen} />
       {/* pb-24: ruimte voor de knoppenbalk onderin op een telefoon */}
       <main className="mx-auto w-full min-w-0 max-w-7xl px-4 pb-28 pt-6 sm:px-6 lg:px-10 lg:py-10">
+        {beveiligd ? null : (
+          <Link
+            href="/account/beveiliging"
+            className="mb-6 flex items-center justify-between gap-4 rounded-2xl border border-signaal bg-signaal/15 px-4 py-3 text-sm transition-colors hover:bg-signaal/25"
+          >
+            <span>
+              <span className="font-medium">Tweestapsverificatie staat uit.</span>{" "}
+              Met alleen een wachtwoord kan iemand die het weet bij alle
+              bestellingen en klantgegevens.
+            </span>
+            <span className="shrink-0 font-medium">Aanzetten →</span>
+          </Link>
+        )}
         {children}
       </main>
     </div>

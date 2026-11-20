@@ -3,12 +3,14 @@ import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import Credentials from "next-auth/providers/credentials";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { users, accounts, sessions, verificationTokens, credentials } from "@/db";
-import { verifieerWachtwoord } from "@/lib/wachtwoord";
+import { users, accounts, sessions, verificationTokens } from "@/db";
+import { controleerWachtwoordLogin, gebruikerOpId } from "@/lib/inloggen";
+import { leesTussenstap } from "@/lib/totp";
+import { controleerInlogcode, tweestapsActief } from "@/lib/tweestaps";
 import type { Aanspreekvorm, Rol } from "@/db/schema";
 
 /**
- * §3 auth: magic link (MailerSend) plus credentials.
+ * §3 auth: wachtwoord, met optioneel een code uit een authenticator-app.
  *
  * The session carries `rol` and `aanspreekvorm` because both are needed on
  * nearly every render — role to pick the right navigation, aanspreekvorm to
@@ -69,39 +71,37 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       credentials: {
         email: { label: "E-mailadres", type: "email" },
         wachtwoord: { label: "Wachtwoord", type: "password" },
+        tussenstap: { type: "text" },
+        code: { type: "text" },
       },
+      /**
+       * Twee manieren om binnen te komen:
+       *
+       * 1. E-mail en wachtwoord, alleen als tweestapsverificatie uit staat.
+       * 2. Het tussenstap-briefje (bewijs dat het wachtwoord klopte, zie
+       *    lib/totp.ts) plus een geldige code uit de app of een herstelcode.
+       *
+       * De controle zit hier en niet alleen op de inlogpagina: Auth.js zet
+       * ook /api/auth/callback/credentials open, en wie daar rechtstreeks
+       * e-mail en wachtwoord heen stuurt, mag de code niet kunnen overslaan.
+       */
       async authorize(input) {
-        const email = String(input?.email ?? "")
-          .trim()
-          .toLowerCase();
-        const wachtwoord = String(input?.wachtwoord ?? "");
-        if (!email || !wachtwoord) return null;
+        const tussenstap = String(input?.tussenstap ?? "");
+        if (tussenstap) {
+          const userId = leesTussenstap(tussenstap);
+          if (!userId) return null;
+          const uitkomst = await controleerInlogcode(userId, String(input?.code ?? ""));
+          if (uitkomst !== "goed") return null;
+          return gebruikerOpId(userId);
+        }
 
-        const [gebruiker] = await db
-          .select()
-          .from(users)
-          .where(eq(users.email, email))
-          .limit(1);
-        if (!gebruiker) return null;
-
-        const [rij] = await db
-          .select()
-          .from(credentials)
-          .where(eq(credentials.userId, gebruiker.id))
-          .limit(1);
-        if (!rij) return null;
-
-        const klopt = await verifieerWachtwoord(
-          wachtwoord,
-          rij.wachtwoordHash,
+        const gebruiker = await controleerWachtwoordLogin(
+          String(input?.email ?? ""),
+          String(input?.wachtwoord ?? ""),
         );
-        if (!klopt) return null;
-
-        return {
-          id: gebruiker.id,
-          email: gebruiker.email,
-          name: gebruiker.name,
-        };
+        if (!gebruiker) return null;
+        if (await tweestapsActief(gebruiker.id)) return null;
+        return gebruiker;
       },
     }),
   ],
