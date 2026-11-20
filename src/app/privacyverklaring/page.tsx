@@ -67,6 +67,14 @@ export default function PrivacyverklaringPage() {
               achterlaat. Grondslag: gerechtvaardigd belang bij het beantwoorden
               van je vraag.
             </li>
+            <li>
+              <strong>Inlogbeveiliging</strong> — bij elke poging om in te
+              loggen op een account, of een nieuw wachtwoord aan te vragen:
+              het IP-adres, het ingevulde e-mailadres, het tijdstip en of de
+              poging lukte. Daarmee herkennen en blokkeren wij pogingen om
+              accounts over te nemen. Grondslag: gerechtvaardigd belang bij
+              het beveiligen van accounts en de gegevens daarachter.
+            </li>
           </ul>
 
           <h2>Bewaartermijnen</h2>
@@ -77,7 +85,9 @@ export default function PrivacyverklaringPage() {
             om een terugroep te kunnen uitvoeren. Concreet: bestel- en
             factuurgegevens zeven jaar (fiscale bewaarplicht), gegevens over een
             geplaatste module tot tien jaar na installatie plus één jaar, en een
-            account zolang je het gebruikt.
+            account zolang je het gebruikt. Inlogpogingen bewaren wij 30
+            dagen; een blokkade van een IP-adres vervalt vanzelf en wordt
+            uiterlijk 90 dagen daarna verwijderd.
           </p>
 
           <h2>Ontvangers</h2>

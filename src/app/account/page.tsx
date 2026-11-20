@@ -11,6 +11,12 @@ import { affiliateVanGebruiker } from "@/db/affiliate";
 import { controleerWachtwoordLogin } from "@/lib/inloggen";
 import { leesTussenstap, maakTussenstap } from "@/lib/totp";
 import { tweestapsActief, tweestapsStatus } from "@/lib/tweestaps";
+import {
+  accountAfgekoeld,
+  huidigIp,
+  ipGeblokkeerd,
+  registreerPoging,
+} from "@/lib/inlogbewaking";
 
 /** Vijf minuten geldig, alleen voor deze pagina, niet leesbaar voor scripts. */
 const TUSSENSTAP_COOKIE = "blusbox-tussenstap";
@@ -76,11 +82,27 @@ export default async function AccountPage({
     const email = String(formData.get("email") ?? "");
     const wachtwoord = String(formData.get("wachtwoord") ?? "");
 
+    // Eerst de bewaking: een geblokkeerd adres of een account onder vuur
+    // komt niet eens bij de wachtwoordcontrole.
+    const ip = await huidigIp();
+    if (await ipGeblokkeerd(ip)) redirect("/account?fout=geblokkeerd");
+    if (await accountAfgekoeld(email)) redirect("/account?fout=afkoelen");
+
     const gebruiker = await controleerWachtwoordLogin(email, wachtwoord);
-    if (!gebruiker) redirect("/account?fout=1");
+    const { geblokkeerd } = await registreerPoging({
+      ip,
+      email,
+      soort: "wachtwoord",
+      gelukt: Boolean(gebruiker),
+    });
+    if (!gebruiker) redirect(geblokkeerd ? "/account?fout=geblokkeerd" : "/account?fout=1");
+
+    // Het wachtwoord gaat niet verder dan hier. Wat naar Auth.js gaat, is
+    // het briefje dat het klopte (en zo nodig straks de code).
+    const briefje = maakTussenstap(gebruiker.id);
 
     if (await tweestapsActief(gebruiker.id)) {
-      (await cookies()).set(TUSSENSTAP_COOKIE, maakTussenstap(gebruiker.id), {
+      (await cookies()).set(TUSSENSTAP_COOKIE, briefje, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
@@ -91,7 +113,7 @@ export default async function AccountPage({
     }
 
     try {
-      await signIn("credentials", { email, wachtwoord, redirectTo: "/account" });
+      await signIn("credentials", { tussenstap: briefje, redirectTo: "/account" });
     } catch (e) {
       if (isRedirect(e)) throw e;
       redirect("/account?fout=1");
@@ -106,6 +128,7 @@ export default async function AccountPage({
     const userId = tussenstap ? leesTussenstap(tussenstap) : null;
     if (!userId) redirect("/account?fout=verlopen");
 
+    if (await ipGeblokkeerd(await huidigIp())) redirect("/account?fout=geblokkeerd");
     if ((await tweestapsStatus(userId)).geblokkeerdTot) {
       redirect("/account?stap=code&fout=slot");
     }
@@ -121,6 +144,7 @@ export default async function AccountPage({
         opslag.delete({ name: TUSSENSTAP_COOKIE, path: "/account" });
         throw e;
       }
+      if (await ipGeblokkeerd(await huidigIp())) redirect("/account?fout=geblokkeerd");
       const slot = (await tweestapsStatus(userId)).geblokkeerdTot;
       redirect(`/account?stap=code&fout=${slot ? "slot" : "code"}`);
     }
@@ -221,7 +245,25 @@ export default async function AccountPage({
             role="alert"
             className="mb-6 rounded-2xl border border-signaal bg-signaal/15 p-4"
           >
-            {fout === "verlopen" ? (
+            {fout === "geblokkeerd" ? (
+              <>
+                <p className="text-sm font-medium">Inloggen geblokkeerd</p>
+                <p className="mt-1 text-sm">
+                  Vanaf dit netwerk zijn te veel verkeerde pogingen gedaan.
+                  Inloggen is daarom tijdelijk geblokkeerd. Ben je zelf
+                  beheerder, probeer het dan via een ander netwerk, zoals 4G
+                  op je telefoon.
+                </p>
+              </>
+            ) : fout === "afkoelen" ? (
+              <>
+                <p className="text-sm font-medium">Even pauze</p>
+                <p className="mt-1 text-sm">
+                  Op dit account zijn net te veel verkeerde pogingen gedaan.
+                  Probeer het over een kwartier opnieuw.
+                </p>
+              </>
+            ) : fout === "verlopen" ? (
               <>
                 <p className="text-sm font-medium">Te lang gewacht</p>
                 <p className="mt-1 text-sm">

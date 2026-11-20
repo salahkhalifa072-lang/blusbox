@@ -5,6 +5,12 @@ import { SiteFooter } from "@/components/site/footer";
 import { vraagHerstelAan } from "@/db/wachtwoord-herstel";
 import { stuurHerstelmail } from "@/lib/wachtwoord-mail";
 import { GELDIGHEID_MINUTEN } from "@/lib/wachtwoord-herstel";
+import {
+  huidigIp,
+  ipGeblokkeerd,
+  registreerPoging,
+  teveelHerstelmails,
+} from "@/lib/inlogbewaking";
 
 export const metadata: Metadata = {
   title: "Wachtwoord vergeten",
@@ -33,6 +39,13 @@ export default async function WachtwoordVergetenPage({
     "use server";
     const { redirect } = await import("next/navigation");
     const email = String(formData.get("email") ?? "");
+
+    // Geblokkeerd adres of een mailbom op één adres: zelfde scherm, geen
+    // mail. Elke aanvraag telt mee voor de inlogbewaking.
+    const ip = await huidigIp();
+    if (await ipGeblokkeerd(ip)) redirect("/wachtwoord-vergeten?verstuurd=1");
+    await registreerPoging({ ip, email, soort: "herstel", gelukt: true });
+    if (await teveelHerstelmails(email)) redirect("/wachtwoord-vergeten?verstuurd=1");
 
     const aanvraag = await vraagHerstelAan(email);
     if (aanvraag) {

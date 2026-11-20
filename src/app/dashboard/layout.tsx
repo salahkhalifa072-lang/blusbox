@@ -34,6 +34,7 @@ const nav: (NavItem & { alleenFactureren?: boolean })[] = [
   { href: "/dashboard/units", label: "Geplaatste units", groep: "Product en veiligheid" },
   { href: "/dashboard/activeringen", label: "Activeringen", groep: "Product en veiligheid" },
   { href: "/dashboard/recalls", label: "Recalls", groep: "Product en veiligheid" },
+  { href: "/dashboard/beveiliging", label: "Inlogbewaking", groep: "Beheer" },
 ];
 
 export default async function DashboardLayout({

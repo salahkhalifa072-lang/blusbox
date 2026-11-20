@@ -1,4 +1,6 @@
 import {
+  boolean,
+  index,
   integer,
   jsonb,
   pgTable,
@@ -88,6 +90,42 @@ export const tweestaps = pgTable("tweestaps", {
   /** Foute codes op rij; bij vijf gaat het account een kwartier op slot. */
   mislukt: integer("mislukt").notNull().default(0),
   geblokkeerdTot: timestamp("geblokkeerd_tot", { withTimezone: true }),
+  aangemaaktOp: timestamp("aangemaakt_op", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+/**
+ * Elke inlogpoging, geslaagd of niet: de grondstof voor het herkennen van
+ * aanvallen (zie lib/inlogbewaking.ts). Na 30 dagen opgeruimd door de
+ * dagelijkse cron; een IP-adres is een persoonsgegeven.
+ */
+export const inlogpogingen = pgTable(
+  "inlogpogingen",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    /** IPv4 voluit, IPv6 ingekort tot het /64-blok (zie normaliseerIp). */
+    ip: text("ip").notNull(),
+    /** Ingevuld e-mailadres, kleine letters; ook als er geen account bij hoort. */
+    email: text("email"),
+    /** wachtwoord | code | herstel */
+    soort: text("soort").notNull(),
+    gelukt: boolean("gelukt").notNull(),
+    tijd: timestamp("tijd", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("inlogpogingen_ip_tijd").on(t.ip, t.tijd),
+    index("inlogpogingen_email_tijd").on(t.email, t.tijd),
+  ],
+);
+
+/** Geblokkeerde IP-adressen (of IPv6-blokken). */
+export const ipBlokkades = pgTable("ip_blokkades", {
+  ip: text("ip").primaryKey(),
+  reden: text("reden").notNull(),
+  tot: timestamp("tot", { withTimezone: true }).notNull(),
+  /** Hoe vaak dit adres al geblokkeerd is geweest; bepaalt de duur. */
+  keer: integer("keer").notNull().default(1),
   aangemaaktOp: timestamp("aangemaakt_op", { withTimezone: true })
     .notNull()
     .defaultNow(),

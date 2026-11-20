@@ -35,6 +35,7 @@ function Icoon({ href }: { href: string }) {
     "/dashboard/units": "M12 21s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12Zm0-9.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z",
     "/dashboard/activeringen": "M13 3 5 14h6l-1 7 8-11h-6l1-7Z",
     "/dashboard/recalls": "M12 4 2.5 20h19L12 4Zm0 6v4m0 3h.01",
+    "/dashboard/beveiliging": "M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6l-8-3Zm-3 9 2 2 4-4",
   }[href];
   return (
     <svg viewBox="0 0 24 24" aria-hidden className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">

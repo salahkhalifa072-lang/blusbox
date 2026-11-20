@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { draaiHerinneringsronde } from "@/lib/herinneringen";
+import { ruimBewakingOp } from "@/lib/inlogbewaking";
 import type { IsoDatum } from "@/lib/levensduur";
 
 export const dynamic = "force-dynamic";
@@ -48,7 +49,14 @@ export async function GET(request: Request) {
       console.warn(`[herinneringen] mislukt voor ${p.email}: ${p.reden}`);
     }
 
-    return NextResponse.json({ datum: vandaag, ...resultaat });
+    // Meeliften op deze dagelijkse ronde: oude inlogpogingen opruimen.
+    // Los afgevangen, zodat een fout hier de herinneringen niet raakt.
+    const opgeruimd = await ruimBewakingOp().catch((fout) => {
+      console.error("[inlogbewaking] opruimen mislukt:", fout);
+      return null;
+    });
+
+    return NextResponse.json({ datum: vandaag, ...resultaat, opgeruimd });
   } catch (fout) {
     console.error("[herinneringen] ronde afgebroken:", fout);
     return NextResponse.json(

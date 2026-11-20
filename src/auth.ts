@@ -7,6 +7,7 @@ import { users, accounts, sessions, verificationTokens } from "@/db";
 import { controleerWachtwoordLogin, gebruikerOpId } from "@/lib/inloggen";
 import { leesTussenstap } from "@/lib/totp";
 import { controleerInlogcode, tweestapsActief } from "@/lib/tweestaps";
+import { accountAfgekoeld, huidigIp, ipGeblokkeerd, registreerPoging } from "@/lib/inlogbewaking";
 import type { Aanspreekvorm, Rol } from "@/db/schema";
 
 /**
@@ -86,19 +87,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
        * e-mail en wachtwoord heen stuurt, mag de code niet kunnen overslaan.
        */
       async authorize(input) {
+        // Geblokkeerd adres: niets controleren, niets prijsgeven.
+        const ip = await huidigIp();
+        if (await ipGeblokkeerd(ip)) return null;
+
         const tussenstap = String(input?.tussenstap ?? "");
         if (tussenstap) {
+          // Het briefje bestaat alleen als het wachtwoord al klopte; die
+          // poging is op de inlogpagina vastgelegd.
           const userId = leesTussenstap(tussenstap);
           if (!userId) return null;
-          const uitkomst = await controleerInlogcode(userId, String(input?.code ?? ""));
-          if (uitkomst !== "goed") return null;
-          return gebruikerOpId(userId);
+          const gebruiker = await gebruikerOpId(userId);
+          if (!gebruiker) return null;
+          if (await tweestapsActief(userId)) {
+            const uitkomst = await controleerInlogcode(userId, String(input?.code ?? ""));
+            await registreerPoging({ ip, email: gebruiker.email, soort: "code", gelukt: uitkomst === "goed" });
+            if (uitkomst !== "goed") return null;
+          }
+          return gebruiker;
         }
 
-        const gebruiker = await controleerWachtwoordLogin(
-          String(input?.email ?? ""),
-          String(input?.wachtwoord ?? ""),
-        );
+        // Rechtstreeks naar /api/auth/callback/credentials, zonder de
+        // inlogpagina. Gewone bezoekers komen hier niet; scripts wel. Zelfde
+        // bewaking, en met tweestapsverificatie aan sowieso geen toegang.
+        const email = String(input?.email ?? "");
+        if (await accountAfgekoeld(email)) return null;
+        const gebruiker = await controleerWachtwoordLogin(email, String(input?.wachtwoord ?? ""));
+        await registreerPoging({ ip, email, soort: "wachtwoord", gelukt: Boolean(gebruiker) });
         if (!gebruiker) return null;
         if (await tweestapsActief(gebruiker.id)) return null;
         return gebruiker;
