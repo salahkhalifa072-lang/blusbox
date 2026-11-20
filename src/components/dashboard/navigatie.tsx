@@ -16,7 +16,14 @@ import { useEffect, useState } from "react";
  * dicht moet; de items zelf komen van de server, al gefilterd op rol.
  */
 
-export type NavItem = { href: string; label: string; groep: string; kort?: string };
+export type NavItem = {
+  href: string;
+  label: string;
+  groep: string;
+  kort?: string;
+  /** Teller naast het label, bijvoorbeeld openstaande berichten. */
+  aantal?: number;
+};
 
 function actief(pad: string, href: string): boolean {
   return href === "/dashboard" ? pad === href : pad === href || pad.startsWith(`${href}/`);
@@ -27,6 +34,7 @@ function Icoon({ href }: { href: string }) {
   const p = {
     "/dashboard": "M4 13h6V4H4v9Zm0 7h6v-5H4v5Zm10 0h6v-9h-6v9Zm0-16v5h6V4h-6Z",
     "/dashboard/bestellingen": "M6 7h12l-1 13H7L6 7Zm3 0V5a3 3 0 0 1 6 0v2",
+    "/dashboard/berichten": "M4 6h16v12H4V6Zm0 0 8 7 8-7",
     "/dashboard/facturen": "M7 3h8l4 4v14H7V3Zm8 0v4h4M10 12h6M10 16h6",
     "/dashboard/affiliates": "M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm8 2a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM3 20c0-3 2.5-5 5-5s5 2 5 5m2 0c0-2 1.5-4 4-4 1.5 0 3 1 3 3",
     "/dashboard/kortingscodes": "M4 12V4h8l8 8-8 8-8-8Zm4.5-3.5h.01",
@@ -103,7 +111,13 @@ export function DashboardNavigatie({
                       }`}
                     >
                       <Icoon href={i.href} />
-                      {i.label}
+                      <span className="flex-1">{i.label}</span>
+                      {i.aantal ? (
+                        <span className="data rounded-full bg-blusrood-vlak px-2 py-0.5 text-[11px] text-kastwit">
+                          {i.aantal}
+                          <span className="sr-only"> open</span>
+                        </span>
+                      ) : null}
                     </Link>
                   </li>
                 );

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { overzichtCijfers, bestellingenLijst, teDoen } from "@/db/dashboard";
 import { Cel, Leeg, Paneel, Rij, Status, Tabel, TeDoen, Tegel } from "@/components/dashboard/ui";
+import { openContactberichten } from "@/db/contact";
 import { vereisDashboard } from "@/lib/sessie";
 import { magFactureren } from "@/lib/rollen";
 import { euro } from "@/lib/pricing";
@@ -23,6 +24,7 @@ export default async function DashboardOverzicht() {
     bestellingenLijst(8),
     teDoen(),
   ]);
+  const berichten = await openContactberichten();
 
   const enkelvoud = (n: number, een: string, meer: string) => (n === 1 ? een : meer);
 
@@ -41,6 +43,12 @@ export default async function DashboardOverzicht() {
             aantal: taken.versturen,
             tekst: `${enkelvoud(taken.versturen, "bestelling", "bestellingen")} betaald en klaar om te versturen`,
             href: "/dashboard/bestellingen?filter=versturen",
+            dringend: true,
+          },
+          {
+            aantal: berichten,
+            tekst: `${enkelvoud(berichten, "bericht", "berichten")} via het contactformulier, nog niet beantwoord`,
+            href: "/dashboard/berichten",
             dringend: true,
           },
           {

@@ -8,6 +8,7 @@ import { Vervangingsherinnering } from "@/emails/vervangingsherinnering";
 import { Verzendbericht } from "@/emails/verzendbericht";
 import { Bezorgbericht } from "@/emails/bezorgbericht";
 import { Factuurbericht } from "@/emails/factuurbericht";
+import { Contactantwoord } from "@/emails/contactantwoord";
 import { haalFactuur, type Factuur } from "@/db/facturen";
 import { maakFactuurPdf, vervaldatum } from "./factuur";
 import { maakHerroepingsformulier } from "./herroepingsformulier";
@@ -323,6 +324,61 @@ export async function stuurBerichtAanKlant(
     onderwerp: schoonOnderwerp,
     html,
     tekst,
+  });
+}
+
+/**
+ * Antwoord op een contactbericht, vanaf info@blusbox.nl.
+ *
+ * Het adres komt uit het opgeslagen bericht, niet uit een vrij veld: zo
+ * wordt het beheer geen verzendmachine naar willekeurige adressen.
+ * Beantwoordt de klant deze mail, dan komt dat in het postvak van
+ * info@blusbox.nl terecht.
+ */
+export async function stuurContactantwoord(opdracht: {
+  naar: string;
+  onderwerp: string;
+  tekst: string;
+  origineel: { naam: string; bericht: string; ontvangenOp: Date };
+}): Promise<MailResultaat> {
+  if (!mailBeschikbaar()) {
+    return { verstuurd: false, reden: "MAILERSEND_API_TOKEN ontbreekt" };
+  }
+  const ontvangen = opdracht.origineel.ontvangenOp.toLocaleString("nl-NL", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Europe/Amsterdam",
+  });
+
+  const html = await render(
+    Contactantwoord({
+      tekst: opdracht.tekst,
+      origineel: { naam: opdracht.origineel.naam, bericht: opdracht.origineel.bericht, ontvangen },
+      bedrijf: { volledig: bedrijf.volledig, email: bedrijf.email, kvk: bedrijf.kvk },
+      siteUrl,
+    }),
+  );
+
+  const tekst = [
+    opdracht.tekst.trim(),
+    "",
+    "—",
+    bedrijf.volledig,
+    bedrijf.email,
+    "",
+    `Op ${ontvangen} schreef ${opdracht.origineel.naam}:`,
+    ...opdracht.origineel.bericht.split("\n").map((r) => `> ${r}`),
+  ].join("\n");
+
+  return verstuurMail({
+    naar: opdracht.naar,
+    onderwerp: opdracht.onderwerp,
+    html,
+    tekst,
+    antwoordNaar: bedrijf.email,
   });
 }
 

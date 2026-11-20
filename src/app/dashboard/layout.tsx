@@ -4,6 +4,7 @@ import { vereisDashboard } from "@/lib/sessie";
 import Link from "next/link";
 import { magFactureren } from "@/lib/rollen";
 import { tweestapsActief } from "@/lib/tweestaps";
+import { openContactberichten } from "@/db/contact";
 import { DashboardNavigatie, type NavItem } from "@/components/dashboard/navigatie";
 
 /**
@@ -25,6 +26,7 @@ export const metadata: Metadata = {
 const nav: (NavItem & { alleenFactureren?: boolean })[] = [
   { href: "/dashboard", label: "Overzicht", groep: "Verkoop", kort: "Overzicht" },
   { href: "/dashboard/bestellingen", label: "Bestellingen", groep: "Verkoop", kort: "Bestellingen" },
+  { href: "/dashboard/berichten", label: "Berichten", groep: "Verkoop" },
   { href: "/dashboard/facturen", label: "Facturen", groep: "Verkoop", kort: "Facturen", alleenFactureren: true },
   { href: "/dashboard/verkopers", label: "Verkopers aan de deur", groep: "Verkoop", alleenFactureren: true },
   { href: "/dashboard/kortingscodes", label: "Kortingscodes", groep: "Verkoop" },
@@ -49,11 +51,20 @@ export default async function DashboardLayout({
     await signOut({ redirectTo: "/" });
   }
 
-  const beveiligd = await tweestapsActief(actor.id);
+  const [beveiligd, openBerichten] = await Promise.all([
+    tweestapsActief(actor.id),
+    openContactberichten(),
+  ]);
 
   const items = nav
     .filter((item) => !item.alleenFactureren || magFactureren(actor.rol))
-    .map(({ href, label, groep, kort }) => ({ href, label, groep, kort }));
+    .map(({ href, label, groep, kort }) => ({
+      href,
+      label,
+      groep,
+      kort,
+      aantal: href === "/dashboard/berichten" ? openBerichten : undefined,
+    }));
 
   return (
     <div className="min-h-screen bg-kastwit-dim lg:flex">

@@ -4,9 +4,16 @@ import { geldigEmail } from "@/lib/adres";
 import { bestelmeldingAdres } from "@/lib/mail";
 import { verstuurMail } from "@/lib/mailtransport";
 import { bedrijf } from "@/lib/bedrijf";
+import { siteUrl } from "@/lib/site";
+import { slaContactberichtOp } from "@/db/contact";
 
 /**
- * Contactformulier → mail naar ons eigen postvak.
+ * Contactformulier → opslaan in de database (te lezen en beantwoorden in
+ * /dashboard/berichten) én een melding naar ons eigen postvak.
+ *
+ * Opslaan gaat eerst. Lukt dat, dan is het bericht binnen, ook als de
+ * mail daarna hapert; de bezoeker krijgt dan gewoon "verstuurd" te zien.
+ * Pas als allebei mislukken krijgt hij een foutmelding.
  *
  * Er gaat met opzet geen bevestiging naar het opgegeven adres: dan kan
  * iedereen via dit formulier post namens blusbox.nl naar willekeurige
@@ -79,6 +86,14 @@ export async function stuurContactbericht(
   const onderwerp = ONDERWERPEN[sleutel] ?? ONDERWERPEN.vraag;
   const naar = bestelmeldingAdres() ?? bedrijf.email;
 
+  let berichtId: string | null = null;
+  try {
+    berichtId = await slaContactberichtOp({ naam, email, onderwerp, bericht });
+  } catch (fout) {
+    console.error("Contactbericht niet opgeslagen:", fout);
+  }
+  const link = berichtId ? `${siteUrl}/dashboard/berichten/${berichtId}` : null;
+
   const resultaat = await verstuurMail({
     naar,
     antwoordNaar: email,
@@ -91,16 +106,24 @@ export async function stuurContactbericht(
       "",
       bericht,
       "",
-      "Beantwoorden gaat rechtstreeks naar de klant.",
+      link
+        ? `Beantwoorden vanaf info@blusbox.nl: ${link}`
+        : "Beantwoorden gaat rechtstreeks naar de klant.",
     ].join("\n"),
     html: `<p style="color:#666;font-size:13px">Via het contactformulier op blusbox.nl</p>
 <p><strong>Naam:</strong> ${ontsnap(naam)}<br><strong>E-mail:</strong> ${ontsnap(email)}<br><strong>Onderwerp:</strong> ${ontsnap(onderwerp)}</p>
 <p style="white-space:pre-wrap">${ontsnap(bericht)}</p>
-<p style="color:#666;font-size:13px">Beantwoorden gaat rechtstreeks naar de klant.</p>`,
+<p style="color:#666;font-size:13px">${
+      link
+        ? `<a href="${link}">Lees en beantwoord in het beheer</a> (vanaf info@blusbox.nl), of beantwoord deze mail rechtstreeks.`
+        : "Beantwoorden gaat rechtstreeks naar de klant."
+    }</p>`,
   });
 
   if (!resultaat.verstuurd) {
     console.error(`Contactbericht niet verstuurd: ${resultaat.reden}`);
+    // Opgeslagen is genoeg: dan staat het in het beheer.
+    if (berichtId) return { fase: "gelukt" };
     return {
       fase: "fout",
       melding: `Versturen lukte niet. Mail je vraag naar ${bedrijf.email}, dan helpen we je zo snel mogelijk.`,

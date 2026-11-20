@@ -611,6 +611,54 @@ export const returnsRelations = relations(returns, ({ one }) => ({
   order: one(orders, { fields: [returns.orderId], references: [orders.id] }),
 }));
 
+/* --------------------------------------------------------- contact */
+
+/**
+ * Berichten via het contactformulier.
+ *
+ * Eerst gingen ze alleen per mail naar het postvak. Nu staan ze ook hier,
+ * zodat ze in het beheer te lezen en te beantwoorden zijn, en zodat een
+ * haperende mailprovider geen bericht meer kan laten verdwijnen.
+ */
+export const contactberichten = pgTable(
+  "contactberichten",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    naam: text("naam").notNull(),
+    email: text("email").notNull(),
+    /** Leesbaar onderwerp, zoals in het formulier gekozen. */
+    onderwerp: text("onderwerp").notNull(),
+    bericht: text("bericht").notNull(),
+    /** formulier | handmatig (overgenomen uit de mail, telefoon, ...) */
+    bron: text("bron").notNull().default("formulier"),
+    /** nieuw | beantwoord | gearchiveerd */
+    status: text("status").notNull().default("nieuw"),
+    gelezenOp: timestamp("gelezen_op", { withTimezone: true }),
+    ontvangenOp: timestamp("ontvangen_op", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("contactberichten_status_ontvangen").on(t.status, t.ontvangenOp)],
+);
+
+/** Wat er vanuit het beheer op een contactbericht is teruggestuurd. */
+export const contactantwoorden = pgTable("contactantwoorden", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  berichtId: uuid("bericht_id")
+    .notNull()
+    .references(() => contactberichten.id, { onDelete: "cascade" }),
+  onderwerp: text("onderwerp").notNull(),
+  tekst: text("tekst").notNull(),
+  /** E-mailadres van de beheerder die het verstuurde. */
+  verstuurdDoor: text("verstuurd_door").notNull(),
+  verstuurdOp: timestamp("verstuurd_op", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export type Contactbericht = typeof contactberichten.$inferSelect;
+export type Contactantwoord = typeof contactantwoorden.$inferSelect;
+
 /* ---------------------------------------------------------------- types */
 
 export type Rol = (typeof rolEnum.enumValues)[number];

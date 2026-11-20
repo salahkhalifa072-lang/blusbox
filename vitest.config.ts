@@ -6,6 +6,9 @@ export default defineConfig({
     environment: "node",
     include: ["src/**/*.test.ts"],
   },
+  // E-mailsjablonen (.tsx) moeten ook in tests te renderen zijn; tsconfig
+  // zet jsx op "preserve" voor Next, en daar kan Vite niets mee.
+  oxc: { jsx: { runtime: "automatic" } },
   resolve: {
     alias: { "@": path.resolve(__dirname, "./src") },
   },
