@@ -6,6 +6,7 @@ import {
   jsonb,
   pgEnum,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   uniqueIndex,
@@ -663,6 +664,24 @@ export const contactantwoorden = pgTable("contactantwoorden", {
     .notNull()
     .defaultNow(),
 });
+
+/* ------------------------------------------------- toestemmingstellers */
+
+/**
+ * Hoe vaak er op "Akkoord" en op "Weigeren" is gedrukt in de cookiebalk,
+ * per dag. Alleen tellers: geen IP-adres, geen cookie, niets over de
+ * bezoeker. Wie weigert is voor Google en Meta onzichtbaar; dit getal
+ * zegt hoe groot dat onzichtbare deel is.
+ */
+export const toestemmingTellingen = pgTable(
+  "toestemming_tellingen",
+  {
+    dag: date("dag").notNull(),
+    keuze: text("keuze").$type<"verleend" | "geweigerd">().notNull(),
+    aantal: integer("aantal").notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.dag, t.keuze] })],
+);
 
 export type Contactbericht = typeof contactberichten.$inferSelect;
 export type Contactantwoord = typeof contactantwoorden.$inferSelect;

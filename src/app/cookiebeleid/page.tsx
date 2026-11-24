@@ -102,6 +102,12 @@ export default function CookiebeleidPage() {
                 winkel werkt dan precies hetzelfde.
               </p>
               <p>
+                Wij tellen zelf hoe vaak er op &ldquo;Akkoord&rdquo; en op
+                &ldquo;Weigeren&rdquo; wordt gedrukt. Dat zijn twee tellers op
+                onze eigen server; er wordt daarbij niets over jou
+                vastgelegd.
+              </p>
+              <p>
                 Gebruikte diensten:{" "}
                 {[GOOGLE_ADS_ID ? "Google Ads" : null, GA4_ID ? "Google Analytics 4" : null]
                   .filter(Boolean)

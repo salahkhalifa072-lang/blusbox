@@ -9,8 +9,8 @@ import { koopNu } from "@/app/winkelwagen/acties";
  *
  * Verschijnt zodra de koopknop van de hero uit beeld is, en verdwijnt
  * weer bij het koopblok onderaan: daar staat de knop al groot, en twee
- * keer dezelfde knop boven elkaar is ruis. Onder de cookiebanner (z-40
- * tegen z-50), zodat die nooit wordt afgedekt.
+ * keer dezelfde knop boven elkaar is ruis. Staat de cookiebalk er nog,
+ * dan schuift deze balk erboven (--cookiebalk, gezet door Meting).
  */
 function Knop({ prijs }: { prijs: string }) {
   const { pending } = useFormStatus();
@@ -49,7 +49,7 @@ export function MobieleKoopbalk({ prijs, regel }: { prijs: string; regel: string
     <div
       aria-hidden={!zichtbaar}
       inert={!zichtbaar}
-      className={`fixed inset-x-0 bottom-0 z-40 border-t border-kastwit/10 bg-antraciet/95 text-kastwit backdrop-blur transition-transform duration-300 motion-reduce:transition-none lg:hidden ${
+      className={`fixed inset-x-0 bottom-[var(--cookiebalk,0px)] z-40 border-t border-kastwit/10 bg-antraciet/95 text-kastwit backdrop-blur transition-transform duration-300 motion-reduce:transition-none lg:hidden ${
         zichtbaar ? "translate-y-0" : "translate-y-full"
       }`}
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}

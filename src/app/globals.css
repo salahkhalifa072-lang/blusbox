@@ -96,6 +96,13 @@
     }
   }
 
+  /* Ruimte onderaan zolang de cookiebalk er staat. Meting zet de hoogte
+     in --cookiebalk; zonder balk is dat nul. Zo ligt de balk nooit over
+     de laatste strook van de pagina. */
+  body {
+    padding-bottom: var(--cookiebalk, 0px);
+  }
+
   ::selection {
     background: var(--antraciet);
     color: var(--kastwit);

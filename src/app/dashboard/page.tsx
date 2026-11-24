@@ -2,6 +2,7 @@ import Link from "next/link";
 import { overzichtCijfers, bestellingenLijst, teDoen } from "@/db/dashboard";
 import { Cel, Leeg, Paneel, Rij, Status, Tabel, TeDoen, Tegel } from "@/components/dashboard/ui";
 import { openContactberichten } from "@/db/contact";
+import { toestemmingOverzicht } from "@/db/toestemming";
 import { vereisDashboard } from "@/lib/sessie";
 import { magFactureren } from "@/lib/rollen";
 import { euro } from "@/lib/pricing";
@@ -24,7 +25,10 @@ export default async function DashboardOverzicht() {
     bestellingenLijst(8),
     teDoen(),
   ]);
-  const berichten = await openContactberichten();
+  const [berichten, cookies] = await Promise.all([
+    openContactberichten(),
+    toestemmingOverzicht(30),
+  ]);
 
   const enkelvoud = (n: number, een: string, meer: string) => (n === 1 ? een : meer);
 
@@ -122,6 +126,15 @@ export default async function DashboardOverzicht() {
           waarde={String(cijfers.openRecalls)}
           toelichting="Nog niet afgesloten"
           nadruk={cijfers.openRecalls > 0}
+        />
+        <Tegel
+          label="Cookie-akkoord"
+          waarde={cookies.procentAkkoord === null ? "—" : `${cookies.procentAkkoord}%`}
+          toelichting={
+            cookies.totaal === 0
+              ? "Nog geen keuzes geteld"
+              : `${cookies.verleend} akkoord, ${cookies.geweigerd} geweigerd · 30 dagen`
+          }
         />
         <Tegel
           label="Activeringen"

@@ -523,7 +523,7 @@ export default function BlusboxPage() {
           stap 11 — die draaide alleen op desktopbreedte. */}
       <section
         aria-label="Bestellen"
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-railstaal bg-kastwit/95 px-4 py-3 backdrop-blur-md lg:hidden"
+        className="fixed inset-x-0 bottom-[var(--cookiebalk,0px)] z-40 border-t border-railstaal bg-kastwit/95 px-4 py-3 backdrop-blur-md lg:hidden"
       >
         <div className="flex items-center justify-between gap-4">
           <div>

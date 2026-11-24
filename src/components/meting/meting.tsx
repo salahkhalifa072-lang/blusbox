@@ -47,11 +47,12 @@ function BannerKnop({
     <button
       type="button"
       onClick={onClick}
-      className={
+      // Beide knoppen even groot: zelfde hoogte, zelfde breedte.
+      className={`h-9 w-full whitespace-nowrap rounded-full border border-antraciet px-4 text-sm font-medium sm:w-auto sm:px-5 ${
         variant === "vol"
-          ? "rounded-full bg-antraciet px-5 py-2 text-sm font-medium text-kastwit transition-opacity hover:opacity-85"
-          : "rounded-full border border-antraciet px-5 py-2 text-sm font-medium transition-colors hover:bg-antraciet hover:text-kastwit"
-      }
+          ? "bg-antraciet text-kastwit transition-opacity hover:opacity-85"
+          : "transition-colors hover:bg-antraciet hover:text-kastwit"
+      }`}
     >
       {children}
     </button>
@@ -78,6 +79,87 @@ function MetaPaginaweergave() {
   return null;
 }
 
+/**
+ * De klik tellen op onze eigen server (api/toestemming), zodat we weten
+ * welk deel van de bezoekers akkoord geeft. Niet naar Google of Meta: daar
+ * mag pas iets heen na een ja. Lukt het niet, dan merkt de bezoeker niets.
+ */
+function telKeuze(keuze: Keuze) {
+  try {
+    void fetch("/api/toestemming", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ keuze }),
+      keepalive: true,
+    }).catch(() => {});
+  } catch {
+    // Geen fetch, geen teller.
+  }
+}
+
+/** Naam van de CSS-variabele met de hoogte van de balk (zie globals.css). */
+const BALKHOOGTE = "--cookiebalk";
+
+/**
+ * De balk zelf: smal, onderaan, en niet óver de pagina.
+ *
+ * Hij staat vast onderaan het scherm, maar meldt zijn hoogte aan de
+ * pagina. Die maakt onderaan evenveel ruimte vrij, en de koopbalken op
+ * een telefoon schuiven erboven. Zo ligt er nooit een knop onder, ook
+ * niet bij wie de vraag negeert.
+ */
+function Cookiebalk({ kies }: { kies: (k: Keuze) => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const wortel = document.documentElement;
+    const meet = () => wortel.style.setProperty(BALKHOOGTE, `${el.offsetHeight}px`);
+    meet();
+    const ro = new ResizeObserver(meet);
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      wortel.style.removeProperty(BALKHOOGTE);
+    };
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      role="dialog"
+      aria-label="Cookies"
+      aria-live="polite"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-railstaal bg-kastwit"
+      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+    >
+      {/* Telefoon: tekst links, de twee knoppen rechts onder elkaar. Zo
+          blijft de balk laag en zijn beide knoppen even groot. */}
+      <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-2 sm:gap-6 sm:px-6 sm:py-3">
+        <p className="min-w-0 flex-1 text-xs leading-4 sm:text-sm sm:leading-snug">
+          Wij gebruiken cookies om te meten of onze advertenties werken.
+          Zonder toestemming plaatsen we ze niet en werkt de winkel gewoon.{" "}
+          <Link
+            href="/cookiebeleid"
+            className="underline underline-offset-2 hover:text-staal-tekst"
+          >
+            Cookiebeleid
+          </Link>
+        </p>
+        <div className="grid flex-none gap-1.5 sm:flex sm:gap-3">
+          <BannerKnop variant="leeg" onClick={() => kies("geweigerd")}>
+            Weigeren
+          </BannerKnop>
+          <BannerKnop variant="vol" onClick={() => kies("verleend")}>
+            Akkoord
+          </BannerKnop>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /** Interne pagina's: geen banner en geen meting. Daar komen geen bezoekers van advertenties. */
 const INTERN = ["/verkoop", "/dashboard", "/betaald", "/b/"];
 
@@ -102,6 +184,7 @@ export function Meting() {
   function kies(nieuw: Keuze) {
     bewaarKeuze(nieuw);
     setKeuze(nieuw);
+    telKeuze(nieuw);
   }
 
   return (
@@ -146,38 +229,7 @@ fbq('track','PageView');`}
         </>
       )}
 
-      {keuze === null && (
-        <div
-          role="dialog"
-          aria-label="Cookies"
-          aria-live="polite"
-          className="fixed inset-x-0 bottom-0 z-50 border-t border-railstaal bg-kastwit"
-          style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
-        >
-          <div className="mx-auto flex max-w-5xl flex-col gap-4 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
-            <p className="max-w-prose text-sm leading-relaxed">
-              Wij meten met Google en Meta (Facebook, Instagram) of onze
-              advertenties bestellingen opleveren.
-              Daar zijn cookies voor nodig. Zonder jouw toestemming plaatsen we
-              ze niet en werkt de winkel gewoon.{" "}
-              <Link
-                href="/cookiebeleid"
-                className="underline underline-offset-4 hover:text-staal-tekst"
-              >
-                Cookiebeleid
-              </Link>
-            </p>
-            <div className="flex flex-none gap-3">
-              <BannerKnop variant="leeg" onClick={() => kies("geweigerd")}>
-                Weigeren
-              </BannerKnop>
-              <BannerKnop variant="vol" onClick={() => kies("verleend")}>
-                Akkoord
-              </BannerKnop>
-            </div>
-          </div>
-        </div>
-      )}
+      {keuze === null && <Cookiebalk kies={kies} />}
     </>
   );
 }
