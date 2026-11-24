@@ -6,6 +6,7 @@ import { Uitlegvideo } from "@/components/home/uitlegvideo";
 import { Reveal } from "@/components/ui/reveal";
 import { LogoBadge } from "@/components/site/logo";
 import { UspBar } from "@/components/site/usp-bar";
+import { Getest } from "@/components/site/getest";
 import { HeroExplosie } from "@/components/home/hero-explosie";
 import { HeroTekst } from "@/components/home/hero-tekst";
 import { NieuwsEnModule } from "@/components/home/nieuws-en-module";
@@ -78,6 +79,11 @@ export default function Home() {
 
         {/* Trust row directly under the hero, webshop convention */}
         <UspBar />
+
+        {/* Getest door een Nederlands testbureau, documenten op aanvraag.
+            Direct na de voorwaarden: eerst wat je krijgt, dan waarom je
+            erop kunt vertrouwen. */}
+        <Getest />
 
         {/* Hoe het in vier stappen gaat, vóór het verhaal over de brand:
             eerst het gedoe wegnemen, dan laten zien wat het doet. */}

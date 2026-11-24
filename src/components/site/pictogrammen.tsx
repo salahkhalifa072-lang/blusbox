@@ -93,3 +93,36 @@ export function IcoonSchild({ className }: Props) {
     </svg>
   );
 }
+
+/** Erlenmeyer met een maatstreep — getest in een laboratorium. */
+export function IcoonTest({ className }: Props) {
+  return (
+    <svg {...basis} className={className}>
+      <path d="M9.5 3.5h5" />
+      <path d="M10.5 3.5v6L5 19a1 1 0 0 0 .9 1.5h12.2A1 1 0 0 0 19 19l-5.5-9.5v-6" />
+      <path d="M8 15h8" />
+    </svg>
+  );
+}
+
+/** Vel met tekstregels en een vinkje — het rapport. */
+export function IcoonRapport({ className }: Props) {
+  return (
+    <svg {...basis} className={className}>
+      <path d="M6 3.5h8l4 4v13H6v-17Z" />
+      <path d="M14 3.5v4h4" />
+      <path d="M9 11h6M9 14h3" />
+      <path d="m12.5 17.2 1.6 1.6 3-3.2" />
+    </svg>
+  );
+}
+
+/** Map met een pijl naar buiten — documenten die je kunt opvragen. */
+export function IcoonOpvragen({ className }: Props) {
+  return (
+    <svg {...basis} className={className}>
+      <path d="M3.5 6.5h6l2 2h9v10h-17v-12Z" />
+      <path d="M12 16.5v-5M9.8 13.6 12 11.4l2.2 2.2" />
+    </svg>
+  );
+}

@@ -194,3 +194,66 @@
     }
   }
 }
+
+@layer components {
+  /*
+   * "Nederlands getest" (components/site/getest.tsx).
+   *
+   * Zonder data-anim staat alles in de eindstand: zo komt het van de
+   * server, en zo blijft het bij "minder beweging" of zonder JavaScript.
+   * InBeeld zet "wacht" (nog onder de vouw: verbergen), daarna "speel"
+   * (binnenkomen), of meteen "sier" als het blok al in beeld stond: dan
+   * bewegen alleen de ring en het vinkje.
+   */
+  .getest[data-anim="wacht"] .getest-in {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  .getest[data-anim="speel"] .getest-in {
+    animation: getest-in 0.5s ease-out both;
+    animation-delay: calc(var(--i, 0) * 140ms);
+  }
+  .getest[data-anim="wacht"] .getest-ring {
+    stroke-dashoffset: 1;
+  }
+  .getest[data-anim="speel"] .getest-ring,
+  .getest[data-anim="sier"] .getest-ring {
+    animation: getest-ring 0.7s ease-out both;
+    animation-delay: calc(var(--i, 0) * 140ms + 300ms);
+  }
+  .getest[data-anim="wacht"] .getest-vink {
+    transform: scale(0);
+  }
+  .getest[data-anim="speel"] .getest-vink,
+  .getest[data-anim="sier"] .getest-vink {
+    animation: getest-vink 0.35s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+    animation-delay: calc(var(--i, 0) * 140ms + 900ms);
+  }
+
+  @keyframes getest-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes getest-ring {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes getest-vink {
+    from {
+      transform: scale(0);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+}

@@ -11,7 +11,13 @@ export const metadata: Metadata = {
   alternates: { canonical: "/contact" },
 };
 
-export default function ContactPage() {
+export default async function ContactPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ onderwerp?: string | string[] }>;
+}) {
+  const sp = await searchParams;
+  const onderwerp = Array.isArray(sp.onderwerp) ? sp.onderwerp[0] : sp.onderwerp;
   return (
     <>
       <PageHeader
@@ -21,7 +27,7 @@ export default function ContactPage() {
       />
       <main className="mx-auto max-w-6xl px-6 py-20">
         <div className="grid gap-12 lg:grid-cols-[1.1fr_1fr]">
-          <ContactFormulier />
+          <ContactFormulier beginOnderwerp={onderwerp} />
 
           {/* Company details — §8 requires these to be findable */}
           <aside className="h-fit rounded-2xl border border-railstaal/50 p-8">

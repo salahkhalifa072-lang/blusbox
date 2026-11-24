@@ -5,6 +5,17 @@ import type { SpecRow } from "@/components/ui/spec-table";
  * Never add a norm, article number, test result or statistic here
  * without client verification.
  */
+/**
+ * Gram blusaerosol per module.
+ *
+ * Bron: opgave van de klant (24 november 2026): Blusbox is de
+ * 40-gramsuitvoering. De fabrikant levert het model in 10, 20, 30 en 40
+ * gram (datasheet; typen QRR0.01G t/m QRR0.04G op het CE-document), dus
+ * dit getal hangt aan het type dat wordt ingekocht. Wisselt dat type,
+ * dan moet dit getal mee. Het typeplaatje op de module is de controle.
+ */
+export const INHOUD_GRAM = 40;
+
 export const productFacts: SpecRow[] = [
   {
     label: "Functie",
@@ -21,6 +32,7 @@ export const productFacts: SpecRow[] = [
     value: "Geen — geen bedrading, geen elektronica, geen batterij",
   },
   { label: "Blusmiddel", value: "Heet aerosol, oxidator Sr/KNO₃" },
+  { label: "Inhoud", value: `${INHOUD_GRAM} g blusaerosol`, isData: true },
   { label: "Ontwerpdichtheid", value: "100 g/m³", isData: true },
   { label: "Levensduur", value: "10 jaar", isData: true },
   {
@@ -46,6 +58,7 @@ export const productFacts: SpecRow[] = [
  * in die tabel terug te vinden is.
  */
 export const kenmerken = [
+  `${INHOUD_GRAM} gram blusaerosol`,
   "Zelfactiverend bij 170 °C",
   "Geen stroom of bedrading",
   "10 jaar levensduur",

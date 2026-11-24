@@ -42,6 +42,7 @@ const ONDERWERPEN: Record<string, string> = {
   zakelijk: "Zakelijke offerte",
   dealer: "Dealeraccount aanvragen",
   bestelling: "Vraag over een bestelling",
+  documenten: "Testrapport of documenten opvragen",
 };
 
 const MIN_INVULTIJD_MS = 3000;

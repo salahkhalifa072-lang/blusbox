@@ -29,7 +29,12 @@ function Fout({ id, tekst }: { id: string; tekst?: string }) {
   );
 }
 
-export function ContactFormulier() {
+const ONDERWERPSLEUTELS = ["vraag", "plaatsing", "zakelijk", "dealer", "bestelling", "documenten"];
+
+export function ContactFormulier({ beginOnderwerp }: { beginOnderwerp?: string }) {
+  // Uit een link als /contact?onderwerp=documenten; alleen bekende waarden.
+  const begin =
+    beginOnderwerp && ONDERWERPSLEUTELS.includes(beginOnderwerp) ? beginOnderwerp : "vraag";
   const [staat, actie] = useActionState<ContactStaat, FormData>(
     stuurContactbericht,
     { fase: "leeg" },
@@ -121,7 +126,7 @@ export function ContactFormulier() {
         <select
           id="onderwerp"
           name="onderwerp"
-          defaultValue={w.onderwerp ?? "vraag"}
+          defaultValue={w.onderwerp ?? begin}
           className={`${VELD} border-railstaal`}
         >
           <option value="vraag">Vraag over het product</option>
@@ -129,6 +134,7 @@ export function ContactFormulier() {
           <option value="zakelijk">Zakelijke offerte</option>
           <option value="dealer">Dealeraccount aanvragen</option>
           <option value="bestelling">Vraag over een bestelling</option>
+          <option value="documenten">Testrapport of documenten opvragen</option>
         </select>
       </div>
 

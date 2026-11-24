@@ -34,6 +34,7 @@ import {
   TOON_ADVIESPRIJS,
 } from "@/lib/pricing";
 import { Reviews } from "@/components/reviews/reviews";
+import { GetestRegel } from "@/components/site/getest";
 import { Sterren } from "@/components/reviews/sterren";
 import { beoordelingenTotaal, toonCijfer } from "@/lib/reviews";
 
@@ -362,6 +363,8 @@ export default function BlusboxPage() {
                     </li>
                   ))}
                 </ul>
+
+                <GetestRegel />
 
                 {/* 4 · betalen */}
                 <div className="rounded-2xl p-4 ring-1 ring-kastwit/10">
