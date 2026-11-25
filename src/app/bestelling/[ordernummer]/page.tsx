@@ -13,6 +13,9 @@ import { GoogleReviews } from "@/components/meting/google-reviews";
 import { verwachteLeverdatum } from "@/lib/leverdatum";
 import { contactadresVanBestelling } from "@/db/queries";
 import { GTIN } from "@/lib/product-facts";
+import { heeftBestelpas } from "@/lib/bestelpas-cookie";
+import { huidigeActor } from "@/lib/sessie";
+import { magDashboard } from "@/lib/rollen";
 
 export const metadata: Metadata = {
   title: "Bestelling",
@@ -67,6 +70,24 @@ export default async function BestellingPage({
   const status = statusTekst[order.status] ?? statusTekst.nieuw;
 
   /*
+   * Wie mag de gegevens zien?
+   *
+   * De klant zelf: de browser met de bestelpas (lib/bestelpas), of wie is
+   * ingelogd op het account van de bestelling. En het beheer. Ieder ander
+   * krijgt alleen de status: bestelnummers lopen op, dus zonder deze
+   * controle kon je door te tellen het adres van elke klant opvragen.
+   *
+   * De aankoopmelding en het leegmaken van de wagen horen alleen bij de
+   * klant. Een beheerder die de pagina opent is geen aankoop.
+   */
+  const actor = await huidigeActor();
+  const isKlant =
+    (await heeftBestelpas(order.ordernummer)) ||
+    (actor !== null && order.userId !== null && order.userId === actor.id);
+  const isBeheer = actor !== null && magDashboard(actor.rol);
+  const magInzien = isKlant || isBeheer;
+
+  /*
    * De conversie telt pas als er betaald is. De bevestigingspagina bestaat
    * al daarvoor — wie afhaakt op het betaalscherm komt hier ook terecht —
    * en zou anders als verkoop meetellen.
@@ -79,16 +100,17 @@ export default async function BestellingPage({
   }));
 
   // Google Klantenreviews: alleen bij betaald en met een adres om op te mailen.
-  const reviewEmail = isBetaald(order.status)
-    ? await contactadresVanBestelling(order.ordernummer)
-    : null;
+  const reviewEmail =
+    isKlant && isBetaald(order.status)
+      ? await contactadresVanBestelling(order.ordernummer)
+      : null;
   const reviewGtins = regels.some((r) => r.slug === "blusbox" || r.slug === "vervangmodule")
     ? [GTIN]
     : [];
 
   return (
     <>
-      {isBetaald(order.status) && <LeegWagen />}
+      {isKlant && isBetaald(order.status) && <LeegWagen />}
       {reviewEmail && (
         <GoogleReviews
           ordernummer={order.ordernummer}
@@ -98,7 +120,7 @@ export default async function BestellingPage({
           gtins={reviewGtins}
         />
       )}
-      {isBetaald(order.status) && (
+      {isKlant && isBetaald(order.status) && (
         <Aankoop
           ordernummer={order.ordernummer}
           waardeCenten={order.subtotaalExclBtwCenten}
@@ -129,6 +151,8 @@ export default async function BestellingPage({
           </div>
         ) : null}
 
+        {magInzien ? (
+          <>
         <section aria-label="Besteloverzicht">
           <ul className="divide-y divide-railstaal/50 border-y border-railstaal/50">
             {regels.map((r) => (
@@ -203,6 +227,26 @@ export default async function BestellingPage({
             Besteld op {formatteerNl(order.geplaatstOp.toISOString().slice(0, 10))}
           </p>
         </section>
+          </>
+        ) : (
+          <section
+            aria-label="Gegevens afgeschermd"
+            className="rounded-2xl border border-railstaal/50 bg-kastwit-dim p-6"
+          >
+            <h2 className="font-display text-xl">Je gegevens zijn afgeschermd</h2>
+            <p className="mt-3 text-sm leading-relaxed text-staal-tekst">
+              Wat je bestelde en waar het naartoe gaat, tonen we alleen in de
+              browser waarmee de bestelling is geplaatst. Zo kan niemand met
+              alleen een bestelnummer je adres zien. Heb je betaald, dan
+              heb je ook een bevestiging per e-mail gekregen.
+            </p>
+            <p className="mt-3 text-sm leading-relaxed text-staal-tekst">
+              Klopt er iets niet of heb je een vraag? Neem contact op en noem
+              je bestelnummer{" "}
+              <span className="data text-antraciet">{order.ordernummer}</span>.
+            </p>
+          </section>
+        )}
 
         <section className="mt-12 rounded-2xl border border-railstaal/50 p-6">
           <h2 className="font-display text-xl">Wat er nu gebeurt</h2>

@@ -33,7 +33,9 @@ export default function CookiebeleidPage() {
             toestemming geplaatst: het onthouden van je winkelwagen, je
             ingelogde sessie en of je een consumenten- of zakelijk account
             hebt (dat laatste bepaalt of je prijzen inclusief of exclusief btw
-            ziet).
+            ziet). Na een bestelling onthoudt een cookie
+            (<code>bb_bestelling</code>) 30 dagen dat die bestelling bij jouw
+            browser hoort, zodat alleen jij op de bestelpagina je adres ziet.
             {metingActief && (
               <>
                 {" "}

@@ -13,6 +13,8 @@ import {
   markeerBetaald,
 } from "@/lib/bestelling";
 import { leesHerkomst } from "@/lib/herkomst-cookie";
+import { pasCode } from "@/lib/bestelpas";
+import { geefBestelpas } from "@/lib/bestelpas-cookie";
 import {
   geldigEmail,
   geldigHuisnummer,
@@ -163,6 +165,13 @@ export async function rekenAf(
     throw fout;
   }
 
+  // De bestelpas: zonder ziet niemand het adres op de bestelpagina.
+  // Mislukt het zetten, dan gaat het afrekenen gewoon door; de teruglink
+  // van de betaalpagina geeft de pas dan alsnog.
+  await geefBestelpas(bestelling.ordernummer).catch((fout: unknown) =>
+    console.error("Bestelpas niet gezet:", fout),
+  );
+
   /*
    * De affiliate vastleggen, nu de bestelling bestaat.
    *
@@ -247,7 +256,8 @@ export async function rekenAf(
       ordernummer: bestelling.ordernummer,
       orderId: bestelling.id,
       meta: await metaKoppelingBijAfrekenen(),
-      succesUrl: `${basis}/bestelling/${bestelling.ordernummer}`,
+      // Via /terug: geeft ook een andere browser de bestelpas (zie lib/bestelpas).
+      succesUrl: `${basis}/bestelling/${bestelling.ordernummer}/terug?s=${pasCode(bestelling.ordernummer)}`,
       annuleerUrl: `${basis}/winkelwagen`,
       btwVerlegd: overzicht.totalen.btwVerlegd,
     });
@@ -311,6 +321,13 @@ export async function snelAfrekenen(): Promise<void> {
     throw fout;
   }
 
+  // De bestelpas: zonder ziet niemand het adres op de bestelpagina.
+  // Mislukt het zetten, dan gaat het afrekenen gewoon door; de teruglink
+  // van de betaalpagina geeft de pas dan alsnog.
+  await geefBestelpas(bestelling.ordernummer).catch((fout: unknown) =>
+    console.error("Bestelpas niet gezet:", fout),
+  );
+
   try {
     await koppelAffiliateAanBestelling(bestelling.id);
   } catch (fout) {
@@ -351,7 +368,8 @@ export async function snelAfrekenen(): Promise<void> {
       ordernummer: bestelling.ordernummer,
       orderId: bestelling.id,
       meta: await metaKoppelingBijAfrekenen(),
-      succesUrl: `${basis}/bestelling/${bestelling.ordernummer}`,
+      // Via /terug: geeft ook een andere browser de bestelpas (zie lib/bestelpas).
+      succesUrl: `${basis}/bestelling/${bestelling.ordernummer}/terug?s=${pasCode(bestelling.ordernummer)}`,
       annuleerUrl: `${basis}/afrekenen`,
       vraagAdres: true,
     });
