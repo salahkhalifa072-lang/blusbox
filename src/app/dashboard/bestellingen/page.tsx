@@ -214,6 +214,7 @@ function HerkomstCel({
   if (!herkomst) return <span className="text-staal-tekst">—</span>;
   const details = [
     herkomst.campagne ? `campagne ${herkomst.campagne}` : null,
+    herkomst.inhoud ? `advertentie ${herkomst.inhoud}` : null,
     herkomst.verwijzer ? `via ${herkomst.verwijzer}` : null,
     herkomst.landing ? `binnen op ${herkomst.landing}` : null,
   ].filter(Boolean);

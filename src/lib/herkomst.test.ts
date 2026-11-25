@@ -24,6 +24,22 @@ describe("bepaalHerkomst", () => {
     });
   });
 
+  it("bewaart welke advertentie het was (utm_content)", () => {
+    expect(
+      b("https://www.blusbox.nl/blusbox?utm_source=facebook&utm_medium=paid&utm_campaign=nl-breed&utm_content=buurt&fbclid=X", "https://l.facebook.com/"),
+    ).toEqual({
+      bron: "facebook",
+      medium: "paid",
+      campagne: "nl-breed",
+      inhoud: "buurt",
+      verwijzer: "l.facebook.com",
+      landing: "/blusbox",
+      op: nu,
+    });
+    const h = b("https://www.blusbox.nl/?utm_source=facebook&utm_campaign=test-vlam&utm_content=vlam")!;
+    expect(leesHerkomstWaarde(schrijfHerkomst(h))).toEqual(h);
+  });
+
   it("herkent een Google-advertentieklik maar bewaart de gclid niet", () => {
     const h = b("https://www.blusbox.nl/?gclid=ABC123secret", "https://www.google.com/");
     expect(h).toMatchObject({ bron: "google", medium: "cpc", verwijzer: "google.com" });

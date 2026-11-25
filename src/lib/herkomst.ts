@@ -28,6 +28,8 @@ export type Herkomst = {
   /** cpc, social, zoeken, verwijzing, gratis-vermelding, direct, … */
   medium: string;
   campagne?: string;
+  /** utm_content: welke advertentie binnen de campagne. */
+  inhoud?: string;
   /** Alleen het domein van de verwijzende site. */
   verwijzer?: string;
   /** Pad van de eerste pagina, zonder querystring. */
@@ -165,10 +167,12 @@ export function bepaalHerkomst(invoer: {
   const utmBron = label(p.get("utm_source"));
   if (utmBron) {
     const campagne = label(p.get("utm_campaign"), 80);
+    const inhoud = label(p.get("utm_content"), 80);
     return {
       bron: utmBron,
       medium: label(p.get("utm_medium")) ?? "onbekend",
       ...(campagne ? { campagne } : {}),
+      ...(inhoud ? { inhoud } : {}),
       ...basis,
     };
   }
@@ -238,12 +242,14 @@ export function leesHerkomstWaarde(waarde: string | undefined): Herkomst | null 
   if (!bron) return null;
   const op = typeof r.op === "number" && Number.isFinite(r.op) ? r.op : Date.now();
   const campagne = label(s(r.campagne), 80);
+  const inhoud = label(s(r.inhoud), 80);
   const verwijzer = label(s(r.verwijzer), 80);
   const landing = pad(s(r.landing));
   return {
     bron,
     medium: label(s(r.medium)) ?? "onbekend",
     ...(campagne ? { campagne } : {}),
+    ...(inhoud ? { inhoud } : {}),
     ...(verwijzer ? { verwijzer } : {}),
     ...(landing ? { landing } : {}),
     op,

@@ -80,7 +80,9 @@ export default function CookiebeleidPage() {
                 wanneer je begint met afrekenen, met het product en het bedrag
                 exclusief btw. Dan zien we waar bezoekers afhaken. Daarvoor
                 bewaren we na het toevoegen maximaal twee minuten een cookie
-                (<code>blusbox-toegevoegd</code>) met wat je toevoegde.
+                (<code>blusbox-toegevoegd</code>) met wat je toevoegde. Ook
+                onthoudt je browser tot je hem sluit welke stap al is
+                doorgegeven, zodat die niet dubbel telt.
               </p>
               {META_PIXEL_ID && (
                 <p>

@@ -83,15 +83,29 @@ function MetaPaginaweergave() {
  * De klik tellen op onze eigen server (api/toestemming), zodat we weten
  * welk deel van de bezoekers akkoord geeft. Niet naar Google of Meta: daar
  * mag pas iets heen na een ja. Lukt het niet, dan merkt de bezoeker niets.
+ *
+ * Bij een storing aan de serverkant (5xx) of een weggevallen verbinding
+ * proberen we het nog twee keer. Zonder dat valt een klik bij de eerste
+ * hapering stil weg, en dan klopt de verhouding niet meer.
  */
-function telKeuze(keuze: Keuze) {
+const TEL_WACHTTIJDEN_MS = [1500, 5000];
+
+function telKeuze(keuze: Keuze, poging = 0) {
+  const opnieuw = () => {
+    const wacht = TEL_WACHTTIJDEN_MS[poging];
+    if (wacht !== undefined) setTimeout(() => telKeuze(keuze, poging + 1), wacht);
+  };
   try {
-    void fetch("/api/toestemming", {
+    fetch("/api/toestemming", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ keuze }),
       keepalive: true,
-    }).catch(() => {});
+    })
+      .then((antwoord) => {
+        if (antwoord.status >= 500) opnieuw();
+      })
+      .catch(opnieuw);
   } catch {
     // Geen fetch, geen teller.
   }

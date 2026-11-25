@@ -116,20 +116,88 @@ function meld(
   return true;
 }
 
+/*
+ * Wat er deze browsersessie al gemeld is. In sessionStorage: weg zodra de
+ * browser sluit, en er wordt pas iets in gezet ná toestemming (zonder
+ * toestemming komt `meld` hier niet eens).
+ *
+ * Twee redenen. Eén: /afrekenen opnieuw openen (herladen, terug uit de
+ * wagen, terug van de betaalpagina) meldde elke keer opnieuw "begonnen met
+ * afrekenen". Twee: wie op "Koop nu" drukte vóórdat hij de cookievraag
+ * beantwoordde, kreeg geen "in de wagen" maar later wel "begonnen met
+ * afrekenen". Samen gaf dat meer afrekenstarts dan toevoegingen, en dan
+ * is de trechter niet meer te lezen.
+ */
+const SLEUTEL_WAGEN = "blusbox-wagen-gemeld";
+const SLEUTEL_AFREKENEN = "blusbox-afrekenen-gemeld";
+
+function lees(sleutel: string): string | null {
+  try {
+    return sessionStorage.getItem(sleutel);
+  } catch {
+    return null;
+  }
+}
+
+function schrijf(sleutel: string, waarde: string): void {
+  try {
+    sessionStorage.setItem(sleutel, waarde);
+  } catch {
+    /* privémodus of geblokkeerde opslag: dan maar niet ontdubbeld */
+  }
+}
+
+/** Na een aankoop: een volgende bestelling in dezelfde sessie telt weer gewoon mee. */
+export function wisTrechterGeheugen(): void {
+  try {
+    sessionStorage.removeItem(SLEUTEL_WAGEN);
+    sessionStorage.removeItem(SLEUTEL_AFREKENEN);
+  } catch {
+    /* niets te wissen */
+  }
+}
+
+/** Dezelfde wagen geeft dezelfde tekst, ongeacht de volgorde van de regels. */
+export function wagenHandtekening(stap: TrechterStap): string {
+  return stap.regels
+    .map((r) => `${r.id}x${r.aantal}`)
+    .sort()
+    .join(",");
+}
+
 export function inWinkelwagen(stap: TrechterStap): boolean {
-  return meld(stap, {
+  const gemeld = meld(stap, {
     label: GOOGLE_ADS_LABEL_WAGEN,
     ga4: "add_to_cart",
     meta: "AddToCart",
   });
+  if (gemeld) schrijf(SLEUTEL_WAGEN, "1");
+  return gemeld;
 }
 
+/**
+ * "Begonnen met afrekenen": één keer per sessie per wagen. Verandert de
+ * wagen (ander aantal, rookmelder erbij), dan is het een nieuwe start.
+ *
+ * Is er deze sessie nog geen "in de wagen" gemeld, dan gaat die eerst: er
+ * ligt aantoonbaar iets in de wagen, alleen was er op dat moment nog geen
+ * toestemming om het te melden.
+ */
 export function startAfrekenen(stap: TrechterStap): boolean {
-  return meld(stap, {
+  if (leesKeuze() !== "verleend") return false;
+
+  const handtekening = wagenHandtekening(stap);
+  if (lees(SLEUTEL_AFREKENEN) === handtekening) return true;
+
+  if (lees(SLEUTEL_WAGEN) === null) inWinkelwagen(stap);
+
+  const gemeld = meld(stap, {
     label: GOOGLE_ADS_LABEL_AFREKENEN,
     ga4: "begin_checkout",
     meta: "InitiateCheckout",
   });
+  if (gemeld) schrijf(SLEUTEL_AFREKENEN, handtekening);
+  return gemeld;
 }
 
 /**

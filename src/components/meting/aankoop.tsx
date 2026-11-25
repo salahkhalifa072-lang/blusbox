@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { abonneer, leesKeuze } from "@/lib/toestemming";
 import { conversieDoel, GA4_ID, META_PIXEL_ID } from "@/lib/meting";
+import { wisTrechterGeheugen } from "@/lib/trechter";
 
 /**
  * De aankoopconversie op de bestelbevestiging.
@@ -89,6 +90,9 @@ export function Aankoop({
   regels: AankoopRegel[];
 }) {
   useEffect(() => {
+    // Er is betaald: een volgende bestelling begint de trechter opnieuw.
+    wisTrechterGeheugen();
+
     const open = new Set<Platform>();
     if ((conversieDoel || GA4_ID) && !alGemeld("google", ordernummer)) open.add("google");
     if (META_PIXEL_ID && !alGemeld("meta", ordernummer)) open.add("meta");
