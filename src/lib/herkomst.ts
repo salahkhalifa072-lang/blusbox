@@ -74,6 +74,22 @@ function hostVan(url: string | null | undefined): string | null {
 
 /* ---------------------------------------------------- herkennen */
 
+/**
+ * Android-apps melden zich als verwijzer met hun pakketnaam, bijvoorbeeld
+ * "com.google.android.gm" voor Gmail. Die namen lijken op domeinen maar
+ * zijn het niet: zonder deze lijst werd een klik uit Gmail gelezen als
+ * "google" en dus als zoekverkeer.
+ */
+const APPS: Record<string, { bron: string; medium: string }> = {
+  "com.google.android.gm": { bron: "gmail", medium: "email" },
+  "com.google.android.googlequicksearchbox": { bron: "google", medium: "zoeken" },
+  "com.facebook.katana": { bron: "facebook", medium: "social" },
+  "com.facebook.orca": { bron: "messenger", medium: "social" },
+  "com.instagram.android": { bron: "instagram", medium: "social" },
+  "com.whatsapp": { bron: "whatsapp", medium: "social" },
+  "com.linkedin.android": { bron: "linkedin", medium: "social" },
+};
+
 /** Zoekmachines: komt iemand daarvandaan zonder advertentie-ID, dan is het gratis zoekverkeer. */
 const ZOEKMACHINES: [RegExp, string][] = [
   [/(^|\.)google\.[a-z.]+$/, "google"],
@@ -197,6 +213,9 @@ export function bepaalHerkomst(invoer: {
   // 5. Alleen een verwijzende site.
   if (!verwijzer || NEGEREN.test(verwijzer)) return null;
 
+  const app = APPS[verwijzer];
+  if (app) return { ...app, ...basis };
+
   const ai = zoek(AI, verwijzer);
   if (ai) return { bron: ai, medium: "ai", ...basis };
   const zoekmachine = zoek(ZOEKMACHINES, verwijzer);
@@ -286,6 +305,8 @@ const NAMEN: Record<string, string> = {
   gemini: "Gemini",
   copilot: "Copilot",
   claude: "Claude",
+  gmail: "Gmail",
+  messenger: "Messenger",
   nieuwsbrief: "Nieuwsbrief",
   email: "E-mail",
   direct: "Direct",
@@ -315,7 +336,14 @@ const SOORTEN: Record<string, string> = {
  * Een korte, leesbare omschrijving voor het dashboard, bijvoorbeeld
  * "Facebook · advertentie" of "Google · zoeken".
  */
-export function herkomstTekst(h: Herkomst | null | undefined): string {
+/** Bestellingen die vóór de app-lijst zijn opgeslagen alsnog goed tonen. */
+function rechtgezet<T extends Herkomst | null | undefined>(h: T): T {
+  const app = h?.verwijzer ? APPS[h.verwijzer] : undefined;
+  return app && h && h.medium === "zoeken" ? ({ ...h, ...app } as T) : h;
+}
+
+export function herkomstTekst(ruw: Herkomst | null | undefined): string {
+  const h = rechtgezet(ruw);
   if (!h) return "Onbekend";
   if (h.bron === "direct") return "Direct of ingetypt";
   if (h.medium === "partner") return `Partner ${h.bron}`;
@@ -325,7 +353,8 @@ export function herkomstTekst(h: Herkomst | null | undefined): string {
 }
 
 /** Groepering voor het overzicht: alleen de bron, met nette naam. */
-export function herkomstGroep(h: Herkomst | null | undefined): string {
+export function herkomstGroep(ruw: Herkomst | null | undefined): string {
+  const h = rechtgezet(ruw);
   if (!h) return "Onbekend (van vóór de registratie)";
   if (h.bron === "direct") return "Direct of ingetypt";
   const betaald = ["cpc", "ppc", "paid", "paid-social", "paid_social", "paidsocial", "ads", "ad"].includes(h.medium);

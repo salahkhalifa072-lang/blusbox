@@ -79,6 +79,17 @@ describe("bepaalHerkomst", () => {
     });
   });
 
+  it("leest de Gmail-app als e-mail, niet als zoekmachine", () => {
+    expect(b("https://www.blusbox.nl/", "android-app://com.google.android.gm/")).toMatchObject({
+      bron: "gmail",
+      medium: "email",
+    });
+    // Eerder opgeslagen als google/zoeken: bij weergave rechtgezet.
+    expect(
+      herkomstTekst({ bron: "google", medium: "zoeken", verwijzer: "com.google.android.gm", op: nu }),
+    ).toBe("Gmail · e-mail");
+  });
+
   it("zegt niets bij intern doorklikken, intypen of terugkomen van het betalen", () => {
     expect(b("https://www.blusbox.nl/blusbox", "https://www.blusbox.nl/")).toBeNull();
     expect(b("https://www.blusbox.nl/blusbox", "https://blusbox.nl/")).toBeNull();

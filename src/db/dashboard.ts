@@ -161,6 +161,19 @@ export async function bestellingenLijst(
       totaalCenten: orders.totaalInclBtwCenten,
       landcode: orders.landcode,
       postcode: orders.postcode,
+      straat: orders.straat,
+      huisnummer: orders.huisnummer,
+      plaats: orders.plaats,
+      bedrijfsnaam: orders.bedrijfsnaam,
+      /** Wat er in de doos moet: "2× Blusbox blusmodule, 1× Rookmelder". */
+      // Tabelnamen voluit: binnen een select op één tabel laat Drizzle de
+      // tabelnaam weg, en dan is "id" in deze subquery dubbelzinnig.
+      inhoud: sql<string | null>`(
+        select string_agg(ol.aantal || '× ' || p.naam, ', ' order by p.naam)
+        from order_lines ol
+        join products p on p.id = ol.product_id
+        where ol.order_id = "orders"."id"
+      )`,
       geplaatstOp: orders.geplaatstOp,
       verzondenOp: orders.verzondenOp,
       geleverdOp: orders.geleverdOp,

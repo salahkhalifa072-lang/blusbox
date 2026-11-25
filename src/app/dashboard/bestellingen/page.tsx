@@ -163,10 +163,17 @@ export default async function BestellingenPagina({
                 <Cel>
                   <Status waarde={b.status} />
                 </Cel>
-                <Cel>{b.klantNaam || "—"}</Cel>
+                <Cel>
+                  {b.klantNaam || "—"}
+                  {b.inhoud ? (
+                    <span className="data mt-0.5 block text-[11px] text-staal-tekst">
+                      {b.inhoud}
+                    </span>
+                  ) : null}
+                </Cel>
                 <Cel>{b.email || "—"}</Cel>
-                <Cel mono>
-                  {[b.postcode, b.landcode].filter(Boolean).join(" · ") || "—"}
+                <Cel>
+                  <Bezorgadres b={b} />
                 </Cel>
                 <Cel mono>{euro(b.totaalCenten)}</Cel>
                 <Cel>
@@ -197,6 +204,43 @@ export default async function BestellingenPagina({
         )}
       </Paneel>
     </div>
+  );
+}
+
+/**
+ * Het volledige bezorgadres, zoals het op het pakket moet. Bij een
+ * balieverkoop is er geen adres: de klant nam de module mee.
+ */
+function Bezorgadres({
+  b,
+}: {
+  b: {
+    klantNaam: string | null;
+    bedrijfsnaam: string | null;
+    straat: string | null;
+    huisnummer: string | null;
+    postcode: string | null;
+    plaats: string | null;
+    landcode: string;
+    balieverkoop: boolean;
+  };
+}) {
+  const regel1 = [b.straat, b.huisnummer].filter(Boolean).join(" ");
+  const regel2 = [b.postcode, b.plaats].filter(Boolean).join(" ");
+  if (!regel1 && !regel2) {
+    return <span className="text-staal-tekst">{b.balieverkoop ? "Meegenomen" : "—"}</span>;
+  }
+  return (
+    <address className="data min-w-[11rem] select-all text-xs not-italic leading-relaxed">
+      {b.bedrijfsnaam ? <span className="block">{b.bedrijfsnaam}</span> : null}
+      {regel1 ? (
+        <span className="block">{regel1}</span>
+      ) : (
+        <span className="block text-blusrood-op-licht">straat en huisnummer ontbreken</span>
+      )}
+      <span className="block">{regel2}</span>
+      {b.landcode !== "NL" ? <span className="block">{b.landcode}</span> : null}
+    </address>
   );
 }
 
