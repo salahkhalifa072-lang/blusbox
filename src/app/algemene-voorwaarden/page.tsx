@@ -173,7 +173,8 @@ export default function AlgemeneVoorwaardenPage() {
           <ol>
             <li>
               Betaling verloopt via de betaalmethoden die bij het afrekenen
-              worden getoond, waaronder iDEAL.
+              worden getoond, waaronder iDEAL en Klarna. Kies je Klarna, dan
+              gelden voor die betaling ook de voorwaarden van Klarna.
             </li>
             <li>
               Zakelijke afnemers kunnen na goedkeuring op rekening bestellen. De
