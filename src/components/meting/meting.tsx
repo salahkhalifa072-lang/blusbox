@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import {
   abonneer,
   bewaarKeuze,
+  bijOpenen,
   leesKeuze,
   type Keuze,
 } from "@/lib/toestemming";
@@ -34,31 +35,6 @@ import {
  * zonder dat hij iets oplost.
  */
 
-function BannerKnop({
-  onClick,
-  variant,
-  children,
-}: {
-  onClick: () => void;
-  variant: "vol" | "leeg";
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      // Beide knoppen even groot: zelfde hoogte, zelfde breedte.
-      className={`h-9 w-full whitespace-nowrap rounded-full border border-antraciet px-4 text-sm font-medium sm:w-auto sm:px-5 ${
-        variant === "vol"
-          ? "bg-antraciet text-kastwit transition-opacity hover:opacity-85"
-          : "transition-colors hover:bg-antraciet hover:text-kastwit"
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
-
 /**
  * De Meta-pixel telt uit zichzelf alleen de eerste pagina: daarna wisselt
  * Next van pagina zonder dat de browser opnieuw laadt. Elke volgende
@@ -80,9 +56,10 @@ function MetaPaginaweergave() {
 }
 
 /**
- * De klik tellen op onze eigen server (api/toestemming), zodat we weten
- * welk deel van de bezoekers akkoord geeft. Niet naar Google of Meta: daar
- * mag pas iets heen na een ja. Lukt het niet, dan merkt de bezoeker niets.
+ * Tellen op onze eigen server (api/toestemming): hoe vaak de vraag in
+ * beeld kwam en hoe vaak er op "Akkoord" en op "Weigeren" is gedrukt.
+ * Niet naar Google of Meta: daar mag pas iets heen na een ja. Lukt het
+ * niet, dan merkt de bezoeker niets.
  *
  * Bij een storing aan de serverkant (5xx) of een weggevallen verbinding
  * proberen we het nog twee keer. Zonder dat valt een klik bij de eerste
@@ -90,10 +67,12 @@ function MetaPaginaweergave() {
  */
 const TEL_WACHTTIJDEN_MS = [1500, 5000];
 
-function telKeuze(keuze: Keuze, poging = 0) {
+type Telling = Keuze | "getoond";
+
+function tel(keuze: Telling, poging = 0) {
   const opnieuw = () => {
     const wacht = TEL_WACHTTIJDEN_MS[poging];
-    if (wacht !== undefined) setTimeout(() => telKeuze(keuze, poging + 1), wacht);
+    if (wacht !== undefined) setTimeout(() => tel(keuze, poging + 1), wacht);
   };
   try {
     fetch("/api/toestemming", {
@@ -111,20 +90,64 @@ function telKeuze(keuze: Keuze, poging = 0) {
   }
 }
 
-/** Naam van de CSS-variabele met de hoogte van de balk (zie globals.css). */
+/**
+ * Of "getoond" in deze pagina al geteld is. Op moduleniveau en niet in een
+ * ref: de layout blijft staan als Next van pagina wisselt, maar zo telt
+ * ook een tweede exemplaar van het paneel niet dubbel. Een nieuwe
+ * paginalading zonder keuze is wél een nieuwe vertoning.
+ */
+let getoondGeteld = false;
+
+/** Naam van de CSS-variabele met de hoogte van het paneel (zie globals.css). */
 const BALKHOOGTE = "--cookiebalk";
 
 /**
- * De balk zelf: smal, onderaan, en niet óver de pagina.
- *
- * Hij staat vast onderaan het scherm, maar meldt zijn hoogte aan de
- * pagina. Die maakt onderaan evenveel ruimte vrij, en de koopbalken op
- * een telefoon schuiven erboven. Zo ligt er nooit een knop onder, ook
- * niet bij wie de vraag negeert.
+ * Pagina's waar het paneel de pagina niet afsluit: wie wil lezen waar hij
+ * ja of nee tegen zegt, moet dat kunnen vóór hij kiest. De link in het
+ * paneel wijst hierheen. Het paneel blijft er wel staan, onderaan.
  */
-function Cookiebalk({ kies }: { kies: (k: Keuze) => void }) {
-  const ref = useRef<HTMLDivElement>(null);
+const INFORMATIEF = ["/privacyverklaring", "/cookiebeleid"];
 
+function PaneelKnop({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      // Weigeren en Akkoord zijn met opzet precies dezelfde knop: zelfde
+      // maat, kleur, letter en gewicht. Alleen het woord verschilt.
+      className="h-12 w-full rounded-full border-2 border-antraciet bg-antraciet px-4 text-base font-semibold text-kastwit transition-opacity hover:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blusrood-op-licht"
+    >
+      {children}
+    </button>
+  );
+}
+
+/**
+ * De vraag, als paneel onderaan het scherm.
+ *
+ * Een echte modale <dialog>: de pagina erachter blijft zichtbaar maar
+ * gedimd en reageert niet, de focus blijft in het paneel en Tab loopt
+ * alleen langs de link en de twee knoppen. Er is geen kruisje en Escape
+ * sluit het niet; sluit de browser hem toch (Chrome laat een tweede
+ * Escape soms door), dan gaat hij meteen weer open. Wie weigert kan
+ * daarna de hele winkel gebruiken: dit is een vraag, geen cookiemuur.
+ *
+ * Op de informatiepagina's staat hetzelfde paneel er zonder de pagina af
+ * te sluiten, zodat de privacyverklaring te lezen is vóór de keuze.
+ */
+function Cookiepaneel({
+  modaal,
+  huidige,
+  kies,
+}: {
+  modaal: boolean;
+  huidige: Keuze | null;
+  kies: (k: Keuze) => void;
+}) {
+  const ref = useRef<HTMLDialogElement>(null);
+
+  // De hoogte doorgeven aan de pagina, zodat er onderaan ruimte vrijkomt
+  // en de koopbalk erboven schuift zolang het paneel niet-modaal staat.
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -139,66 +162,163 @@ function Cookiebalk({ kies }: { kies: (k: Keuze) => void }) {
     };
   }, []);
 
+  useEffect(() => {
+    const d = ref.current;
+    if (!d) return;
+
+    const openen = () => {
+      if (d.open || !d.isConnected) return;
+      if (modaal) d.showModal();
+      else d.show();
+    };
+    // Van een informatiepagina naar een gewone pagina (of terug): opnieuw
+    // openen in de andere stand. Het close-signaal komt pas later en vindt
+    // het paneel dan al open.
+    if (d.open) d.close();
+    openen();
+
+    const wortel = document.documentElement;
+    if (modaal) {
+      // Focus op het paneel zelf, niet op een van de knoppen: geen van
+      // beide keuzes krijgt een duwtje.
+      d.focus();
+      // Een modale dialog houdt klikken tegen, maar niet het scrollen.
+      wortel.style.overflow = "hidden";
+    }
+
+    const nietSluiten = (e: Event) => e.preventDefault();
+    // Dicht zonder keuze: weer open. Na een keuze is dit paneel al weg.
+    const terug = () => openen();
+    d.addEventListener("cancel", nietSluiten);
+    d.addEventListener("close", terug);
+    return () => {
+      d.removeEventListener("cancel", nietSluiten);
+      d.removeEventListener("close", terug);
+      wortel.style.overflow = "";
+    };
+  }, [modaal]);
+
   return (
-    <div
+    <dialog
       ref={ref}
-      role="dialog"
-      aria-label="Cookies"
-      aria-live="polite"
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-railstaal bg-kastwit"
+      aria-labelledby="cookievraag"
+      aria-describedby="cookievraag-uitleg"
+      tabIndex={-1}
+      className="fixed inset-x-0 top-auto bottom-0 z-50 m-0 h-auto max-h-[40dvh] w-full max-w-none overflow-y-auto border-t border-railstaal bg-kastwit p-0 text-antraciet shadow-[0_-8px_24px_rgb(22_24_26/0.18)] outline-none backdrop:bg-antraciet/45"
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
-      {/* Telefoon: tekst links, de twee knoppen rechts onder elkaar. Zo
-          blijft de balk laag en zijn beide knoppen even groot. */}
-      <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-2 sm:gap-6 sm:px-6 sm:py-3">
-        <p className="min-w-0 flex-1 text-xs leading-4 sm:text-sm sm:leading-snug">
-          Wij gebruiken cookies om te meten of onze advertenties werken.
-          Zonder toestemming plaatsen we ze niet en werkt de winkel gewoon.{" "}
-          <Link
-            href="/cookiebeleid"
-            className="underline underline-offset-2 hover:text-staal-tekst"
-          >
-            Cookiebeleid
-          </Link>
+      <div className="mx-auto max-w-xl px-4 py-4 sm:px-6 sm:py-5">
+        <p id="cookievraag" className="text-base font-semibold leading-snug">
+          Mogen we cookies gebruiken om onze advertenties te meten?
         </p>
-        <div className="grid flex-none gap-1.5 sm:flex sm:gap-3">
-          <BannerKnop variant="leeg" onClick={() => kies("geweigerd")}>
-            Weigeren
-          </BannerKnop>
-          <BannerKnop variant="vol" onClick={() => kies("verleend")}>
-            Akkoord
-          </BannerKnop>
+        <p id="cookievraag-uitleg" className="mt-1 text-sm leading-snug text-staal-tekst">
+          Je kunt ook weigeren, de site werkt dan gewoon.{" "}
+          <Link
+            href="/privacyverklaring"
+            className="text-antraciet underline underline-offset-2 hover:text-staal-tekst"
+          >
+            Privacyverklaring
+          </Link>
+          {huidige && (
+            <>
+              {" "}
+              · Je huidige keuze:{" "}
+              <strong className="font-semibold text-antraciet">
+                {huidige === "verleend" ? "Akkoord" : "Weigeren"}
+              </strong>
+            </>
+          )}
+        </p>
+        <div className="mt-3 grid grid-cols-2 gap-3">
+          <PaneelKnop onClick={() => kies("geweigerd")}>Weigeren</PaneelKnop>
+          <PaneelKnop onClick={() => kies("verleend")}>Akkoord</PaneelKnop>
         </div>
       </div>
-    </div>
+    </dialog>
   );
 }
 
-/** Interne pagina's: geen banner en geen meting. Daar komen geen bezoekers van advertenties. */
+/**
+ * Toestemming ingetrokken nadat de scripts al draaiden: alles wat nog in
+ * het geheugen zit stilzetten en de pagina opnieuw laden. Een
+ * paginawissel binnen Next laadt de browser niet opnieuw, en gtag zou
+ * zo'n wissel anders nog als paginaweergave doorgeven.
+ */
+function trekIn() {
+  const venster = window as unknown as {
+    fbq?: (...a: unknown[]) => void;
+    gtag?: (...a: unknown[]) => void;
+  };
+  try {
+    venster.fbq?.("consent", "revoke");
+    venster.gtag?.("consent", "update", {
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+      analytics_storage: "denied",
+    });
+  } catch {
+    // Herladen hieronder doet de rest.
+  }
+  window.location.reload();
+}
+
+/** Interne pagina's: geen vraag en geen meting. Daar komen geen bezoekers van advertenties. */
 const INTERN = ["/verkoop", "/dashboard", "/betaald", "/b/"];
+
+function opPad(pad: string, lijst: string[]): boolean {
+  return lijst.some((p) => pad === p || pad.startsWith(p.endsWith("/") ? p : `${p}/`));
+}
 
 export function Meting() {
   const pad = usePathname();
   /*
    * `undefined` is "nog niet gekeken" en `null` is "gekeken, niets
-   * gevonden". Zonder dat onderscheid knippert de banner bij iedereen even
+   * gevonden". Zonder dat onderscheid knippert het paneel bij iedereen even
    * in beeld, ook bij wie allang een keuze heeft gemaakt: de eerste
    * weergave gebeurt op de server, waar de cookie niet wordt gelezen.
    */
   const [keuze, setKeuze] = useState<Keuze | null | undefined>(undefined);
+  /** Via "Cookie-instellingen" opnieuw geopend, terwijl er al een keuze is. */
+  const [opnieuw, setOpnieuw] = useState(false);
+  const vorige = useRef<Keuze | null | undefined>(undefined);
 
   useEffect(() => {
     setKeuze(leesKeuze());
-    return abonneer(setKeuze);
+    const stop1 = abonneer(setKeuze);
+    const stop2 = bijOpenen(() => setOpnieuw(true));
+    return () => {
+      stop1();
+      stop2();
+    };
   }, []);
 
-  if (!metingActief) return null;
-  if (INTERN.some((p) => pad === p || pad.startsWith(p.endsWith("/") ? p : `${p}/`))) return null;
+  useEffect(() => {
+    if (vorige.current === "verleend" && keuze !== "verleend") trekIn();
+    vorige.current = keuze;
+  }, [keuze]);
+
+  const intern = opPad(pad, INTERN);
+  const toonPaneel = metingActief && !intern && (keuze === null || (opnieuw && keuze !== undefined));
+
+  // Eén vertoning per paginalading, alleen bij wie nog niets koos.
+  useEffect(() => {
+    if (toonPaneel && keuze === null && !getoondGeteld) {
+      getoondGeteld = true;
+      tel("getoond");
+    }
+  }, [toonPaneel, keuze]);
+
+  if (!metingActief || intern) return null;
 
   function kies(nieuw: Keuze) {
+    // Alleen de eerste keuze telt mee, net als "getoond". Anders gaat
+    // "weggegaan zonder keuze" (getoond − akkoord − weigeren) onder nul.
+    const eerste = keuze === null;
     bewaarKeuze(nieuw);
     setKeuze(nieuw);
-    telKeuze(nieuw);
+    setOpnieuw(false);
+    if (eerste) tel(nieuw);
   }
 
   return (
@@ -243,7 +363,13 @@ fbq('track','PageView');`}
         </>
       )}
 
-      {keuze === null && <Cookiebalk kies={kies} />}
+      {toonPaneel && (
+        <Cookiepaneel
+          modaal={!opPad(pad, INFORMATIEF)}
+          huidige={keuze ?? null}
+          kies={kies}
+        />
+      )}
     </>
   );
 }

@@ -106,10 +106,10 @@ export default function CookiebeleidPage() {
                 winkel werkt dan precies hetzelfde.
               </p>
               <p>
-                Wij tellen zelf hoe vaak er op &ldquo;Akkoord&rdquo; en op
-                &ldquo;Weigeren&rdquo; wordt gedrukt. Dat zijn twee tellers op
-                onze eigen server; er wordt daarbij niets over jou
-                vastgelegd.
+                Wij tellen zelf hoe vaak de vraag getoond wordt en hoe vaak
+                er op &ldquo;Akkoord&rdquo; en op &ldquo;Weigeren&rdquo;
+                wordt gedrukt. Dat zijn tellers per dag op onze eigen
+                server; er wordt daarbij niets over jou vastgelegd.
               </p>
               <p>
                 Gebruikte diensten:{" "}

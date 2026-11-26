@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { LogoMark } from "@/components/site/logo";
 import { bedrijf, bedrijfsregel } from "@/lib/bedrijf";
+import { metingActief } from "@/lib/meting";
+import { CookieInstellingenKnop } from "@/components/meting/cookie-instellingen-knop";
 
 const columns = [
   {
@@ -67,6 +69,11 @@ export function SiteFooter() {
                     </Link>
                   </li>
                 ))}
+                {col.title === "Juridisch" && metingActief && (
+                  <li>
+                    <CookieInstellingenKnop className="text-left text-kastwit/80 transition-colors hover:text-kastwit" />
+                  </li>
+                )}
               </ul>
             </nav>
           ))}

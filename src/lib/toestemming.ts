@@ -82,6 +82,27 @@ export function wisKeuze(): void {
   window.dispatchEvent(new CustomEvent(SIGNAAL, { detail: null }));
 }
 
+/** Naam van de gebeurtenis waarmee de footer het keuzepaneel opnieuw opent. */
+const OPEN_SIGNAAL = "blusbox-cookie-instellingen-openen";
+
+/**
+ * Het keuzepaneel opnieuw tonen, ook als er al gekozen is.
+ *
+ * Intrekken moet even makkelijk zijn als toestemming geven: één klik op
+ * "Cookie-instellingen" en dan dezelfde twee knoppen als de eerste keer.
+ */
+export function openCookieInstellingen(): void {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new Event(OPEN_SIGNAAL));
+}
+
+/** Luisteren naar het verzoek om het paneel opnieuw te openen. */
+export function bijOpenen(luisteraar: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener(OPEN_SIGNAAL, luisteraar);
+  return () => window.removeEventListener(OPEN_SIGNAAL, luisteraar);
+}
+
 /** Luisteren naar wijzigingen; geeft de opzegfunctie terug. */
 export function abonneer(luisteraar: (keuze: Keuze | null) => void): () => void {
   if (typeof window === "undefined") return () => {};

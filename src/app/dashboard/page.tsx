@@ -2,7 +2,7 @@ import Link from "next/link";
 import { overzichtCijfers, bestellingenLijst, teDoen } from "@/db/dashboard";
 import { Cel, Leeg, Paneel, Rij, Status, Tabel, TeDoen, Tegel } from "@/components/dashboard/ui";
 import { openContactberichten } from "@/db/contact";
-import { toestemmingOverzicht } from "@/db/toestemming";
+import { cookievraagPerDag, toestemmingOverzicht } from "@/db/toestemming";
 import { vereisDashboard } from "@/lib/sessie";
 import { magFactureren } from "@/lib/rollen";
 import { euro } from "@/lib/pricing";
@@ -25,9 +25,10 @@ export default async function DashboardOverzicht() {
     bestellingenLijst(8),
     teDoen(),
   ]);
-  const [berichten, cookies] = await Promise.all([
+  const [berichten, cookies, cookievraag] = await Promise.all([
     openContactberichten(),
     toestemmingOverzicht(30),
+    metingActief ? cookievraagPerDag(14) : Promise.resolve([]),
   ]);
 
   const enkelvoud = (n: number, een: string, meer: string) => (n === 1 ? een : meer);
@@ -158,6 +159,26 @@ export default async function DashboardOverzicht() {
           }
         />
       </div>
+
+      {metingActief && (
+        <Paneel titel="Cookievraag per dag">
+          {cookievraag.length === 0 ? (
+            <Leeg tekst="Nog niets geteld in de afgelopen 14 dagen." />
+          ) : (
+            <Tabel koppen={["Dag", "Getoond", "Akkoord", "Weigeren", "Weg zonder keuze"]}>
+              {cookievraag.map((d) => (
+                <Rij key={d.dag}>
+                  <Cel mono>{formatteerNl(d.dag)}</Cel>
+                  <Cel mono>{d.getoond > 0 ? d.getoond : "—"}</Cel>
+                  <Cel mono>{d.verleend}</Cel>
+                  <Cel mono>{d.geweigerd}</Cel>
+                  <Cel mono>{d.zonderKeuze === null ? "—" : d.zonderKeuze}</Cel>
+                </Rij>
+              ))}
+            </Tabel>
+          )}
+        </Paneel>
+      )}
 
       <Paneel
         titel="Laatste bestellingen"

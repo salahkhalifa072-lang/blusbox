@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { telToestemming } from "@/db/toestemming";
 
 /**
- * Telt een klik op "Akkoord" of "Weigeren" in de cookiebalk.
+ * Telt hoe vaak de cookievraag getoond is en hoe vaak er op "Akkoord" of
+ * "Weigeren" is gedrukt.
  *
  * Naar onze eigen server en niet naar Google of Meta: daar mag pas iets
  * heen ná toestemming, en wie weigert zou dan per definitie ongeteld
@@ -26,7 +27,7 @@ export async function POST(request: Request) {
   } catch {
     return new NextResponse(null, { status: 400 });
   }
-  if (keuze !== "verleend" && keuze !== "geweigerd") {
+  if (keuze !== "verleend" && keuze !== "geweigerd" && keuze !== "getoond") {
     return new NextResponse(null, { status: 400 });
   }
 
