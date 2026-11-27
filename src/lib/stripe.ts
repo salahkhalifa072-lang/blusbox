@@ -98,6 +98,11 @@ export async function maakCheckoutSessie(opts: {
      * te laten. Bij het live zetten is dat precies het moment waarop je er
      * last van krijgt. Laat je het veld weg, dan bepaalt het dashboard wat
      * er wordt aangeboden en verschijnt iDEAL zodra het daar aanstaat.
+     *
+     * Zo ook Klarna: aanzetten in het dashboard (Instellingen →
+     * Betaalmethoden) is genoeg. Klarna bevestigt soms pas na een tijdje;
+     * de webhook vangt dat op via checkout.session.async_payment_succeeded
+     * en zet de bestelling pas op betaald als payment_status "paid" is.
      */
     customer_email: opts.email,
     line_items: opts.regels.map((r) => ({

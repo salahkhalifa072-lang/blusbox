@@ -106,6 +106,13 @@ export default function PrivacyverklaringPage() {
           </p>
           <ul>
             <li>Stripe, voor het afhandelen van betalingen;</li>
+            <li>
+              Klarna, alleen als je bij het afrekenen voor Klarna kiest. Klarna
+              krijgt dan je naam, adres, e-mailadres en het bedrag van je
+              bestelling, en kan beoordelen of het je die betaalwijze kan
+              aanbieden. Wat Klarna daar zelf mee doet, valt onder het
+              privacybeleid van Klarna;
+            </li>
             <li>Vercel, waar de website draait;</li>
             <li>Neon, voor onze database (servers in Frankfurt);</li>
             <li>

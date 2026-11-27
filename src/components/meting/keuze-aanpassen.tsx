@@ -1,15 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { abonneer, leesKeuze, wisKeuze, type Keuze } from "@/lib/toestemming";
+import { abonneer, leesKeuze, openCookieInstellingen, type Keuze } from "@/lib/toestemming";
 
 /**
  * Je keuze terugzien en intrekken, op de cookiepagina.
  *
- * Toestemming intrekken moet even makkelijk zijn als geven. Een banner die
+ * Toestemming intrekken moet even makkelijk zijn als geven. Een vraag die
  * één keer verschijnt en daarna nooit meer, voldoet daar niet aan: wie op
- * "Akkoord" drukte zit er dan aan vast. Deze knop wist de keuze, waarna de
- * banner opnieuw verschijnt.
+ * "Akkoord" drukte zit er dan aan vast. Deze knop opent dezelfde vraag
+ * opnieuw, net als "Cookie-instellingen" in de footer.
  *
  * Wat er al geplaatst is verdwijnt hiermee niet uit de browser. Dat wordt
  * er dus ook niet beloofd — er staat bij hoe je die cookies zelf opruimt.
@@ -45,13 +45,15 @@ export function KeuzeAanpassen() {
       .{" "}
       <button
         type="button"
-        onClick={wisKeuze}
+        onClick={openCookieInstellingen}
         className="underline underline-offset-4 hover:text-staal-tekst"
       >
-        Keuze intrekken
+        Keuze wijzigen
       </button>{" "}
-      — daarna verschijnt de vraag opnieuw. Cookies die al geplaatst zijn
-      verwijder je via de instellingen van je browser.
+      — je krijgt dan weer de keuze tussen Weigeren en Akkoord; dit kan ook
+      via &ldquo;Cookie-instellingen&rdquo; onderaan elke pagina. Kies je
+      Weigeren, dan laden de scripts van Google en Meta niet meer. Cookies
+      die al geplaatst zijn verwijder je via de instellingen van je browser.
     </p>
   );
 }

@@ -182,6 +182,11 @@ export function inWinkelwagen(stap: TrechterStap): boolean {
  * Is er deze sessie nog geen "in de wagen" gemeld, dan gaat die eerst: er
  * ligt aantoonbaar iets in de wagen, alleen was er op dat moment nog geen
  * toestemming om het te melden.
+ *
+ * Komt de bezoeker hier via "Koop nu", dan ligt er ook nog het cookie van
+ * de toevoeging. Dat wordt hier eerst gemeld en gewist, en telt dan als de
+ * "in de wagen". Anders ging die stap twee keer af: één keer hier en één
+ * keer door ToevoegingMelder, die hetzelfde cookie even later las.
  */
 export function startAfrekenen(stap: TrechterStap): boolean {
   if (leesKeuze() !== "verleend") return false;
@@ -189,6 +194,7 @@ export function startAfrekenen(stap: TrechterStap): boolean {
   const handtekening = wagenHandtekening(stap);
   if (lees(SLEUTEL_AFREKENEN) === handtekening) return true;
 
+  meldToevoeging();
   if (lees(SLEUTEL_WAGEN) === null) inWinkelwagen(stap);
 
   const gemeld = meld(stap, {

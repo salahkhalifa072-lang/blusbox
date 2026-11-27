@@ -1,15 +1,15 @@
-import { gte, sql } from "drizzle-orm";
+import { desc, gte, sql } from "drizzle-orm";
 import { db } from "./index";
 import { toestemmingTellingen } from "./schema";
 
-export type Toestemmingskeuze = "verleend" | "geweigerd";
+export type Toestemmingskeuze = "verleend" | "geweigerd" | "getoond";
 
 /** Vandaag in Nederland, als JJJJ-MM-DD. */
 function vandaag(): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Amsterdam" }).format(new Date());
 }
 
-/** Eén klik bijtellen. Eén rij per dag per keuze. */
+/** Eén vertoning of klik bijtellen. Eén rij per dag per soort. */
 export async function telToestemming(keuze: Toestemmingskeuze): Promise<void> {
   await db
     .insert(toestemmingTellingen)
@@ -39,4 +39,44 @@ export async function toestemmingOverzicht(dagen = 30) {
     /** Aandeel akkoord in hele procenten, of null zolang er niets geteld is. */
     procentAkkoord: totaal > 0 ? Math.round((verleend / totaal) * 100) : null,
   };
+}
+
+export type CookievraagDag = {
+  /** JJJJ-MM-DD, Nederlandse tijd. */
+  dag: string;
+  getoond: number;
+  verleend: number;
+  geweigerd: number;
+  /**
+   * Getoond min akkoord min weigeren: weggegaan zonder te kiezen. Null op
+   * dagen zonder "getoond" (vóór 26 november 2026 werd dat niet geteld),
+   * want dan zegt het verschil niets.
+   */
+  zonderKeuze: number | null;
+};
+
+/** Per dag, nieuwste eerst: hoe vaak getoond, akkoord, geweigerd en zonder keuze. */
+export async function cookievraagPerDag(dagen = 14): Promise<CookievraagDag[]> {
+  const som = (soort: Toestemmingskeuze) =>
+    sql<number>`coalesce(sum(${toestemmingTellingen.aantal}) filter (where ${toestemmingTellingen.keuze} = ${soort}), 0)`.mapWith(Number);
+
+  const rijen = await db
+    .select({
+      dag: toestemmingTellingen.dag,
+      getoond: som("getoond"),
+      verleend: som("verleend"),
+      geweigerd: som("geweigerd"),
+    })
+    .from(toestemmingTellingen)
+    .where(gte(toestemmingTellingen.dag, sql`(current_date - ${dagen}::int)`))
+    .groupBy(toestemmingTellingen.dag)
+    .orderBy(desc(toestemmingTellingen.dag));
+
+  return rijen.map((r) => ({
+    ...r,
+    dag: String(r.dag),
+    // Nooit onder nul: een klik kan net na middernacht vallen terwijl de
+    // vertoning nog op de dag ervoor staat.
+    zonderKeuze: r.getoond > 0 ? Math.max(0, r.getoond - r.verleend - r.geweigerd) : null,
+  }));
 }

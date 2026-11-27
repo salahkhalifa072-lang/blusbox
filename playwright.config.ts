@@ -40,6 +40,28 @@ const EIGEN_URL = process.env.E2E_BASIS_URL;
 const POORT = 3101;
 const BASIS = EIGEN_URL ?? `http://localhost:${POORT}`;
 
+/**
+ * Een bezoeker die de cookievraag al beantwoord heeft (Weigeren). De vraag
+ * sluit de pagina af tot er gekozen is; zonder dit cookie zou elke test
+ * eerst op een knop moeten drukken. De vraag zelf wordt getest in
+ * cookievraag.spec.ts, met een lege browser.
+ */
+const AL_GEKOZEN = {
+  cookies: [
+    {
+      name: "blusbox-toestemming",
+      value: "geweigerd.1",
+      domain: new URL(BASIS).hostname,
+      path: "/",
+      expires: -1,
+      httpOnly: false,
+      secure: false,
+      sameSite: "Lax" as const,
+    },
+  ],
+  origins: [],
+};
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
@@ -54,12 +76,12 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: { ...devices["Desktop Chrome"], storageState: AL_GEKOZEN },
       testIgnore: /beheer\.spec\.ts|auth\.setup\.ts/,
     },
     {
       name: "mobiel",
-      use: { ...devices["Pixel 7"] },
+      use: { ...devices["Pixel 7"], storageState: AL_GEKOZEN },
       testIgnore: /beheer\.spec\.ts|auth\.setup\.ts/,
     },
     // Aparte opzet: één keer inloggen, daarna de sessie hergebruiken.

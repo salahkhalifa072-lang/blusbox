@@ -88,6 +88,53 @@ describe("startAfrekenen", () => {
   });
 });
 
+/**
+ * Een koekjestrommel die zich gedraagt als document.cookie: lezen geeft
+ * alle cookies, schrijven zet of wist er één.
+ */
+function zetTrommel(cookies: Record<string, string>) {
+  const trommel = new Map(Object.entries(cookies));
+  vi.stubGlobal("document", {
+    get cookie() {
+      return [...trommel].map(([k, v]) => `${k}=${v}`).join("; ");
+    },
+    set cookie(regel: string) {
+      const [paar, ...rest] = regel.split("; ");
+      const naam = paar.slice(0, paar.indexOf("="));
+      if (rest.some((r) => r === "Max-Age=0")) trommel.delete(naam);
+      else trommel.set(naam, paar.slice(paar.indexOf("=") + 1));
+    },
+  });
+  return trommel;
+}
+
+describe("Koop nu: toevoegen en meteen naar afrekenen", () => {
+  const koopNu = () => {
+    zetOmgeving("verleend");
+    return zetTrommel({
+      "blusbox-toestemming": "verleend.1",
+      "blusbox-toegevoegd": encodeURIComponent(JSON.stringify(stap())),
+    });
+  };
+
+  it("meldt precies één AddToCart en één InitiateCheckout als het afrekenen eerst meldt", async () => {
+    const trommel = koopNu();
+    const { meldToevoeging, startAfrekenen } = await import("./trechter");
+    startAfrekenen(stap());
+    meldToevoeging();
+    expect(gebeurtenissen()).toEqual(["AddToCart", "InitiateCheckout"]);
+    expect(trommel.has("blusbox-toegevoegd")).toBe(false);
+  });
+
+  it("meldt precies één AddToCart en één InitiateCheckout als de toevoeging eerst meldt", async () => {
+    koopNu();
+    const { meldToevoeging, startAfrekenen } = await import("./trechter");
+    meldToevoeging();
+    startAfrekenen(stap());
+    expect(gebeurtenissen()).toEqual(["AddToCart", "InitiateCheckout"]);
+  });
+});
+
 describe("wagenHandtekening", () => {
   it("hangt niet af van de volgorde van de regels", async () => {
     zetOmgeving(null);

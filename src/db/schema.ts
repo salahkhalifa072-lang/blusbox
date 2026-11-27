@@ -668,16 +668,18 @@ export const contactantwoorden = pgTable("contactantwoorden", {
 /* ------------------------------------------------- toestemmingstellers */
 
 /**
- * Hoe vaak er op "Akkoord" en op "Weigeren" is gedrukt in de cookiebalk,
- * per dag. Alleen tellers: geen IP-adres, geen cookie, niets over de
- * bezoeker. Wie weigert is voor Google en Meta onzichtbaar; dit getal
- * zegt hoe groot dat onzichtbare deel is.
+ * Hoe vaak de cookievraag getoond is ("getoond") en hoe vaak er op
+ * "Akkoord" en op "Weigeren" is gedrukt, per dag. Alleen tellers: geen
+ * IP-adres, geen cookie, niets over de bezoeker. Wie weigert is voor
+ * Google en Meta onzichtbaar; dit getal zegt hoe groot dat onzichtbare
+ * deel is, en getoond min de twee keuzes hoeveel er wegging zonder te
+ * kiezen.
  */
 export const toestemmingTellingen = pgTable(
   "toestemming_tellingen",
   {
     dag: date("dag").notNull(),
-    keuze: text("keuze").$type<"verleend" | "geweigerd">().notNull(),
+    keuze: text("keuze").$type<"verleend" | "geweigerd" | "getoond">().notNull(),
     aantal: integer("aantal").notNull().default(0),
   },
   (t) => [primaryKey({ columns: [t.dag, t.keuze] })],
